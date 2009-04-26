@@ -42,8 +42,8 @@ class Graphics:
         left, top, width, height = image.get_rect()
         xoffset = self.camera[0] % width
         yoffset = self.camera[1] % height
-        for x in range(math.ceil(SCREENSIZE[0]/width)+1):
-            for y in range(math.ceil(SCREENSIZE[1]/height)+1):
+        for x in range(int(math.ceil(SCREENSIZE[0]/width)+1)):
+            for y in range(int(math.ceil(SCREENSIZE[1]/height)+1)):
                 self.screen.blit(image, (x*width+xoffset, y*height+yoffset))
 
     def drawImage(self, image, location, angle=0):

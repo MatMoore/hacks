@@ -4,7 +4,7 @@ from constants import *
 #Read map file to determine where initial objects go
 
 class World:
-    def __init__(self, graphics):
+    def __init__(self):
         self.objects = [] #things which can be interacted with
         self.units = [] #things which can move/die
 

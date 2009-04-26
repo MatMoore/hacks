@@ -9,20 +9,24 @@
 
 import graphics
 import gameinput
+import world
 from constants import *
 
 class Game:
     def __init__(self):
         self.graphics = graphics.Graphics()
-        self.gameinput = gameinput.GameInput()
+        self.gameInput = gameinput.GameInput()
+        self.world = world.World()
         self.state = GAMESTATE_RUN
+       
+        
         
     def run(self):
         while self.state == GAMESTATE_RUN:
-            if self.gameinput.update() == False:
+            if self.gameInput.update() == False:
                 self.state = GAMESTATE_QUIT
 
-            self.graphics.drawBackground(BACKGROUNDIMAGE)
+            self.world.draw(self.graphics)
             self.graphics.flip()
 
 
