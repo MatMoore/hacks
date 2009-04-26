@@ -1,11 +1,13 @@
+from constants import *
 #TODO
 
 #Read map file to determine where initial objects go
 
 class World:
-    def __init__(self):
+    def __init__(self, graphics):
         self.objects = [] #things which can be interacted with
         self.units = [] #things which can move/die
+
 
     def select(self,rect):
         '''Try to select a group of units. Returns a list of the selected units.'''
@@ -28,6 +30,8 @@ class World:
         '''Do collision detection stuff to find out which units are visible to others. Call the interact method of each unit with a list of visible objects.'''
         pass
 
-    def draw(self,graphics):
+    def draw(self, graphics):
         '''Draw the visible part of the map onto the screen'''
+        graphics.drawBackground()
+        
         pass

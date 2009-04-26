@@ -7,7 +7,8 @@ package.
 '''
 
 import data
+import game
 
 def main():
-    print "Hello from your game's main()"
-    print data.load('sample.txt').read()
+    maingame = game.Game()
+    maingame.run()

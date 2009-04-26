@@ -1,5 +1,5 @@
 import pygame
-from pygame.locals
+from pygame.locals import *
 
 class MapObject(pygame.sprite.Sprite):
     '''Base class for all objects that are part of a map'''
