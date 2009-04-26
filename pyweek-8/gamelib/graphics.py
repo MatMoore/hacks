@@ -35,7 +35,11 @@ class Graphics:
         x = (  location[0] - self.camera[0]  ) + SCREENSIZE[0]/2
         y = (  location[1] - self.camera[1]  ) + SCREENSIZE[1]/2
         return (round(x), round(y))  
-        
+    
+    def moveCamera(self,dx,dy):
+        self.camera[0] += dx
+        self.camera[1] += dy
+
     def drawBackground(self, filename=BACKGROUNDIMAGE):
         """tiles the background image"""
         image = self.loadImage(filename)
