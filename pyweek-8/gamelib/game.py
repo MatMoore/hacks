@@ -21,10 +21,11 @@ class Game:
         self.gameInput = gameinput.GameInput()
         self.world = world.World()
         self.state = GAMESTATE_RUN
-        self.ant = units.Unit(self.graphics, (0,0),["worker1"])
+#        self.ant = units.Unit(self.graphics, (0,0),["worker1"])
         self.human = player.Player()
-        self.human.addUnit(self.ant)
-        self.world.addUnit(self.ant)
+        unit = self.human.buyUnit("Unit",self.graphics)
+        if unit:
+            self.world.addUnit(unit)
         
         
     def run(self):

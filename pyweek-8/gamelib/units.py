@@ -13,6 +13,8 @@ import mapobject
 
 class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
+    price = 0
+
     def __init__(self, graphics, position, animations):
         self.position = position
         self.action = None
