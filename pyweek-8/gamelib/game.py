@@ -7,6 +7,7 @@
 
 #menus
 
+import pygame
 import graphics
 import gameinput
 import world
@@ -22,8 +23,12 @@ class Game:
         
         
     def run(self):
+        newtime = pygame.time.get_ticks()
         while self.state == GAMESTATE_RUN:
-            if self.gameInput.update() == False:
+            oldtime = newtime
+            newtime = pygame.time.get_ticks()
+            dt = (newtime - oldtime)/1000.0
+            if self.gameInput.update(self.graphics, dt) == False:
                 self.state = GAMESTATE_QUIT
 
             self.world.draw(self.graphics)

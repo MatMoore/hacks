@@ -42,9 +42,9 @@ class Graphics:
         left, top, width, height = image.get_rect()
         xoffset = self.camera[0] % width
         yoffset = self.camera[1] % height
-        for x in range(int(math.ceil(SCREENSIZE[0]/width)+1)):
-            for y in range(int(math.ceil(SCREENSIZE[1]/height)+1)):
-                self.screen.blit(image, (x*width+xoffset, y*height+yoffset))
+        for x in range(-1, int(math.ceil(SCREENSIZE[0]/width)+2)):
+            for y in range(int(math.ceil(SCREENSIZE[1]/height)+2)):
+                self.screen.blit(image, (x*width-xoffset, y*height-yoffset))
 
     def drawImage(self, image, location, angle=0):
         """draw it on the screen if it's visible"""
