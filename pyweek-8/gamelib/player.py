@@ -47,6 +47,7 @@ class Player:
                 if location[0] > unit.rect[0]-unit.rect[2]/2 and location[0] < unit.rect[0] + unit.rect[2]/2 \
                 and location[1] > unit.rect[1]-unit.rect[3]/2 and location[1] < unit.rect[1] + unit.rect[3]/2:
                     self.selectedUnits.add(unit)
+                    break
     
     def doMoveAttack(self, location):
         for unit in self.selectedUnits:

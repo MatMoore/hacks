@@ -20,9 +20,10 @@ class Game:
         self.world = world.World()
         self.state = GAMESTATE_RUN
         self.human = player.Player()
-        unit = self.human.buyUnit("Unit",self.graphics)
-        if unit:
-            self.world.addUnit(unit)
+        for i in range(3):
+            unit = self.human.buyUnit("Unit",self.graphics)
+            if unit:
+                self.world.addUnit(unit)
             
         self.clickLoc = None    #stores location of click
         self.dragRect = None    #stores dragged rectangle
@@ -39,12 +40,12 @@ class Game:
             
             if event.type == MOUSEBUTTONUP:
                 if self.dragRect == None:
-                    if event.button == 1: #left click
+                    if event.button == 1 and self.clickLoc: #left click
                         self.human.doSelect(self.clickLoc)
-                    elif event.button == 3: #right click
+                    elif event.button == 3 and self.clickLoc: #right click
                         self.human.doMoveAttack(self.clickLoc)
                 else:
-                    if event.button == 1: #left drag
+                    if event.button == 1 and self.dragRect: #left drag
                         self.human.doSelect(self.dragRect)
                 self.clickLoc = None
                 self.dragRect = None
