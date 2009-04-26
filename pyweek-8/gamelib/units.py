@@ -32,10 +32,11 @@ class Unit(mapobject.MapObject):
     def isDead(self):
         return self.health <= 0
 
-    def move(self,dt):
-    
+    def update(self,dt):
+        #continue animation    
         self.surface = self.currentanimation.update(dt)
-        '''If they are walking towards something keep moving'''
+
+        #keep moving if walking towards something
         if self.target:
             #work out direction
             #update position

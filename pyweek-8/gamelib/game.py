@@ -12,6 +12,7 @@ import graphics
 import gameinput
 import world
 import units
+import player
 from constants import *
 
 class Game:
@@ -21,6 +22,9 @@ class Game:
         self.world = world.World()
         self.state = GAMESTATE_RUN
         self.ant = units.Unit(self.graphics, (0,0),["worker1"])
+        self.human = player.Player()
+        self.human.addUnit(self.ant)
+        self.world.addUnit(self.ant)
         
         
     def run(self):
@@ -32,9 +36,10 @@ class Game:
             if self.gameInput.update(self.graphics, dt) == False:
                 self.state = GAMESTATE_QUIT
             
-            self.ant.move(dt)
+            self.world.update(dt)
+#            self.ant.update(dt)
             self.world.draw(self.graphics)
-            self.ant.draw(self.graphics)
+#            self.ant.draw(self.graphics)
             self.graphics.flip()
 
 

@@ -10,5 +10,5 @@ class MapObject(pygame.sprite.Sprite):
         self.rect = pygame.Rect(position,surface.get_size())
 
     def draw(self,graphics):
-        '''Draw the object if it is visible'''
+        '''Override draw method so that we can use world coordinates instead of camera ones'''
         graphics.drawImage(self.surface, self.rect, angle=0)
