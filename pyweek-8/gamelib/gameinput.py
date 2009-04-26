@@ -8,13 +8,16 @@ from constants import *
 
 class GameInput:
     def __init__(self):
-        pass
+       #pygame.event.set_grab(1)
+       pass
     
     def update(self, graphics, dt):
         for event in pygame.event.get():
             if event.type == QUIT:
                 return False
-                
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    return False
         #TODO: make this better/neater!
         x, y = pygame.mouse.get_pos()
         dx,dy = (0,0)
