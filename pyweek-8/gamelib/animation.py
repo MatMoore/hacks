@@ -8,7 +8,7 @@ class animation:
         files = os.listdir(data.filepath('images/'animationname+'/');
         files.sort()
         for frameNum in files:
-            self.images.append(graphics.loadImage(animationname+'/'+frameNum)
+            self.images.append(graphics.loadImage(animationname+'/'+frameNum+extension)
 
         self.framenum = 0
         self.accumulator = 0.0
