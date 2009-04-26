@@ -15,19 +15,19 @@ class GameInput:
             if event.type == QUIT:
                 return False
                 
+        #TODO: make this better/neater!
         x, y = pygame.mouse.get_pos()
-        self.scroll(x,y)
-            
-        return True
-
-    def scroll(self):
+        dx,dy = (0,0)
         if x < SCROLLWIDTH:
             dx = - SCROLLSPEED*dt
-        else if x > (SCREENSIZE[0]-SCROLLWIDTH):
+        elif x > (SCREENSIZE[0]-SCROLLWIDTH):
             dx = SCROLLSPEED*dt
         if y < SCROLLWIDTH:
             dy = -SCROLLSPEED*dt
-        else if y > (SCREENSIZE[1]-SCROLLWIDTH):
+        elif y > (SCREENSIZE[1]-SCROLLWIDTH):
             dy = SCROLLSPEED*dt
         if dx or dy:
             graphics.moveCamera(dx,dy)
+            
+        return True
+
