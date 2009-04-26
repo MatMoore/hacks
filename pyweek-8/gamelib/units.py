@@ -13,6 +13,7 @@ class Unit(MapObject):
     """Base class for units (anything which can move)"""
     def __init__(self,surface,position):
         MapObject.__init__(self)
+        self.position = position
         self.action = None
         self.health = 100
         self.speed = 10
@@ -26,6 +27,9 @@ class Unit(MapObject):
     def move(self,dt):
         '''If they are walking towards something keep moving'''
         if self.target:
+            #work out direction
+            #update position
+            #update rect
             pass
 
         #if target is in range, stop and attack
