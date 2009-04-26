@@ -1,5 +1,6 @@
 import os
 import data
+import constants
 
 class animation:
     def __init__(self, graphics, animationname, extension='.png'):
