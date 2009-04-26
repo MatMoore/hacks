@@ -39,14 +39,18 @@ class Game:
             
             if event.type == MOUSEBUTTONUP:
                 if self.dragRect == None:
-                    #it was a click do click event stuff here
-                    pass
+                    if event.button == 1: #left click
+                        pass
+                    elif event.button == 3: #right click
+                        pass
                 else:
-                    #it was a drag do drag event stuff here
-                    pass
+                    if event.button == 1: #left drag
+                        pass
                 self.clickLoc = None
                 self.dragRect = None
         
+        
+        #This bit makes the drag rectangle
         if self.clickLoc != None:   #if we're clicking
             loc = self.graphics.calcWorldPos(pygame.mouse.get_pos())
             #check if we've moved more than DRAGDISTANCE pixels in either direction

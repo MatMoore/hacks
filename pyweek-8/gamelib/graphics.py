@@ -75,7 +75,9 @@ class Graphics:
                 drawImage = pygame.transform.rotate(image, angle)
             else:
                 drawImage = image
-            self.screen.blit(drawImage, screenPos)
+            size = drawImage.get_rect() #because the rotate might have changed it
+            loc = (screenPos[0]-size[2]/2, screenPos[1] - size[3]/2)
+            self.screen.blit(drawImage, loc)
     
     def drawRect(self, rect, color=DRAGRECTCOLOR, width=2):
         screenrect = (self.calcScreenPos((rect[0],rect[1])), (rect[2], rect[3]))

@@ -30,7 +30,9 @@ class Unit(mapobject.MapObject):
         
         self.currentanimation = self.animations[animations[0]]  #set us to the first animation
         mapobject.MapObject.__init__(self, self.currentanimation.reset(), position) #init the base class with the first frame of the animation
-
+        self.direction = 100
+        
+        
     def isDead(self):
         return self.health <= 0
 

@@ -25,3 +25,11 @@ class Player:
             unit = unitClass(graphics,(0,0),["worker1"]) #TODO, make classes for each unit and give them their own animations
             self.units.add(unit)
             return unit
+            
+    def doSelect(self, location, button):
+        if location.__class__ == pygame.rect.Rect:  #if it's a drag
+            #do drag stuff
+            pass
+        else:
+            #it was a click
+            pass

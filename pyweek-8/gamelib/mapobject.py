@@ -8,7 +8,8 @@ class MapObject(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.surface = surface
         self.rect = pygame.Rect(position,surface.get_size())
+        self.direction = 0
 
     def draw(self,graphics):
         '''Override draw method so that we can use world coordinates instead of camera ones'''
-        graphics.drawImage(self.surface, self.rect, angle=0)
+        graphics.drawImage(self.surface, self.rect, round(self.direction))
