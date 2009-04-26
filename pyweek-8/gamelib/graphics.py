@@ -57,7 +57,7 @@ class Graphics:
             worldloc = location
         
         size = image.get_rect()
-        screenPos = self.calcScreenPos(loc)
+        screenPos = self.calcScreenPos(worldloc)
         
         #make sure it's gonna go on the screen before rotating and blitting it
         if screenPos[0] > 0-size[2] and \

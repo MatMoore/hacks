@@ -11,6 +11,7 @@ import pygame
 import graphics
 import gameinput
 import world
+import units
 from constants import *
 
 class Game:
@@ -19,7 +20,7 @@ class Game:
         self.gameInput = gameinput.GameInput()
         self.world = world.World()
         self.state = GAMESTATE_RUN
-       
+        self.ant = units.Unit(self.graphics, (0,0),["worker1"])
         
         
     def run(self):
@@ -30,8 +31,10 @@ class Game:
             dt = (newtime - oldtime)/1000.0
             if self.gameInput.update(self.graphics, dt) == False:
                 self.state = GAMESTATE_QUIT
-
+            
+            self.ant.move(dt)
             self.world.draw(self.graphics)
+            self.ant.draw(self.graphics)
             self.graphics.flip()
 
 

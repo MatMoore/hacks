@@ -8,11 +8,12 @@
 #need an interact method which takes a list of visible stuff, and the unit changes its state as appropriate
 
 import pygame
+import animation
+import mapobject
 
-class Unit(MapObject):
+class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
-    def __init__(self,surface,position):
-        MapObject.__init__(self)
+    def __init__(self, graphics, position, animations):
         self.position = position
         self.action = None
         self.health = 100
@@ -20,11 +21,20 @@ class Unit(MapObject):
         self.target = None #walk target
         self.attackTarget = None
         self.attackRate = 1
+        self.animations = dict()
+        
+        for anim in animations:
+            self.animations[anim] = animation.Animation(graphics, anim)
+        
+        self.currentanimation = self.animations[animations[0]]  #set us to the first animation
+        mapobject.MapObject.__init__(self, self.currentanimation.reset(), position) #init the base class with the first frame of the animation
 
     def isDead(self):
         return self.health <= 0
 
     def move(self,dt):
+    
+        self.surface = self.currentanimation.update(dt)
         '''If they are walking towards something keep moving'''
         if self.target:
             #work out direction
@@ -39,3 +49,8 @@ class Unit(MapObject):
 
     def walkTo(self,position):
         pass
+        
+    def setAnimation(self, animation):
+        if animation in self.animations:
+            self.currentanimation = self.animations[animation]
+            self.surface = self.currentanimation.reset()    #set the animation back to frame 0

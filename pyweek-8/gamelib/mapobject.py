@@ -7,7 +7,7 @@ class MapObject(pygame.sprite.Sprite):
         '''Surface = image to use, position = top left coordinates'''
         pygame.sprite.Sprite.__init__(self)
         self.surface = surface
-        self.rect = pygame.Rect(position,surface.get_size)
+        self.rect = pygame.Rect(position,surface.get_size())
 
     def draw(self,graphics):
         '''Draw the object if it is visible'''
