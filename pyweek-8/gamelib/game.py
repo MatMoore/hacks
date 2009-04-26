@@ -8,25 +8,45 @@
 #menus
 
 import pygame
+from pygame.locals import *
 import graphics
-import gameinput
 import world
-import units
 import player
 from constants import *
 
 class Game:
     def __init__(self):
         self.graphics = graphics.Graphics()
-        self.gameInput = gameinput.GameInput()
         self.world = world.World()
         self.state = GAMESTATE_RUN
-#        self.ant = units.Unit(self.graphics, (0,0),["worker1"])
         self.human = player.Player()
         unit = self.human.buyUnit("Unit",self.graphics)
         if unit:
             self.world.addUnit(unit)
         
+    def doInputEvents(self):
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                return False
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    return False
+        return True
+    
+    def doScroll(self, dt):
+        x, y = pygame.mouse.get_pos()
+        dx,dy = (0,0)
+        if x < SCROLLWIDTH:
+            dx = - SCROLLSPEED*dt
+        elif x > (SCREENSIZE[0]-SCROLLWIDTH):
+            dx = SCROLLSPEED*dt
+        if y < SCROLLWIDTH:
+            dy = -SCROLLSPEED*dt
+        elif y > (SCREENSIZE[1]-SCROLLWIDTH):
+            dy = SCROLLSPEED*dt
+        if dx or dy:
+            self.graphics.moveCamera(dx,dy)
+
         
     def run(self):
         newtime = pygame.time.get_ticks()
@@ -34,13 +54,14 @@ class Game:
             oldtime = newtime
             newtime = pygame.time.get_ticks()
             dt = (newtime - oldtime)/1000.0
-            if self.gameInput.update(self.graphics, dt) == False:
-                self.state = GAMESTATE_QUIT
+
+            self.doScroll(dt)
             
+            if self.doInputEvents() == False:
+                self.state = GAMESTATE_QUIT
+                            
             self.world.update(dt)
-#            self.ant.update(dt)
             self.world.draw(self.graphics)
-#            self.ant.draw(self.graphics)
             self.graphics.flip()
 
 
