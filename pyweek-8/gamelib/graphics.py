@@ -72,7 +72,7 @@ class Graphics:
             screenPos[1] < SCREENSIZE[1]+size[3]:
             
             if angle <> 0:
-                drawImage = pygame.transform.rotate(image, angle)
+                drawImage = pygame.transform.rotozoom(image, 360-angle, 1)
             else:
                 drawImage = image
             size = drawImage.get_rect() #because the rotate might have changed it
