@@ -3,13 +3,14 @@ import data
 from constants import *
 
 class Animation:
-    def __init__(self, graphics, animationname):
+    def __init__(self, graphics, animationname, extension=".png"):
         self.images = []
         
         files = os.listdir(data.filepath('images/'+animationname+'/'))
         files.sort()
         for filename in files:
-            self.images.append(graphics.loadImage(animationname+'/'+filename))
+            if extension in filename:
+                self.images.append(graphics.loadImage(animationname+'/'+filename))
 
         self.framenum = 0
         self.accumulator = 0.0
