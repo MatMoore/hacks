@@ -33,5 +33,3 @@ class World:
     def draw(self, graphics):
         '''Draw the visible part of the map onto the screen'''
         graphics.drawBackground()
-        
-        pass

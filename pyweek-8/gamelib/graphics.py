@@ -56,7 +56,7 @@ class Graphics:
         size = image.get_rect()
         screenPos = self.calcScreenPos(loc)
         
-        #make sure it's gonna go on the screen before blitting it
+        #make sure it's gonna go on the screen before rotating and blitting it
         if screenPos[0] > 0-size[2] and \
             screenPos[0] < SCREENSIZE[0]+size[2] and \
             screenPos[1] > 0-size[3] and \
