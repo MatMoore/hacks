@@ -35,14 +35,8 @@ class Game:
                 if event.key == K_ESCAPE:
                     return False
             if event.type == MOUSEBUTTONDOWN:
-                self.clickLoc = pygame.mouse.get_pos()
+                self.clickLoc = self.graphics.calcWorldPos(pygame.mouse.get_pos())
             
-            if event.type == MOUSEMOTION:
-                if self.clickLoc != None:
-                    loc = pygame.mouse.get_pos()
-                    if (self.dragRect != None) or (abs(self.clickLoc[0] - loc[0]) > DRAGDISTANCE) or (abs(self.clickLoc[1] - loc[1]) > DRAGDISTANCE):
-                        self.dragRect = (self.clickLoc[0],self.clickLoc[1],loc[0]-self.clickLoc[0], loc[1]-self.clickLoc[1])
-
             if event.type == MOUSEBUTTONUP:
                 if self.dragRect == None:
                     #it was a click
@@ -52,6 +46,12 @@ class Game:
                     pass
                 self.clickLoc = None
                 self.dragRect = None
+        
+        if self.clickLoc != None:
+            loc = self.graphics.calcWorldPos(pygame.mouse.get_pos())
+            if (self.dragRect != None) or (abs(self.clickLoc[0] - loc[0]) > DRAGDISTANCE) or (abs(self.clickLoc[1] - loc[1]) > DRAGDISTANCE):
+                self.dragRect = (self.clickLoc[0],self.clickLoc[1],loc[0]-self.clickLoc[0], loc[1]-self.clickLoc[1])
+
         return True
     
     def doScroll(self, dt):

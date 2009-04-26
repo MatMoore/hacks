@@ -34,8 +34,14 @@ class Graphics:
         """given a world location, calculate the position on screen"""
         x = (  location[0] - self.camera[0]  ) + SCREENSIZE[0]/2
         y = (  location[1] - self.camera[1]  ) + SCREENSIZE[1]/2
-        return (round(x), round(y))  
+        return (round(x), round(y))
     
+    def calcWorldPos(self, location):
+        """given a screen location, calculate the current world location"""
+        x = location[0] - SCREENSIZE[0]/2 + self.camera[0]
+        y = location[1] - SCREENSIZE[1]/2 + self.camera[1]    
+        return (x,y)
+        
     def moveCamera(self,dx,dy):
         self.camera = (self.camera[0]+dx,self.camera[1]+dy)
 
@@ -72,7 +78,8 @@ class Graphics:
             self.screen.blit(drawImage, screenPos)
     
     def drawRect(self, rect, color=DRAGRECTCOLOR, width=2):
-        pygame.draw.rect(self.screen, color, rect, width)
+        screenrect = (self.calcScreenPos((rect[0],rect[1])), (rect[2], rect[3]))
+        pygame.draw.rect(self.screen, color, screenrect, width)
     
     def __del__(self):
         pygame.quit()
