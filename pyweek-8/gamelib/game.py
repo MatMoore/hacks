@@ -23,6 +23,9 @@ class Game:
         unit = self.human.buyUnit("Unit",self.graphics)
         if unit:
             self.world.addUnit(unit)
+            
+        self.clickLoc = None    #stores location of click
+        self.dragRect = None    #stores dragged rectangle
         
     def doInputEvents(self):
         for event in pygame.event.get():
@@ -31,6 +34,24 @@ class Game:
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     return False
+            if event.type == MOUSEBUTTONDOWN:
+                self.clickLoc = pygame.mouse.get_pos()
+            
+            if event.type == MOUSEMOTION:
+                if self.clickLoc != None:
+                    loc = pygame.mouse.get_pos()
+                    if (self.dragRect != None) or (abs(self.clickLoc[0] - loc[0]) > DRAGDISTANCE) or (abs(self.clickLoc[1] - loc[1]) > DRAGDISTANCE):
+                        self.dragRect = (self.clickLoc[0],self.clickLoc[1],loc[0]-self.clickLoc[0], loc[1]-self.clickLoc[1])
+
+            if event.type == MOUSEBUTTONUP:
+                if self.dragRect == None:
+                    #it was a click
+                    pass
+                else:
+                    #it was a drag
+                    pass
+                self.clickLoc = None
+                self.dragRect = None
         return True
     
     def doScroll(self, dt):
@@ -62,6 +83,8 @@ class Game:
                             
             self.world.update(dt)
             self.world.draw(self.graphics)
+            if self.dragRect != None:
+                self.graphics.drawRect(self.dragRect)
             self.graphics.flip()
 
 

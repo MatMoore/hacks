@@ -6,3 +6,5 @@ GAMESTATE_QUIT = 2
 SCROLLSPEED = 100 #100 pixels per second
 SCROLLWIDTH = 30 #width of border that makes it scroll
 FRAMERATE = 15  #frame rate of all animations
+DRAGDISTANCE = 4 #distance required to move mouse before it becomes a drag instead of a click
+DRAGRECTCOLOR = 0,0,255

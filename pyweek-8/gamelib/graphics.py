@@ -70,7 +70,10 @@ class Graphics:
             else:
                 drawImage = image
             self.screen.blit(drawImage, screenPos)
-        
+    
+    def drawRect(self, rect, color=DRAGRECTCOLOR, width=2):
+        pygame.draw.rect(self.screen, color, rect, width)
+    
     def __del__(self):
         pygame.quit()
 
