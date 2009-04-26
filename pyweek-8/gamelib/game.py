@@ -40,12 +40,12 @@ class Game:
             if event.type == MOUSEBUTTONUP:
                 if self.dragRect == None:
                     if event.button == 1: #left click
-                        pass
+                        self.human.doSelect(self.clickLoc)
                     elif event.button == 3: #right click
-                        pass
+                        self.human.doMoveAttack(self.clickLoc)
                 else:
                     if event.button == 1: #left drag
-                        pass
+                        self.human.doSelect(self.dragRect)
                 self.clickLoc = None
                 self.dragRect = None
         
@@ -90,6 +90,7 @@ class Game:
             self.world.draw(self.graphics)
             if self.dragRect != None:
                 self.graphics.drawRect(self.dragRect)
+            self.human.drawSelectedRects(self.graphics)
             self.graphics.flip()
 
 

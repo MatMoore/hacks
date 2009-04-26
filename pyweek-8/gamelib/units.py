@@ -6,11 +6,11 @@
 #and a state (what they are currently doing)
 
 #need an interact method which takes a list of visible stuff, and the unit changes its state as appropriate
-
+import math
 import pygame
 import animation
 import mapobject
-
+from constants import *
 class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
     price = 0
@@ -19,7 +19,7 @@ class Unit(mapobject.MapObject):
         self.position = position
         self.action = None
         self.health = 100
-        self.speed = 10
+        self.speed = 25
         self.target = None #walk target
         self.attackTarget = None
         self.attackRate = 1
@@ -42,10 +42,39 @@ class Unit(mapobject.MapObject):
 
         #keep moving if walking towards something
         if self.target:
-            #work out direction
-            #update position
-            #update rect
-            pass
+        
+            #calculate desired heading
+            desiredDirection = math.atan2(self.target[1]-self.position[1], self.target[0]-self.position[0])
+            desiredDirection = desiredDirection * 180/math.pi + 90
+            if desiredDirection < 0:
+                desiredDirection += 360
+            #now correct for the discontinuity(360 == 0) so we can turn left or right correctly
+            while abs(self.direction - desiredDirection) > 180:
+                if self.direction < desiredDirection:
+                    desiredDirection -= 360
+                elif self.direction > desiredDirection:
+                    desiredDirection += 360
+
+            if desiredDirection < self.direction:
+                self.direction -= TURNSPEED * dt    #turn left
+            elif desiredDirection > self.direction:
+                self.direction += TURNSPEED * dt    #turn right
+            
+            if abs(self.direction - desiredDirection) < TURNSPEED*dt:
+                self.direction = desiredDirection
+            
+            if self.direction > 360:
+                self.direction -= 360
+            elif self.direction < 0:
+                self.direction += 360
+
+            #update position and rect(i.e. Move him)
+            dx = math.cos((self.direction-90)*math.pi/float(180))*self.speed*dt
+            dy = math.sin((self.direction-90)*math.pi/float(180))*self.speed*dt
+            self.position = (self.position[0]+dx, self.position[1]+dy)
+            self.rect.left = self.position[0]
+            self.rect.top = self.position[1]
+
 
         #if target is in range, stop and attack
 
@@ -53,7 +82,7 @@ class Unit(mapobject.MapObject):
         pass
 
     def walkTo(self,position):
-        pass
+        self.target = position
         
     def setAnimation(self, animation):
         if animation in self.animations:

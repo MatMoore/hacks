@@ -12,4 +12,6 @@ class MapObject(pygame.sprite.Sprite):
 
     def draw(self,graphics):
         '''Override draw method so that we can use world coordinates instead of camera ones'''
-        graphics.drawImage(self.surface, self.rect, round(self.direction))
+        
+        self.rect = graphics.drawImage(self.surface, self.rect, round(self.direction))
+        #we update the self.rect because the angle will change the rectangle shape
