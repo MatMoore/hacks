@@ -25,8 +25,7 @@ class World:
 
     def getUnit(self,location):
         for unit in self.units:
-            if location[0] > unit.rect[0]-unit.rect[2]/2 and location[0] < unit.rect[0] + unit.rect[2]/2 \
-                and location[1] > unit.rect[1]-unit.rect[3]/2 and location[1] < unit.rect[1] + unit.rect[3]/2:
+            if unit.rect.collidepoint(location):
                 return unit
 
     def removeDeadUnits(self):

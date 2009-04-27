@@ -39,13 +39,11 @@ class Player:
                 
             for unit in self.units:                 #go through each unit
                                                     #see if it's in the rect
-                if unit.position[0] > location.left and unit.position[0] < location.right \
-                and unit.position[1] > location.top and unit.position[1] < location.bottom:
+                if location.collidepoint(unit.position):
                     self.selectedUnits.add(unit)
         else:
             for unit in self.units:
-                if location[0] > unit.rect.left and location[0] < unit.rect.right \
-                and location[1] > unit.rect.top and location[1] < unit.rect.bottom:
+                if unit.rect.collidepoint(location):
                     self.selectedUnits.add(unit)
                     break
     

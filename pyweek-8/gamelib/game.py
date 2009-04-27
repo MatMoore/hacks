@@ -58,7 +58,7 @@ class Input:
             loc = graphics.calcWorldPos(pygame.mouse.get_pos())
             #check if we've moved more than DRAGDISTANCE pixels in either direction
             if (self.dragRect != None) or (abs(self.clickLoc[0] - loc[0]) > DRAGDISTANCE) or (abs(self.clickLoc[1] - loc[1]) > DRAGDISTANCE):
-                self.dragRect = (self.clickLoc[0],self.clickLoc[1],loc[0]-self.clickLoc[0], loc[1]-self.clickLoc[1])
+                self.dragRect = pygame.Rect(self.clickLoc[0],self.clickLoc[1],loc[0]-self.clickLoc[0], loc[1]-self.clickLoc[1])
 
         return True
     
