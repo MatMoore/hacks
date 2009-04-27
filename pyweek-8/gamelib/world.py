@@ -1,5 +1,6 @@
 from constants import *
 import pygame
+import math
 #TODO
 
 #Read map file to determine where initial objects go
@@ -38,6 +39,37 @@ class World:
         '''Update the map. Update the objects animations and do collision detection stuff to find out which units are visible to others. Call the interact method of each unit with a list of visible objects.'''
         self.objects.update(dt)
         self.removeDeadUnits()
+        grid = dict()
+        
+        #first pass: put each object into grid
+        for obj in self.objects:
+            gridX = int(math.floor(obj.position[0] / GRIDSIZE))
+            gridY = int(math.floor(obj.position[1] / GRIDSIZE))
+
+            if (gridX,gridY) not in grid:
+                grid[(gridX,gridY)] = []
+
+            grid[(gridX,gridY)].append(obj)
+        
+        #second pass - go through dictionary
+        for key in grid.keys():
+            localObjects = []
+            for x in range(key[0]-1, key[0]+2):
+                for y in range(key[1]-1, key[1]+2):
+                    if (x,y) in grid:
+                        for obj in grid[(x,y)]:
+                            localObjects.append(obj)
+            
+            for obj in grid[key]:
+                try:                            #because the object might not implement interact, we check if it exists by
+                    getattr(obj, "interact")    #attempting to get the attributes
+                except AttributeError:
+                    pass
+                else:
+                    obj.interact(localObjects)
+                            
+
+                
 
     def draw(self, graphics):
         '''Draw the visible part of the map onto the screen'''
