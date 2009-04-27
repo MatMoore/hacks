@@ -52,6 +52,10 @@ class Player:
     def doMoveAttack(self, location):
         for unit in self.selectedUnits:
             unit.walkTo(location)
+
+    def doAttack(self,enemy):
+        for unit in self.selectedUnits:
+            unit.attack(enemy)
             
     def drawSelectedRects(self, graphics):
         for unit in self.selectedUnits:

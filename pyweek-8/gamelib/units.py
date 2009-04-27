@@ -10,6 +10,7 @@ import math
 import pygame
 import animation
 import mapobject
+import stuff
 from constants import *
 class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
@@ -17,13 +18,15 @@ class Unit(mapobject.MapObject):
 
     def __init__(self, graphics, position, animations):
         self.position = position
-        self.action = None
         self.health = 100
         self.speed = 25
         self.target = None #walk target
-        self.attackTarget = None
-        self.attackRate = 1
+        self.attackTarget = pygame.sprite.Group()
+        self.attackTime = 1000 #in ms
+        self.attackRange = 20
+        self.attackPower = 20
         self.animations = dict()
+        self.attackTimer = stuff.Timer(self.attackTime)
         
         for anim in animations:
             self.animations[anim] = animation.Animation(graphics, anim)
@@ -39,6 +42,19 @@ class Unit(mapobject.MapObject):
     def update(self,dt):
         #continue animation    
         self.surface = self.currentanimation.update(dt)
+
+        #attack stuff
+        if self.attackTarget.sprites(): #there are targets
+            enemy = (self.attackTarget.sprites())[0]
+            distance = math.sqrt(float((enemy.position[0]-self.position[0])**2+(enemy.position[1]-self.position[1])**2))
+            if distance < self.attackRange:
+                #TODO: make attack animation
+                #attack enemy
+                if self.attackTimer.ready():
+                    self.bite(enemy)
+                self.target = None
+            else:
+                self.target=enemy.position
 
         #keep moving if walking towards something
         if self.target:
@@ -87,10 +103,13 @@ class Unit(mapobject.MapObject):
         #if target is in range, stop and attack
 
     def attack(self,unit):
-        pass
+        self.attackTarget.add(unit)
 
     def walkTo(self,position):
         self.target = position
+
+    def bite(self,unit):
+        unit.health -= self.attackPower #TODO give the units a "defense" stat which reduces the strength of the attack by some factor
         
     def setAnimation(self, animation):
         if animation in self.animations:

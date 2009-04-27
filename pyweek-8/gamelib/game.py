@@ -73,6 +73,12 @@ class Game:
             unit = self.human.buyUnit("Unit",self.graphics)
             if unit:
                 self.world.addUnit(unit)
+
+        self.AIPlayers = [player.Player()] #ai does nothing yet
+        for i in range(3):
+            unit = self.AIPlayers[0].buyUnit("Unit",self.graphics)
+            if unit:
+                self.world.addUnit(unit)
             
         self.input = Input()
         self.input.onClick(self.leftClick)
@@ -86,7 +92,11 @@ class Game:
         self.human.doSelect(pos)
 
     def rightClick(self,pos):
-        self.human.doMoveAttack(pos)
+        target = self.world.getUnit(pos)
+        if target:
+            self.human.doAttack(target) #TODO: check if target belongs to the player group, if so, don't attack
+        else:
+            self.human.doMoveAttack(pos)
 
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()
