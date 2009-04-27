@@ -103,10 +103,12 @@ class Unit(mapobject.MapObject):
         #if target is in range, stop and attack
 
     def attack(self,unit):
+        self.attackTarget.empty()
         self.attackTarget.add(unit)
 
     def walkTo(self,position):
         self.target = position
+        self.attackTarget.empty() #get rid of our attack targets
 
     def bite(self,unit):
         unit.health -= self.attackPower #TODO give the units a "defense" stat which reduces the strength of the attack by some factor

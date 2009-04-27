@@ -93,10 +93,10 @@ class Game:
 
     def rightClick(self,pos):
         target = self.world.getUnit(pos)
-        if target:
-            self.human.doAttack(target) #TODO: check if target belongs to the player group, if so, don't attack
+        if target and self.human.isUnit(target) == False:
+            self.human.doAttack(target)
         else:
-            self.human.doMoveAttack(pos)
+            self.human.doMove(pos)
 
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()

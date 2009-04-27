@@ -27,6 +27,9 @@ class Player:
             self.units.add(unit)
             return unit
             
+    def isUnit(self, unit):
+        return self.units.has(unit)
+            
     def doSelect(self, location):
         self.selectedUnits.empty()
         if len(location) == 4:  #if it's a drag
@@ -47,7 +50,7 @@ class Player:
                     self.selectedUnits.add(unit)
                     break
     
-    def doMoveAttack(self, location):
+    def doMove(self, location):
         for unit in self.selectedUnits:
             unit.walkTo(location)
 
