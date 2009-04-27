@@ -43,8 +43,10 @@ class World:
         
         #first pass: put each object into grid
         for obj in self.objects:
-            gridX = int(math.floor(obj.position[0] / GRIDSIZE))
-            gridY = int(math.floor(obj.position[1] / GRIDSIZE))
+#            gridX = int(math.floor(obj.position[0] / GRIDSIZE))
+#            gridY = int(math.floor(obj.position[1] / GRIDSIZE))
+            gridX = obj.rect.centerx / GRIDSIZE #only units have position, but all sprites have a rect + we don't need the accuracy here
+            gridY = obj.rect.centery / GRIDSIZE
 
             if (gridX,gridY) not in grid:
                 grid[(gridX,gridY)] = pygame.sprite.Group()

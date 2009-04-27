@@ -3,6 +3,7 @@ from pygame.locals import *
 import graphics
 import world
 import player
+import mapobject
 from constants import *
 
 class Input:
@@ -81,6 +82,7 @@ class Game:
         #    if unit:
         #        self.world.addUnit(unit)
             
+        self.world.addObject(mapobject.Leaves((100,100),self.graphics)) #this should probably go in world but it needs graphics garghghah
         self.input = Input()
         self.input.onClick(self.leftClick)
         self.input.onRightClick(self.rightClick)

@@ -16,3 +16,12 @@ class MapObject(pygame.sprite.Sprite):
         
         self.rect = graphics.drawImage(self.surface, self.rect, round(self.direction))
         #we update the self.rect because the angle will change the rectangle shape
+
+class Leaves(MapObject):
+    '''Resource for the worker ants to collect'''
+
+    imageName = 'pileofleaves.png'
+    def __init__(self,position,graphics):
+        surface = graphics.loadImage(Leaves.imageName)
+        MapObject.__init__(self,surface,position)
+
