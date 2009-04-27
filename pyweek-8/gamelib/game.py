@@ -74,11 +74,11 @@ class Game:
             if unit:
                 self.world.addUnit(unit)
 
-        self.AIPlayers = [player.Player()] #ai does nothing yet
-        for i in range(3):
-            unit = self.AIPlayers[0].buyUnit("Unit",self.graphics)
-            if unit:
-                self.world.addUnit(unit)
+        #self.AIPlayers = [player.Player()] #ai does nothing yet
+        #for i in range(3):
+        #    unit = self.AIPlayers[0].buyUnit("Unit",self.graphics)
+        #    if unit:
+        #        self.world.addUnit(unit)
             
         self.input = Input()
         self.input.onClick(self.leftClick)
