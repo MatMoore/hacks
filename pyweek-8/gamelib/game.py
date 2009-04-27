@@ -1,12 +1,3 @@
-#TODO
-
-#main game loop -
-#create a world object and call its run and draw methods
-
-#handle user input
-
-#menus
-
 import pygame
 from pygame.locals import *
 import graphics
@@ -15,7 +6,7 @@ import player
 from constants import *
 
 class Input:
-    '''Reusable input class for handling mouse and keyboard input'''
+    '''Reusable input class for handling mouse and keyboard input.'''
     def __init__(self):
         self.clickLoc = None
         self.dragRect = None
@@ -110,8 +101,7 @@ class Game:
             dy = SCROLLSPEED*dt
         if dx or dy:
             self.graphics.moveCamera(dx,dy)
-
-        
+    
     def run(self):
         newtime = pygame.time.get_ticks()
         while self.state == GAMESTATE_RUN:
@@ -130,9 +120,6 @@ class Game:
                 self.graphics.drawRect(self.input.dragRect)
             self.human.drawSelectedRects(self.graphics)
             self.graphics.flip()
-
-
-
 
 if __name__ == '__main__':
     game = maingame()

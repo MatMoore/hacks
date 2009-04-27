@@ -68,13 +68,21 @@ class Unit(mapobject.MapObject):
             elif self.direction < 0:
                 self.direction += 360
 
-            #update position and rect(i.e. Move him)
-            dx = math.cos((self.direction-90)*math.pi/float(180))*self.speed*dt
-            dy = math.sin((self.direction-90)*math.pi/float(180))*self.speed*dt
-            self.position = (self.position[0]+dx, self.position[1]+dy)
-            self.rect.left = self.position[0]
-            self.rect.top = self.position[1]
+            distance = math.sqrt(float((self.target[0]-self.position[0])**2+(self.target[1]-self.position[1])**2))
 
+            #update position and rect(i.e. Move him)
+            if distance > self.speed*dt:
+                #not quite there yet...
+                dx = math.cos((self.direction-90)*math.pi/float(180))*self.speed*dt
+                dy = math.sin((self.direction-90)*math.pi/float(180))*self.speed*dt
+                self.position = (self.position[0]+dx, self.position[1]+dy)
+                self.rect.left = self.position[0]
+                self.rect.top = self.position[1]
+
+            elif self.direction == desiredDirection:
+                #facing the target and close enough to walk there, so position = target (avoids endlessly circling it)
+                self.position = (self.target[0],self.target[1])
+                self.target = None
 
         #if target is in range, stop and attack
 
