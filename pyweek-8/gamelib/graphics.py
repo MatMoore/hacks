@@ -58,27 +58,27 @@ class Graphics:
     def drawImage(self, image, location, angle=0):
         """draw it on the screen if it's visible"""
         if location.__class__ == pygame.rect.Rect:
-            worldloc = (location.left, location.top)
+            worldLoc = location.center
         else:
-            worldloc = location
-        
-        size = image.get_rect()
-        screenPos = self.calcScreenPos(worldloc)
-        
+            worldLoc = location
+
+        size = image.get_size()
         #make sure it's gonna go on the screen before rotating and blitting it
-        if screenPos[0] > 0-size[2] and \
-            screenPos[0] < SCREENSIZE[0]+size[2] and \
-            screenPos[1] > 0-size[3] and \
-            screenPos[1] < SCREENSIZE[1]+size[3]:
+        screenPos = self.calcScreenPos(worldLoc)
+        if screenPos[0] > 0-size[0] and \
+            screenPos[0] < SCREENSIZE[0]+size[0] and \
+            screenPos[1] > 0-size[1] and \
+            screenPos[1] < SCREENSIZE[1]+size[1]:
             
             if angle <> 0:
                 drawImage = pygame.transform.rotozoom(image, 360-angle, 1)
             else:
                 drawImage = image
-            size = drawImage.get_rect() #because the rotate might have changed it
-            loc = (screenPos[0]-size[2]/2, screenPos[1] - size[3]/2)
+            rect = drawImage.get_rect() #because the rotate might have changed it
+            rect.center = worldLoc      #set the center back to where we were, cause this can change with rotation
+            loc = self.calcScreenPos((rect.left, rect.top))     #get the screen pos for the top left(after rotation)
             self.screen.blit(drawImage, loc)
-            return pygame.Rect(worldloc,(size[2], size[3]))
+            return rect
         return location
         
     def drawRect(self, rect, color=DRAGRECTCOLOR, width=2):

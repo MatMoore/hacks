@@ -93,8 +93,7 @@ class Unit(mapobject.MapObject):
                 dx = math.cos((self.direction-90)*math.pi/float(180))*self.speed*dt
                 dy = math.sin((self.direction-90)*math.pi/float(180))*self.speed*dt
                 self.position = (self.position[0]+dx, self.position[1]+dy)
-                self.rect.left = self.position[0]
-                self.rect.top = self.position[1]
+                self.rect.center = self.position
 
             elif self.direction == desiredDirection:
                 #facing the target and close enough to walk there, so position = target (avoids endlessly circling it)

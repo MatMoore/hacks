@@ -39,13 +39,13 @@ class Player:
                 
             for unit in self.units:                 #go through each unit
                                                     #see if it's in the rect
-                if unit.position[0] > location[0] and unit.position[0] < location[0] + location[2] \
-                and unit.position[1] > location[1] and unit.position[1] < location[1] + location[2]:
+                if unit.position[0] > location.left and unit.position[0] < location.right \
+                and unit.position[1] > location.top and unit.position[1] < location.bottom:
                     self.selectedUnits.add(unit)
         else:
             for unit in self.units:
-                if location[0] > unit.rect[0]-unit.rect[2]/2 and location[0] < unit.rect[0] + unit.rect[2]/2 \
-                and location[1] > unit.rect[1]-unit.rect[3]/2 and location[1] < unit.rect[1] + unit.rect[3]/2:
+                if location[0] > unit.rect.left and location[0] < unit.rect.right \
+                and location[1] > unit.rect.top and location[1] < unit.rect.bottom:
                     self.selectedUnits.add(unit)
                     break
     
@@ -59,7 +59,4 @@ class Player:
             
     def drawSelectedRects(self, graphics):
         for unit in self.selectedUnits:
-            rect = (unit.rect.left-unit.rect.width/2, \
-                    unit.rect.top-unit.rect.height/2, \
-                    unit.rect.width, unit.rect.height)
-            graphics.drawRect(rect, (255,0,0), 1)
+            graphics.drawRect(unit.rect, (255,0,0), 1)
