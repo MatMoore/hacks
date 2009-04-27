@@ -19,6 +19,7 @@ class Unit(mapobject.MapObject):
     def __init__(self, graphics, position, animations):
         self.position = position
         self.health = 100
+        self.maxHealth = 100
         self.speed = 25
         self.target = None #walk target
         self.attackTarget = pygame.sprite.Group()
@@ -110,6 +111,7 @@ class Unit(mapobject.MapObject):
 
     def bite(self,unit):
         unit.health -= self.attackPower #TODO give the units a "defense" stat which reduces the strength of the attack by some factor
+                                        #ALSO the unit under attack needs to be notified of this
         
     def setAnimation(self, animation):
         if animation in self.animations:

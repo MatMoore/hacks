@@ -43,5 +43,17 @@ class World:
     def draw(self, graphics):
         '''Draw the visible part of the map onto the screen'''
         graphics.drawBackground()
-        for i in self.objects.sprites():
+        for i in self.objects:
             i.draw(graphics)
+            if i in self.units:
+                self.drawHealthBar(graphics,i)
+
+    def drawHealthBar(self,graphics,unit):
+        outline = pygame.Rect(unit.rect)
+        outline.top -= HEALTHBARGAP
+        outline.height = HEALTHBARSIZE[1]
+        outline.width = HEALTHBARSIZE[0]
+        filled = pygame.Rect(outline)
+        filled.width = unit.health/float(unit.maxHealth)*filled.width
+        graphics.drawRect(outline, (0,255,0), 1)
+        graphics.drawRect(filled, (0,255,0), 0) #TODO: adjust colour if health is low

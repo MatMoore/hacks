@@ -89,7 +89,7 @@ class Game:
         self.human.doSelect(dragRect)
 
     def leftClick(self,pos):
-        self.human.doSelect(pos)
+        self.human.doSelect(pos) 
 
     def rightClick(self,pos):
         target = self.world.getUnit(pos)

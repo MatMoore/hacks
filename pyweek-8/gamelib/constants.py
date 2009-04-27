@@ -10,3 +10,5 @@ DRAGDISTANCE = 4 #distance required to move mouse before it becomes a drag inste
 DRAGRECTCOLOR = 0,0,255
 TURNSPEED = 90 #degrees per second
 MOVESPEED = 50 #pixels per second basic move speed
+HEALTHBARGAP = 30 #vertical position of health bar relative to the units rect
+HEALTHBARSIZE = (60,20)
