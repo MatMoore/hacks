@@ -33,9 +33,9 @@ class Player:
         
             
             if location[2] < 0: #rect is the wrong way round horizontally(you dragged it from the right)
-                location = (location[0]+location[2],location[1],abs(location[2]),location[3])
+                location = pygame.Rect(location[0]+location[2],location[1],abs(location[2]),location[3])
             if location[3] < 0: #rect is the wrong way round vertically(you dragged it from the bottom)
-                location = (location[0],location[1]+location[3],location[2],abs(location[3]))
+                location = pygame.Rect(location[0],location[1]+location[3],location[2],abs(location[3]))
                 
             for unit in self.units:                 #go through each unit
                                                     #see if it's in the rect
