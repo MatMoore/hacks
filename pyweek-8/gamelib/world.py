@@ -47,18 +47,18 @@ class World:
             gridY = int(math.floor(obj.position[1] / GRIDSIZE))
 
             if (gridX,gridY) not in grid:
-                grid[(gridX,gridY)] = []
+                grid[(gridX,gridY)] = pygame.sprite.Group()
 
-            grid[(gridX,gridY)].append(obj)
+            grid[(gridX,gridY)].add(obj)
         
         #second pass - go through dictionary
         for key in grid.keys():
-            localObjects = []
+            localObjects = pygame.sprite.Group()
             for x in range(key[0]-1, key[0]+2):
                 for y in range(key[1]-1, key[1]+2):
                     if (x,y) in grid:
                         for obj in grid[(x,y)]:
-                            localObjects.append(obj)
+                            localObjects.add(obj)
             
             for obj in grid[key]:
                 try:                            #because the object might not implement interact, we check if it exists by
