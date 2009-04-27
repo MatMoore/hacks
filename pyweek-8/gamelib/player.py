@@ -23,7 +23,7 @@ class Player:
         price = unitClass.price
         if self.food-self.usedFood > price:
             self.usedFood += price
-            unit = unitClass(graphics,(0,0),["soldier1"]) #TODO, make classes for each unit and give them their own animations
+            unit = unitClass(graphics,(0,0)) #TODO, make classes for each unit and give them their own animations
             self.units.add(unit)
             return unit
             

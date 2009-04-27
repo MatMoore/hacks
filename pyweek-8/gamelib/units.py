@@ -29,10 +29,10 @@ class Unit(mapobject.MapObject):
         self.animations = dict()
         self.attackTimer = stuff.Timer(self.attackTime)
         
-        for anim in animations:
-            self.animations[anim] = animation.Animation(graphics, anim)
+        for action,anim in animations.iteritems():
+            self.animations[action] = animation.Animation(graphics, anim)
         
-        self.currentanimation = self.animations[animations[0]]  #set us to the first animation
+        self.currentanimation = self.animations['default']  #set us to the default animation
         mapobject.MapObject.__init__(self, self.currentanimation.reset(), position) #init the base class with the first frame of the animation
         self.direction = 100
         
@@ -118,3 +118,20 @@ class Unit(mapobject.MapObject):
         if animation in self.animations:
             self.currentanimation = self.animations[animation]
             self.surface = self.currentanimation.reset()    #set the animation back to frame 0
+
+class WorkerUnit(Unit):
+    animations = {'default': 'worker1'}
+    price = 0
+
+    def __init__(self,graphics,position):
+        Unit.__init__(self,graphics,position,WorkerUnit.animations)
+
+
+class SoldierUnit(Unit):
+    animations = {'default': 'soldier1'}
+    price = 0
+
+    def __init__(self,graphics,position):
+        Unit.__init__(self,graphics,position,SoldierUnit.animations)
+
+

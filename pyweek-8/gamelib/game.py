@@ -70,10 +70,11 @@ class Game:
         self.state = GAMESTATE_RUN
         self.human = player.Player()
         for i in range(3):
-            unit = self.human.buyUnit("Unit",self.graphics)
+            unit = self.human.buyUnit("SoldierUnit",self.graphics)
             if unit:
                 self.world.addUnit(unit)
-
+        unit = self.human.buyUnit("WorkerUnit",self.graphics)
+        self.world.addUnit(unit)
         #self.AIPlayers = [player.Player()] #ai does nothing yet
         #for i in range(3):
         #    unit = self.AIPlayers[0].buyUnit("Unit",self.graphics)
