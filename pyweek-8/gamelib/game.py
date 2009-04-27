@@ -14,6 +14,64 @@ import world
 import player
 from constants import *
 
+class Input:
+    '''Reusable input class for handling mouse and keyboard input'''
+    def __init__(self):
+        self.clickLoc = None
+        self.dragRect = None
+
+        #functions to call for these things
+        self.click = None
+        self.drag = None
+        self.keyPress = {}
+        self.rightClick = None
+
+    def onClick(self,f):
+        self.click = f
+
+    def onKeypress(self,key,f):
+        self.keyPress[key] = f
+        
+    def onRightClick(self,f):
+        self.rightClick = f
+
+    def onDrag(self,f):
+        self.drag = f
+
+    def doInputEvents(self,graphics):
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                return False
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    return False
+            if event.type == MOUSEBUTTONDOWN:
+                self.clickLoc = graphics.calcWorldPos(pygame.mouse.get_pos())
+            
+            if event.type == MOUSEBUTTONUP:
+                if self.dragRect == None:
+                    if event.button == 1 and self.clickLoc: #left click
+                        self.click(self.clickLoc)
+                    elif event.button == 3 and self.clickLoc: #right click
+                        self.rightClick(self.clickLoc)
+                        
+                else:
+                    if event.button == 1 and self.dragRect: #left drag
+                        self.drag(self.dragRect)
+                self.clickLoc = None
+                self.dragRect = None
+        
+        
+        #This bit makes the drag rectangle
+        if self.clickLoc != None:   #if we're clicking
+            loc = graphics.calcWorldPos(pygame.mouse.get_pos())
+            #check if we've moved more than DRAGDISTANCE pixels in either direction
+            if (self.dragRect != None) or (abs(self.clickLoc[0] - loc[0]) > DRAGDISTANCE) or (abs(self.clickLoc[1] - loc[1]) > DRAGDISTANCE):
+                self.dragRect = (self.clickLoc[0],self.clickLoc[1],loc[0]-self.clickLoc[0], loc[1]-self.clickLoc[1])
+
+        return True
+    
+
 class Game:
     def __init__(self):
         self.graphics = graphics.Graphics()
@@ -25,41 +83,20 @@ class Game:
             if unit:
                 self.world.addUnit(unit)
             
-        self.clickLoc = None    #stores location of click
-        self.dragRect = None    #stores dragged rectangle
-        
-    def doInputEvents(self):
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                return False
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    return False
-            if event.type == MOUSEBUTTONDOWN:
-                self.clickLoc = self.graphics.calcWorldPos(pygame.mouse.get_pos())
-            
-            if event.type == MOUSEBUTTONUP:
-                if self.dragRect == None:
-                    if event.button == 1 and self.clickLoc: #left click
-                        self.human.doSelect(self.clickLoc)
-                    elif event.button == 3 and self.clickLoc: #right click
-                        self.human.doMoveAttack(self.clickLoc)
-                else:
-                    if event.button == 1 and self.dragRect: #left drag
-                        self.human.doSelect(self.dragRect)
-                self.clickLoc = None
-                self.dragRect = None
-        
-        
-        #This bit makes the drag rectangle
-        if self.clickLoc != None:   #if we're clicking
-            loc = self.graphics.calcWorldPos(pygame.mouse.get_pos())
-            #check if we've moved more than DRAGDISTANCE pixels in either direction
-            if (self.dragRect != None) or (abs(self.clickLoc[0] - loc[0]) > DRAGDISTANCE) or (abs(self.clickLoc[1] - loc[1]) > DRAGDISTANCE):
-                self.dragRect = (self.clickLoc[0],self.clickLoc[1],loc[0]-self.clickLoc[0], loc[1]-self.clickLoc[1])
-
-        return True
+        self.input = Input()
+        self.input.onClick(self.leftClick)
+        self.input.onRightClick(self.rightClick)
+        self.input.onDrag(self.drag)
     
+    def drag(self,dragRect):
+        self.human.doSelect(dragRect)
+
+    def leftClick(self,pos):
+        self.human.doSelect(pos)
+
+    def rightClick(self,pos):
+        self.human.doMoveAttack(pos)
+
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()
         dx,dy = (0,0)
@@ -84,13 +121,13 @@ class Game:
 
             self.doScroll(dt)
             
-            if self.doInputEvents() == False:
+            if self.input.doInputEvents(self.graphics) == False:
                 self.state = GAMESTATE_QUIT
                             
             self.world.update(dt)
             self.world.draw(self.graphics)
-            if self.dragRect != None:
-                self.graphics.drawRect(self.dragRect)
+            if self.input.dragRect != None:
+                self.graphics.drawRect(self.input.dragRect)
             self.human.drawSelectedRects(self.graphics)
             self.graphics.flip()
 
