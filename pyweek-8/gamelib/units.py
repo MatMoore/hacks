@@ -114,11 +114,7 @@ class Unit(mapobject.MapObject):
     def interact(self, objects):
         if len(self.targets) > 0:   #only wanna do collision detection/avoidance if we're moving
             for item in objects:
-                if item != self:    #make sure we're not targetting ourself
-
-                    if self.gatherTarget.sprites():
-                        if item == self.gatherTarget.sprites()[0]:
-                            continue    #consider next item
+                if item != self and item.__class__ != mapobject.Leaves:    #make sure we're not targetting ourself
 
                     if self.attackTarget.sprites():
                         if item == self.attackTarget.sprites()[0]:
