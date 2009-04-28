@@ -93,7 +93,8 @@ class ResourceDisplay(Widget):
     def draw(self,graphics):
         text=str(self.player.leaves)
         width=graphics.font.size(text)[0] 
-        graphics.writeText(text,(-5-width,5)) #should probably make this function support right alignement instead of doing it here
+        position = graphics.normalizeScreenCoords((-5-width,5))
+        graphics.writeText(text,position) #should probably make this function support right alignement instead of doing it here
 
 class BuildWidget(ContainerWidget):
     '''Collection of buttons (for building new units)'''
@@ -127,7 +128,7 @@ class BuildWidget(ContainerWidget):
             if self.y+button.rect.height < self.rect.bottom-BUTTONSPACING: #fits vertically
                 button.rect.topleft = (self.x,self.y) #move to the right of the previous one
                 self.components.append(button)
-        elif y+button.rect.height < bottom: #move onto the next line
+        elif self.y+button.rect.height < self.rect.bottom-BUTTONSPACING: #move onto the next line
             self.y=self.nextline
             self.x=self.rect.left+BUTTONSPACING
             button.rect.topleft = (self.x,self.y)
@@ -160,7 +161,7 @@ class Graphics:
         self.camera = (0,0)
         self.loadImage(BACKGROUNDIMAGE)
         font = pygame.font.get_default_font()
-        self.font = pygame.font.Font(font,24) #TODO: make this more flexible (e.g. support multiple sizes), bundle a prettier font
+        self.font = pygame.font.Font(font,14) #TODO: make this more flexible (e.g. support multiple sizes), bundle a prettier font
 
     def normalizeScreenCoords(self,pos):
         x,y=pos
@@ -214,13 +215,23 @@ class Graphics:
         text=self.font.render(text,True,color)
         if center:
             position = (position[0]-text.get_width()/2,position[1]-text.get_height()/2)
-        self.drawStaticImage(text,position,rect)
+        if rect:
+            #find the portion of the textbox which is in this rect
+            textBox = pygame.Rect(position,text.get_size())
+            rect2 = textBox.clip(rect)
+            position = rect2.topleft
+            rect2.top -= textBox.top #need rect coordinates relative to the textbox for the blit
+            rect2.left -= textBox.left
+            self.drawStaticImage(text,position,rect=rect2)
+            
+        else:
+            self.drawStaticImage(text,position)
 
     def drawStaticImage(self,image,location,angle=0,rect=None):
-        '''Draw an image on the screen. Location is the top left in screen coordinates. If rect is specified the image will be cropped to that rect'''
-        location = self.normalizeScreenCoords(location) #accept negative values
-        self.screen.blit(image, location,rect)
-
+        '''Draw an image on the screen. Location is the top left in screen coordinates. '''
+        #location = self.normalizeScreenCoords(location) #accept negative values          
+        self.screen.blit(image, location, rect)
+        
     def drawImage(self, image, location, angle=0):
         """Draw an image on the screen if it's visible (screen position changes if the camera moves). Location is in world coordinates."""
         if location.__class__ == pygame.rect.Rect:

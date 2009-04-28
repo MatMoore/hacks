@@ -92,7 +92,9 @@ class Game:
         self.gui = graphics.ContainerWidget()
         self.gui.add(graphics.ResourceDisplay(self.human))
         buildWidget = graphics.BuildWidget(pygame.Rect((0,0),(130,300)),(200,200,200))
-        buildWidget.add(graphics.Button(pygame.Rect((0,0),(50,50)),'test',bgColor=(100,100,100)))
+        buildWidget.add(graphics.Button(pygame.Rect((0,0),(50,50)),'Soldier',bgColor=(100,100,100),action=self.buySoldier))
+        buildWidget.add(graphics.Button(pygame.Rect((0,0),(50,50)),'Worker',bgColor=(100,100,100),action=self.buyWorker))
+        buildWidget.add(graphics.Button(pygame.Rect((0,0),(50,50)),'Queen',bgColor=(100,100,100)))
         self.gui.add(buildWidget)
     
     def drag(self,dragRect):
@@ -114,6 +116,16 @@ class Game:
                 self.human.doGather(resource)
             else:
                 self.human.doMove(pos)
+
+    def buySoldier(self):
+        unit = self.human.buyUnit("SoldierUnit",self.graphics)
+        if unit:
+            self.world.addUnit(unit)
+
+    def buyWorker(self):
+        unit = self.human.buyUnit("WorkerUnit",self.graphics)
+        if unit:
+            self.world.addUnit(unit)
 
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()
