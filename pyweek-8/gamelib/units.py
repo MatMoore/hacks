@@ -101,7 +101,7 @@ class Unit(mapobject.MapObject):
         self.targets = [position]
 
     def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything, and it will make the default behaviour == walk
-        self.walkTo(unit.rect.center)
+        self.walkTo(unit.position)
         
     def gather(self,resource):
         self.walkTo(resource.rect.center)
@@ -175,7 +175,7 @@ class SoldierUnit(Unit):
     def __init__(self,graphics,position):
         Unit.__init__(self,graphics,position,SoldierUnit.animations)
         self.attackTime = 1000 #in ms
-        self.attackRange = 20
+        self.attackRange = 10
         self.attackPower = 20
         self.attackTimer = stuff.Timer(self.attackTime)
         self.radius = 40
@@ -193,10 +193,15 @@ class SoldierUnit(Unit):
         if self.attackTarget.sprites(): #there are targets
             enemy = (self.attackTarget.sprites())[0]
             distance = math.sqrt(float((enemy.position[0]-self.position[0])**2+(enemy.position[1]-self.position[1])**2))
-            if distance < self.attackRange:
+            if distance < (self.radius + self.attackRange + enemy.radius):
                 #TODO: make attack animation
                 #attack enemy
                 if self.attackTimer.ready():
                     self.bite(enemy)
                 self.targets = []
+            else:
+                try:
+                    self.targets[0] = enemy.position
+                except:
+                    self.targets = [enemy.position]
         Unit.update(self, dt)
