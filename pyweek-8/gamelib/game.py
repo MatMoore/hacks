@@ -83,6 +83,8 @@ class Game:
         #        self.world.addUnit(unit)
             
         self.world.addResource(mapobject.Leaves((100,100),self.graphics)) #this should probably go in world but it needs graphics garghghah
+
+        self.world.addObject(mapobject.Colony((-200,0),self.graphics)) #this should probably go in world but it needs graphics garghghah
         self.input = Input()
         self.input.onClick(self.leftClick)
         self.input.onRightClick(self.rightClick)

@@ -30,3 +30,8 @@ class Leaves(MapObject):
     def take(self):
         self.amount -= 1
 
+class Colony(MapObject):
+    imageName = 'mound.png'
+    def __init__(self,position,graphics):
+        surface = graphics.loadImage(Colony.imageName)
+        MapObject.__init__(self,surface,position)

@@ -7,7 +7,9 @@ import math
 
 class World:
     def __init__(self):
-        self.objects = pygame.sprite.Group() #things which can be interacted with
+        self.objects = pygame.sprite.Group() #everything
+        self.bg = pygame.sprite.Group() #background objects
+        self.fg = pygame.sprite.Group() #objects that can be bumped into?
         self.units = pygame.sprite.Group() #things which can move/die
         self.resources = pygame.sprite.Group() #things which can be collected
 
@@ -15,8 +17,12 @@ class World:
         '''Try to select a group of units. Returns a list of the selected units.'''
         pass
 
-    def addObject(self,object):
+    def addObject(self,object,ghost=True):
         '''Add a new object to the map'''
+        if ghost:
+            self.bg.add(object)
+        else:
+            self.fg.add(object) #can bump into it
         self.objects.add(object)
 
     def addUnit(self,unit):
@@ -27,6 +33,7 @@ class World:
     def addResource(self,unit):
         '''Add a new resource to the map'''
         self.objects.add(unit)
+        self.bg.add(unit)
         self.resources.add(unit)
 
     def getUnit(self,location):
@@ -55,6 +62,8 @@ class World:
         for obj in self.objects:
 #            gridX = int(math.floor(obj.position[0] / GRIDSIZE))
 #            gridY = int(math.floor(obj.position[1] / GRIDSIZE))
+            if self.bg.has(obj): #ignore the background
+                continue
             gridX = obj.rect.centerx / GRIDSIZE #only units have position, but all sprites have a rect + we don't need the accuracy here
             gridY = obj.rect.centery / GRIDSIZE
 
@@ -87,9 +96,12 @@ class World:
         '''Draw the visible part of the map onto the screen'''
         graphics.drawBackground()
         
-        for i in self.resources:    #draw resources first
+        for i in self.bg:    #draw resources/background objects first
             i.draw(graphics)
-    
+
+        for i in self.fg: #draw other objects
+            i.draw(graphics)
+
         for i in self.units:        #then units
             i.draw(graphics)
             self.drawHealthBar(graphics,i)
