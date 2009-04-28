@@ -86,10 +86,13 @@ class World:
     def draw(self, graphics):
         '''Draw the visible part of the map onto the screen'''
         graphics.drawBackground()
-        for i in self.objects:
+        
+        for i in self.resources:    #draw resources first
             i.draw(graphics)
-            if i in self.units:
-                self.drawHealthBar(graphics,i)
+    
+        for i in self.units:        #then units
+            i.draw(graphics)
+            self.drawHealthBar(graphics,i)
 
     def drawHealthBar(self,graphics,unit):
         outline = pygame.Rect(unit.rect)

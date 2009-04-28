@@ -21,16 +21,13 @@ class Unit(mapobject.MapObject):
         self.health = 100
         self.maxHealth = 100
         self.speed = 25
-        self.target = None #walk target
-        self.attackTarget = pygame.sprite.Group()
-        self.gatherTarget = pygame.sprite.Group()
-        self.carrying = False
-        self.attackTime = 1000 #in ms
-        self.attackRange = 20
-        self.attackPower = 20
+        self.targets = [] #walk target
+        self.gatherTarget = pygame.sprite.Group()   #i've kept these here so that the collision avoidance can check
+        self.attackTarget = pygame.sprite.Group()   #whether this unit is just trying to move or whether it's doing
+                                                    #something useful - maybe there's a better way
+
+
         self.animations = dict()
-        self.attackTimer = stuff.Timer(self.attackTime)
-        
         for action,anim in animations.iteritems():
             self.animations[action] = animation.Animation(graphics, anim)
         
@@ -38,7 +35,10 @@ class Unit(mapobject.MapObject):
         mapobject.MapObject.__init__(self, self.currentanimation.reset(), position) #init the base class with the first frame of the animation
         self.direction = 100
         
-        
+    def getDistance(self, target):
+        """get the distance from current location to target"""
+        return math.sqrt(float((target[0]-self.position[0])**2+(target[1]-self.position[1])**2))
+            
     def isDead(self):
         return self.health <= 0
 
@@ -46,39 +46,17 @@ class Unit(mapobject.MapObject):
         #continue animation    
         self.surface = self.currentanimation.update(dt)
 
-        #attack stuff
-        if self.attackTarget.sprites(): #there are targets
-            enemy = (self.attackTarget.sprites())[0]
-            distance = math.sqrt(float((enemy.position[0]-self.position[0])**2+(enemy.position[1]-self.position[1])**2))
-            if distance < self.attackRange:
-                #TODO: make attack animation
-                #attack enemy
-                if self.attackTimer.ready():
-                    self.bite(enemy)
-                self.target = None
-            else:
-                self.target=enemy.position
-
-        if self.gatherTarget.sprites(): #there are targets
-            resource = (self.gatherTarget.sprites())[0]
-            distance = math.sqrt(float((resource.rect.centerx-self.position[0])**2+(resource.rect.centery-self.position[1])**2))
-            if distance < self.attackRange:
-                #TODO: make leaf carrying animation
-                resource.take()
-                self.carrying = True
-                self.gatherTarget.empty()
-                self.target = None
-            else:
-                self.target=resource.rect.center
 
         #keep moving if walking towards something
-        if self.target:
+        if len(self.targets) > 0:
+            target = self.targets[-1]
         
             #calculate desired heading
-            desiredDirection = math.atan2(self.target[1]-self.position[1], self.target[0]-self.position[0])
+            desiredDirection = math.atan2(target[1]-self.position[1], target[0]-self.position[0])
             desiredDirection = desiredDirection * 180/math.pi + 90
             if desiredDirection < 0:
                 desiredDirection += 360
+                
             #now correct for the discontinuity(360 == 0) so we can turn left or right correctly
             while abs(self.direction - desiredDirection) > 180:
                 if self.direction < desiredDirection:
@@ -99,7 +77,7 @@ class Unit(mapobject.MapObject):
             elif self.direction < 0:
                 self.direction += 360
 
-            distance = math.sqrt(float((self.target[0]-self.position[0])**2+(self.target[1]-self.position[1])**2))
+            distance = math.sqrt(float((target[0]-self.position[0])**2+(target[1]-self.position[1])**2))
 
             #update position and rect(i.e. Move him)
             if distance > self.speed*dt:
@@ -111,42 +89,64 @@ class Unit(mapobject.MapObject):
 
             elif self.direction == desiredDirection:
                 #facing the target and close enough to walk there, so position = target (avoids endlessly circling it)
-                self.position = (self.target[0],self.target[1])
-                self.target = None
+                self.position = (target[0],target[1])
+                self.targets.pop()  #go for the next target if there is one
 
-        #if target is in range, stop and attack
 
-    def attack(self,unit):
-        if not self.carrying:
-            self.attackTarget.empty()
-            self.attackTarget.add(unit)
 
     def walkTo(self,position):
-        self.target = position
-        self.attackTarget.empty() #get rid of our attack targets
+        self.targets = [position]
 
+    def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything
+        pass
+        
     def gather(self,resource):
-        self.gatherTarget.empty()
-        self.attackTarget.empty()
-        self.gatherTarget.add(resource)
-
-    def bite(self,unit):
-        unit.health -= self.attackPower #TODO give the units a "defense" stat which reduces the strength of the attack by some factor
-                                        #ALSO the unit under attack needs to be notified of this
+        pass
         
     def setAnimation(self, animation):
         if animation in self.animations:
             self.currentanimation = self.animations[animation]
             self.surface = self.currentanimation.reset()    #set the animation back to frame 0
 
+    def interact(self, objects):
+        for item in objects:
+            if item != self:
+                #URG SORRY I CANT DO COLLISION AVOIDANCE YET I AM TOO TIRED
+                if pygame.sprite.collide_circle(self, item):
+                    #do something here to make them not collide
+                    pass
+                    
+                
+                    
+                
+                
 class WorkerUnit(Unit):
     animations = {'default': 'worker1'}
     price = 0
 
     def __init__(self,graphics,position):
         Unit.__init__(self,graphics,position,WorkerUnit.animations)
-        self.attackPower = 10
+        self.carrying = False
+        self.gatherRange = 20
 
+    def gather(self, resource):
+        self.gatherTarget.empty()
+        self.gatherTarget.add(resource)
+        self.targets = [resource.rect.center]
+        
+        
+    def update(self, dt):
+        if self.gatherTarget.sprites(): #there are targets
+            resource = (self.gatherTarget.sprites())[0]
+            distance = math.sqrt(float((resource.rect.centerx-self.position[0])**2+(resource.rect.centery-self.position[1])**2))
+            if distance < self.gatherRange:
+                #TODO: make leaf carrying animation
+                resource.take()
+                self.carrying = True
+                self.gatherTarget.empty()
+                self.targets = []
+        
+        Unit.update(self, dt)
 
 class SoldierUnit(Unit):
     animations = {'default': 'soldier1'}
@@ -154,5 +154,29 @@ class SoldierUnit(Unit):
 
     def __init__(self,graphics,position):
         Unit.__init__(self,graphics,position,SoldierUnit.animations)
+        self.attackTime = 1000 #in ms
+        self.attackRange = 20
+        self.attackPower = 20
+        self.attackTimer = stuff.Timer(self.attackTime)
+        
+    def attack(self, unit):
+        self.attackTarget.empty()
+        self.attackTarget.add(unit)
+        self.targets = [unit.position]  #set the first element of the list to refer to the target
 
-
+    def bite(self,unit):
+        unit.health -= self.attackPower #TODO give the units a "defense" stat which reduces the strength of the attack by some factor
+                                        #ALSO the unit under attack needs to be notified of this
+                                        
+    def update(self, dt):
+        #attack stuff
+        if self.attackTarget.sprites(): #there are targets
+            enemy = (self.attackTarget.sprites())[0]
+            distance = math.sqrt(float((enemy.position[0]-self.position[0])**2+(enemy.position[1]-self.position[1])**2))
+            if distance < self.attackRange:
+                #TODO: make attack animation
+                #attack enemy
+                if self.attackTimer.ready():
+                    self.bite(enemy)
+                self.targets = []
+        Unit.update(self, dt)
