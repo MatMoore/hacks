@@ -23,31 +23,15 @@ class Widget:
         pass
 
     def click(self,position):
-        pass
+        '''What happens if it is clicked. Return value is True if position collides with the widget, False otherwise'''
+        return False
 
     def mouseOver(self,position):
-        pass
+        '''What happens on mouseover. Return value is True if position collides with the widget, False otherwise'''
+        return False
 
-
-class Button(Widget):
-    '''Clickable buttons'''
-    def __init__(self,rect,text,bgColor=None,image=None,mouseOverImage=None,action=None):
-        pass
-
-    def show(self):
-        self.visible = True
-
-    def hide(self):
-        self.visible = False
-
-    def draw(self,graphics):
-        pass
-
-    def click(self,position):
-        pass
-
-class GUI(Widget):
-    '''All GUI components'''
+class ContainerWidget(Widget):
+    '''Widget which contains more widgets'''
     def __init__(self):
         Widget.__init__(self) 
         self.components = []
@@ -55,10 +39,51 @@ class GUI(Widget):
     def add(self,widget):
         self.components.append(widget)
 
+    def show(self):
+        for i in self.components:
+            i.show()
+
+    def hide(self):
+        for i in self.components:
+            i.hide()
+
     def draw(self,graphics):
         if self.visible:
             for i in self.components:
                 i.draw(graphics)
+
+    def click(self,position):
+        '''Attempt to click on a component. Returns true if successful'''
+        for i in self.components:
+            if i.click(position):
+                return True
+        return False
+
+class Button(Widget):
+    '''Clickable buttons'''
+    def __init__(self,rect,text,color=None,bgColor=None,image=None,mouseOverImage=None,action=None):
+        Widget.__init__(self)
+        self.rect = rect
+        self.action = action
+        self.bgColor = bgColor
+        self.image = image
+        self.text = text
+
+    def draw(self,graphics):
+        if self.visible:
+            if self.image:
+                graphics.drawStaticImage(self.image,self.rect.topleft)
+            elif self.bgColor:
+                graphics.drawStaticRect(self.rect, self.bgColor, 0)
+            graphics.writeText(self.text,self.rect.center,center=True,rect=self.rect)
+
+    def click(self,position):
+        if self.rect.collidepoint(position):
+            if self.action:
+                self.action()
+            return True
+        else:
+            return False
 
 class ResourceDisplay(Widget):
     '''Show the amount of leaves the player has'''
@@ -70,10 +95,11 @@ class ResourceDisplay(Widget):
         width=graphics.font.size(text)[0] 
         graphics.writeText(text,(-5-width,5)) #should probably make this function support right alignement instead of doing it here
 
-class BuildWidget(Widget):
+class BuildWidget(ContainerWidget):
     '''Collection of buttons (for building new units)'''
     def __init__(self,rect,bgcolor=None):
-        self.buttons=[]
+        ContainerWidget.__init__(self)
+        self.bgColor = bgcolor
         self.rect = rect
         left = self.rect.left+BUTTONSPACING
         top = self.rect.top+BUTTONSPACING
@@ -83,38 +109,48 @@ class BuildWidget(Widget):
         self.y=top #y position of the current row
         self.nextline = top #y position of the next row
 
-    def show(self):
-        for i in self.buttons:
-            i.show()
-
-    def hide(self):
-        for i in self.buttons:
-            i.hide()
-
+    
     def draw(self,graphics):
         '''Draw all the buttons in a nice box'''
-        for i in self.buttons:
-            i.draw(graphics)
+        if self.visible:
+            #draw background
+            if self.bgColor:
+                graphics.drawStaticRect(self.rect, color=self.bgColor, width=0)
+
+            #draw buttons
+            for i in self.components:
+                i.draw(graphics)
 
     def add(self,button):
         '''Align a new button inside the box'''
-        if x+button.rect.width < right: #fits horizontally
-            if y+button.rect.height < bottom: #fits vertically
-                button.topleft = (x,y) #move to the right of the previous one
-                self.buttons.append(button)
+        if self.x+button.rect.width < self.rect.right-BUTTONSPACING: #fits horizontally
+            if self.y+button.rect.height < self.rect.bottom-BUTTONSPACING: #fits vertically
+                button.rect.topleft = (self.x,self.y) #move to the right of the previous one
+                self.components.append(button)
         elif y+button.rect.height < bottom: #move onto the next line
             self.y=self.nextline
             self.x=self.rect.left+BUTTONSPACING
-            button.topleft = (x,y)
-            self.buttons.append(button)
+            button.rect.topleft = (self.x,self.y)
+            self.components.append(button)
         else:
             return False #no room for additional buttons :o
         
         #work out position for the next button
-        self.x += button.width + BUTTONSPACING #position for next button to the right
-        if self.y+button.height+BUTTONSPACING > self.nextline:
-            self.nextline = self.y+button.height+BUTTONSPACING #position for the next line below this one
+        self.x += button.rect.width + BUTTONSPACING #position for next button to the right
+        if self.y+button.rect.height+BUTTONSPACING > self.nextline:
+            self.nextline = self.y+button.rect.height+BUTTONSPACING #position for the next line below this one
         return True
+
+    def click(self,pos):
+        '''Attempt to click on the widget. Returns false if pos is outside the widget'''
+        if self.rect.collidepoint(pos):
+            #check to see if one of the buttons was clicked
+            for i in self.components:
+                if i.click(pos):
+                    break
+            return True
+        else:
+            return False
 
 class Graphics:
     def __init__(self):
@@ -173,17 +209,17 @@ class Graphics:
             for y in range(int(math.ceil(SCREENSIZE[1]/height)+2)):
                 self.screen.blit(image, (x*width-xoffset, y*height-yoffset))
 
-    def writeText(self,text,position,color=(0,0,0),bgcolor=None,center=False):
-        '''Write text to screen. If center is true text will be centered at position, else position is taken to be the top left corner. Position in screen coordinates.'''
+    def writeText(self,text,position,color=(0,0,0),bgcolor=None,center=False,rect=None):
+        '''Write text to screen. If rect is specified then it will be cropped to the rect. If center is true text will be centered at position, else position is taken to be the top left corner. Position in screen coordinates.'''
         text=self.font.render(text,True,color)
         if center:
-            position = (position[0]-text.width/2,position[1]-text.height/2)
-        self.drawStaticImage(text,position)
+            position = (position[0]-text.get_width()/2,position[1]-text.get_height()/2)
+        self.drawStaticImage(text,position,rect)
 
-    def drawStaticImage(self,image,location,angle=0):
-        '''Draw an image on the screen. Location is the top left in screen coordinates.'''
+    def drawStaticImage(self,image,location,angle=0,rect=None):
+        '''Draw an image on the screen. Location is the top left in screen coordinates. If rect is specified the image will be cropped to that rect'''
         location = self.normalizeScreenCoords(location) #accept negative values
-        self.screen.blit(image, location)
+        self.screen.blit(image, location,rect)
 
     def drawImage(self, image, location, angle=0):
         """Draw an image on the screen if it's visible (screen position changes if the camera moves). Location is in world coordinates."""
@@ -213,6 +249,9 @@ class Graphics:
         
     def drawRect(self, rect, color=DRAGRECTCOLOR, width=2):
         screenrect = (self.calcScreenPos((rect[0],rect[1])), (rect[2], rect[3]))
+        self.drawStaticRect(screenrect, color, width)
+
+    def drawStaticRect(self,screenrect,color=DRAGRECTCOLOR, width=2):
         pygame.draw.rect(self.screen, color, screenrect, width)
     
     def __del__(self):

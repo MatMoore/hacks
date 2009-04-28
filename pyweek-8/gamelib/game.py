@@ -89,24 +89,31 @@ class Game:
         self.input.onDrag(self.drag)
 
         #make gui
-        self.gui = graphics.GUI()
+        self.gui = graphics.ContainerWidget()
         self.gui.add(graphics.ResourceDisplay(self.human))
+        buildWidget = graphics.BuildWidget(pygame.Rect((0,0),(130,300)),(200,200,200))
+        buildWidget.add(graphics.Button(pygame.Rect((0,0),(50,50)),'test',bgColor=(100,100,100)))
+        self.gui.add(buildWidget)
     
     def drag(self,dragRect):
         self.human.doSelect(dragRect)
 
     def leftClick(self,pos):
-        self.human.doSelect(pos) 
+        screenPos = self.graphics.calcScreenPos(pos)
+        if not self.gui.click(screenPos): #can't click on GUI
+            self.human.doSelect(pos) 
 
     def rightClick(self,pos):
-        target = self.world.getUnit(pos)
-        resource = self.world.getResource(pos)
-        if target and (self.human.isUnit(target) == False):
-            self.human.doAttack(target)
-        elif resource:
-            self.human.doGather(resource)
-        else:
-            self.human.doMove(pos)
+        screenPos = self.graphics.calcScreenPos(pos)
+        if not self.gui.click(screenPos): #can't click on GUI
+            target = self.world.getUnit(pos)
+            resource = self.world.getResource(pos)
+            if target and (self.human.isUnit(target) == False):
+                self.human.doAttack(target)
+            elif resource:
+                self.human.doGather(resource)
+            else:
+                self.human.doMove(pos)
 
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()
