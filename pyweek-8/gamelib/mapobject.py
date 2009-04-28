@@ -24,4 +24,8 @@ class Leaves(MapObject):
     def __init__(self,position,graphics):
         surface = graphics.loadImage(Leaves.imageName)
         MapObject.__init__(self,surface,position)
+        self.amount = 100
+
+    def take(self):
+        self.amount -= 1
 

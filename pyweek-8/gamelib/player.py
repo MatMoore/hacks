@@ -57,6 +57,10 @@ class Player:
     def doAttack(self,enemy):
         for unit in self.selectedUnits:
             unit.attack(enemy)
+
+    def doGather(self,resource):
+        for unit in self.selectedUnits:
+            unit.gather(resource)
             
     def drawSelectedRects(self, graphics):
         for unit in self.selectedUnits:

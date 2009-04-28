@@ -23,6 +23,8 @@ class Unit(mapobject.MapObject):
         self.speed = 25
         self.target = None #walk target
         self.attackTarget = pygame.sprite.Group()
+        self.gatherTarget = pygame.sprite.Group()
+        self.carrying = False
         self.attackTime = 1000 #in ms
         self.attackRange = 20
         self.attackPower = 20
@@ -56,6 +58,18 @@ class Unit(mapobject.MapObject):
                 self.target = None
             else:
                 self.target=enemy.position
+
+        if self.gatherTarget.sprites(): #there are targets
+            resource = (self.gatherTarget.sprites())[0]
+            distance = math.sqrt(float((resource.rect.centerx-self.position[0])**2+(resource.rect.centery-self.position[1])**2))
+            if distance < self.attackRange:
+                #TODO: make leaf carrying animation
+                resource.take()
+                self.carrying = True
+                self.gatherTarget.empty()
+                self.target = None
+            else:
+                self.target=resource.rect.center
 
         #keep moving if walking towards something
         if self.target:
@@ -103,12 +117,18 @@ class Unit(mapobject.MapObject):
         #if target is in range, stop and attack
 
     def attack(self,unit):
-        self.attackTarget.empty()
-        self.attackTarget.add(unit)
+        if not self.carrying:
+            self.attackTarget.empty()
+            self.attackTarget.add(unit)
 
     def walkTo(self,position):
         self.target = position
         self.attackTarget.empty() #get rid of our attack targets
+
+    def gather(self,resource):
+        self.gatherTarget.empty()
+        self.attackTarget.empty()
+        self.gatherTarget.add(resource)
 
     def bite(self,unit):
         unit.health -= self.attackPower #TODO give the units a "defense" stat which reduces the strength of the attack by some factor
@@ -125,6 +145,7 @@ class WorkerUnit(Unit):
 
     def __init__(self,graphics,position):
         Unit.__init__(self,graphics,position,WorkerUnit.animations)
+        self.attackPower = 10
 
 
 class SoldierUnit(Unit):

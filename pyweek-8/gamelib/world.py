@@ -9,7 +9,7 @@ class World:
     def __init__(self):
         self.objects = pygame.sprite.Group() #things which can be interacted with
         self.units = pygame.sprite.Group() #things which can move/die
-
+        self.resources = pygame.sprite.Group() #things which can be collected
 
     def select(self,rect):
         '''Try to select a group of units. Returns a list of the selected units.'''
@@ -24,8 +24,18 @@ class World:
         self.objects.add(unit)
         self.units.add(unit)
 
+    def addResource(self,unit):
+        '''Add a new resource to the map'''
+        self.objects.add(unit)
+        self.resources.add(unit)
+
     def getUnit(self,location):
         for unit in self.units:
+            if unit.rect.collidepoint(location):
+                return unit
+
+    def getResource(self,location):
+        for unit in self.resources:
             if unit.rect.collidepoint(location):
                 return unit
 

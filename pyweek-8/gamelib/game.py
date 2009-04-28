@@ -82,7 +82,7 @@ class Game:
         #    if unit:
         #        self.world.addUnit(unit)
             
-        self.world.addObject(mapobject.Leaves((100,100),self.graphics)) #this should probably go in world but it needs graphics garghghah
+        self.world.addResource(mapobject.Leaves((100,100),self.graphics)) #this should probably go in world but it needs graphics garghghah
         self.input = Input()
         self.input.onClick(self.leftClick)
         self.input.onRightClick(self.rightClick)
@@ -96,8 +96,11 @@ class Game:
 
     def rightClick(self,pos):
         target = self.world.getUnit(pos)
-        if target and self.human.isUnit(target) == False:
+        resource = self.world.getResource(pos)
+        if target and (self.human.isUnit(target) == False):
             self.human.doAttack(target)
+        elif resource:
+            self.human.doGather(resource)
         else:
             self.human.doMove(pos)
 
