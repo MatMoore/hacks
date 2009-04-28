@@ -87,6 +87,10 @@ class Game:
         self.input.onClick(self.leftClick)
         self.input.onRightClick(self.rightClick)
         self.input.onDrag(self.drag)
+
+        #make gui
+        self.gui = graphics.GUI()
+        self.gui.add(graphics.ResourceDisplay(self.human))
     
     def drag(self,dragRect):
         self.human.doSelect(dragRect)
@@ -135,6 +139,7 @@ class Game:
             if self.input.dragRect != None:
                 self.graphics.drawRect(self.input.dragRect)
             self.human.drawSelectedRects(self.graphics)
+            self.gui.draw(self.graphics)
             self.graphics.flip()
 
 if __name__ == '__main__':

@@ -13,3 +13,4 @@ MOVESPEED = 50 #pixels per second basic move speed
 HEALTHBARGAP = 15 #vertical position of health bar relative to the units rect
 HEALTHBARSIZE = (60,5)
 GRIDSIZE = 200  #size of a grid... this should never be below the sight distance, because a unit gets passed all units in the grid locations around itself but nothing further
+BUTTONSPACING = 5 #space between GUI buttons
