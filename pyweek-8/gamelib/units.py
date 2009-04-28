@@ -38,7 +38,13 @@ class Unit(mapobject.MapObject):
     def getDistance(self, target):
         """get the distance from current location to target"""
         return math.sqrt(float((target[0]-self.position[0])**2+(target[1]-self.position[1])**2))
-            
+
+    def getAngleTo(self, target):
+        result = math.atan2(target[1]-self.position[1], target[0]-self.position[0])*180/math.pi + 90
+        if result < 0:
+            result += 360
+        return result
+        
     def isDead(self):
         return self.health <= 0
 
@@ -52,10 +58,7 @@ class Unit(mapobject.MapObject):
             target = self.targets[-1]
         
             #calculate desired heading
-            desiredDirection = math.atan2(target[1]-self.position[1], target[0]-self.position[0])
-            desiredDirection = desiredDirection * 180/math.pi + 90
-            if desiredDirection < 0:
-                desiredDirection += 360
+            desiredDirection = self.getAngleTo(target)
                 
             #now correct for the discontinuity(360 == 0) so we can turn left or right correctly
             while abs(self.direction - desiredDirection) > 180:
@@ -77,7 +80,7 @@ class Unit(mapobject.MapObject):
             elif self.direction < 0:
                 self.direction += 360
 
-            distance = math.sqrt(float((target[0]-self.position[0])**2+(target[1]-self.position[1])**2))
+            distance = self.getDistance(target)
 
             #update position and rect(i.e. Move him)
             if distance > self.speed*dt:
@@ -97,11 +100,11 @@ class Unit(mapobject.MapObject):
     def walkTo(self,position):
         self.targets = [position]
 
-    def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything
-        pass
+    def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything, and it will make the default behaviour == walk
+        self.walkTo(unit.rect.center)
         
     def gather(self,resource):
-        pass
+        self.walkTo(resource.rect.center)
         
     def setAnimation(self, animation):
         if animation in self.animations:
@@ -109,12 +112,33 @@ class Unit(mapobject.MapObject):
             self.surface = self.currentanimation.reset()    #set the animation back to frame 0
 
     def interact(self, objects):
-        for item in objects:
-            if item != self:
-                #URG SORRY I CANT DO COLLISION AVOIDANCE YET I AM TOO TIRED
-                if pygame.sprite.collide_circle(self, item):
-                    #do something here to make them not collide
-                    pass
+        if len(self.targets) > 0:   #only wanna do collision detection/avoidance if we're moving
+            for item in objects:
+                if item != self:    #make sure we're not targetting ourself
+
+                    if self.gatherTarget.sprites():
+                        if item == self.gatherTarget.sprites()[0]:
+                            continue    #consider next item
+
+                    if self.attackTarget.sprites():
+                        if item == self.attackTarget.sprites()[0]:
+                            continue    #consider next item
+
+                    try:
+                        itemPos = item.position
+                    except AttributeError:
+                        itemPos = item.rect.center
+                    
+                    dist = self.getDistance(itemPos)
+                    mindist = self.radius + item.radius
+                    if dist < mindist:
+                        angle = self.getAngleTo(itemPos) - 90 - 180
+                        angle *= math.pi/float(180)
+                        dx = math.cos(angle)*mindist
+                        dy = math.sin(angle)*mindist
+                        self.position = (itemPos[0] + dx, itemPos[1] + dy)
+                        self.rect.center = self.position
+                                                                
                     
                 
                     
@@ -128,7 +152,7 @@ class WorkerUnit(Unit):
         Unit.__init__(self,graphics,position,WorkerUnit.animations)
         self.carrying = False
         self.gatherRange = 20
-
+        self.radius = 25
     def gather(self, resource):
         self.gatherTarget.empty()
         self.gatherTarget.add(resource)
@@ -158,7 +182,7 @@ class SoldierUnit(Unit):
         self.attackRange = 20
         self.attackPower = 20
         self.attackTimer = stuff.Timer(self.attackTime)
-        
+        self.radius = 40
     def attack(self, unit):
         self.attackTarget.empty()
         self.attackTarget.add(unit)

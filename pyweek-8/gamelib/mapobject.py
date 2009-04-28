@@ -10,7 +10,8 @@ class MapObject(pygame.sprite.Sprite):
         self.rect = pygame.Rect(surface.get_rect())
         self.rect.center = position
         self.direction = 0
-
+        self.radius = max(surface.get_size())/2 #default radius = maximum of the surface sizes divided by 2
+        
     def draw(self,graphics):
         '''Override draw method so that we can use world coordinates instead of camera ones'''
         
