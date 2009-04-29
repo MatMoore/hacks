@@ -6,12 +6,32 @@
 #and a state (what they are currently doing)
 
 #need an interact method which takes a list of visible stuff, and the unit changes its state as appropriate
+
 import math
 import pygame
 import animation
 import mapobject
 import stuff
 from constants import *
+
+#not sure if this is right so it's not being used for now
+def circleLineIntersect(c, radius, p1, p2):
+    direction = (p2[0] - p1[0], p2[0] - p1[0])
+    diff = (c[1] - p1[1], c[1] - p1[1])
+    t = float(diff[0]*direction[0]+diff[1]*direction[1]) / float(direction[0]*direction[0]+direction[1]*direction[1])
+    if (t < 0):
+        t = 0
+    elif (t > 1):
+        t = 1
+    closest = ((p1[0] + t * direction[0]),(p1[1] + t * direction[1]))
+    d = (c[0] - closest[0],c[1] - closest[1])
+    distsqr = d[0]*d[0]+d[1]*d[1]
+    collides = (distsqr <= (radius * radius))
+    return collides
+    
+
+
+    
 class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
     price = 0
@@ -134,11 +154,19 @@ class Unit(mapobject.MapObject):
                         dy = math.sin(angle)*mindist
                         self.position = (itemPos[0] + dx, itemPos[1] + dy)
                         self.rect.center = self.position
-                                                                
                     
-                
-                    
-                
+
+"""                    if circleLineIntersect(itemPos, item.radius, self.position, self.targets[-1]):
+                        if isinstance(item, Unit):                    
+                            #tell him to get out of the way
+                            item.getOutTheWay(self)
+                        else:
+                            #its not a unit, get out of the way yourself
+                            self.getOutTheWay(item)
+               
+    def getOutTheWay(self, item):
+        #calc new target and move there
+"""                 
                 
 class WorkerUnit(Unit):
     animations = {'default': 'worker1'}
