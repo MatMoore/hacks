@@ -14,24 +14,10 @@ import mapobject
 import stuff
 from constants import *
 
-#not sure if this is right so it's not being used for now
-def circleLineIntersect(c, radius, p1, p2):
-    direction = (p2[0] - p1[0], p2[0] - p1[0])
-    diff = (c[1] - p1[1], c[1] - p1[1])
-    t = float(diff[0]*direction[0]+diff[1]*direction[1]) / float(direction[0]*direction[0]+direction[1]*direction[1])
-    if (t < 0):
-        t = 0
-    elif (t > 1):
-        t = 1
-    closest = ((p1[0] + t * direction[0]),(p1[1] + t * direction[1]))
-    d = (c[0] - closest[0],c[1] - closest[1])
-    distsqr = d[0]*d[0]+d[1]*d[1]
-    collides = (distsqr <= (radius * radius))
-    return collides
-    
-
 
     
+
+   
 class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
     price = 0
@@ -59,12 +45,24 @@ class Unit(mapobject.MapObject):
         """get the distance from current location to target"""
         return math.sqrt(float((target[0]-self.position[0])**2+(target[1]-self.position[1])**2))
 
+
+    def fixAngle(self, angle, angle2 = None):
+        """returns angle with a distance of no more than 180 from self.direction or angle2 - to correct for the discontinuity of 360 == 0"""
+        if angle2 == None:
+            angle2 = self.direction
+        while abs(angle - angle2) > 180:
+            if angle2 < angle:
+                angle -= 360
+            elif  angle2 > angle:
+                angle += 360
+        return angle
+
     def getAngleTo(self, target):
-        result = math.atan2(target[1]-self.position[1], target[0]-self.position[0])*180/math.pi + 90
+        result = math.atan2(target[1]-self.position[1], target[0]-self.position[0])*180/math.pi
         if result < 0:
             result += 360
         return result
-        
+    
     def isDead(self):
         return self.health <= 0
 
@@ -79,14 +77,8 @@ class Unit(mapobject.MapObject):
         
             #calculate desired heading
             desiredDirection = self.getAngleTo(target)
-                
-            #now correct for the discontinuity(360 == 0) so we can turn left or right correctly
-            while abs(self.direction - desiredDirection) > 180:
-                if self.direction < desiredDirection:
-                    desiredDirection -= 360
-                elif self.direction > desiredDirection:
-                    desiredDirection += 360
-
+            desiredDirection = self.fixAngle(desiredDirection)
+            
             if desiredDirection < self.direction:
                 self.direction -= TURNSPEED * dt    #turn left
             elif desiredDirection > self.direction:
@@ -105,8 +97,8 @@ class Unit(mapobject.MapObject):
             #update position and rect(i.e. Move him)
             if distance > self.speed*dt:
                 #not quite there yet...
-                dx = math.cos((self.direction-90)*math.pi/float(180))*self.speed*dt
-                dy = math.sin((self.direction-90)*math.pi/float(180))*self.speed*dt
+                dx = math.cos((self.direction)*math.pi/float(180))*self.speed*dt
+                dy = math.sin((self.direction)*math.pi/float(180))*self.speed*dt
                 self.position = (self.position[0]+dx, self.position[1]+dy)
                 self.rect.center = self.position
 
@@ -146,27 +138,38 @@ class Unit(mapobject.MapObject):
                         itemPos = item.rect.center
                     
                     dist = self.getDistance(itemPos)
-                    mindist = self.radius + item.radius
-                    if dist < mindist:
-                        angle = self.getAngleTo(itemPos) - 90 - 180
-                        angle *= math.pi/float(180)
-                        dx = math.cos(angle)*mindist
-                        dy = math.sin(angle)*mindist
+                    minDist = self.radius + item.radius
+                    angleTo = self.getAngleTo(itemPos)
+                    
+                    #collisions
+                    if dist < minDist:
+                        angle = (angleTo-180)*math.pi/float(180)
+                        dx = math.cos(angle)*minDist
+                        dy = math.sin(angle)*minDist
                         self.position = (itemPos[0] + dx, itemPos[1] + dy)
                         self.rect.center = self.position
+                        if itemPos == self.targets[-1]:
+                            self.targets.pop()
+                            break
                     
-
-"""                    if circleLineIntersect(itemPos, item.radius, self.position, self.targets[-1]):
-                        if isinstance(item, Unit):                    
-                            #tell him to get out of the way
-                            item.getOutTheWay(self)
-                        else:
-                            #its not a unit, get out of the way yourself
-                            self.getOutTheWay(item)
-               
-    def getOutTheWay(self, item):
-        #calc new target and move there
-"""                 
+                    
+                    #Now determine if it's in our way
+                    angleToUnit = self.fixAngle(angleTo)
+                    angleToTarget = self.fixAngle(self.getAngleTo(self.targets[-1]))
+                    distToTarget = self.getDistance(self.targets[-1])
+                    if abs(angleToUnit - angleToTarget) < 45 and (dist+item.radius) < distToTarget and dist < (self.radius+AVOIDDISTANCE+item.radius):  #make sure we're close enough to the obstacle
+                        #calculate distance from the closest position on the line
+                        a = abs(angleToTarget - angleToUnit)
+                        distFromLine = math.sin(a * math.pi/float(180)) * dist
+                        if distFromLine < minDist: #the distance from the line is too close so we need to make a new target
+                            if angleToUnit < angleToTarget:
+                                angleAcrossLine = angleToUnit+90
+                            else:
+                                angleAcrossLine = angleToUnit-90
+                            dx = math.cos((angleAcrossLine)*math.pi/float(180))*minDist*1.5
+                            dy = math.sin((angleAcrossLine)*math.pi/float(180))*minDist*1.5
+                            self.targets.append((itemPos[0] + dx, itemPos[1] + dy))                        
+                 
                 
 class WorkerUnit(Unit):
     animations = {'default': 'worker1'}
