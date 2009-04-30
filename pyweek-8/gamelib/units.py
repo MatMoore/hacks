@@ -188,8 +188,8 @@ class Unit(mapobject.MapObject):
                         self.position = (itemPos[0] + dx, itemPos[1] + dy)
                         self.rect.center = self.position
                         
-                        itemTargetDistance = math.sqrt(float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2))
-                        if itemTargetDistance < item.radius+self.radius:
+                        itemTargetDistance = float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2)
+                        if itemTargetDistance < item.radius**2:
                             self.targets.pop()
                             break
 
