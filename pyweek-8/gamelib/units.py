@@ -125,17 +125,15 @@ class Unit(mapobject.MapObject):
             distance = self.getDistance(target)
 
             #update position and rect(i.e. Move him)
-            if distance > self.speed*dt:
+            if distance > 15:   #15 is roughly the turning radius
                 #not quite there yet...
-                if self.direction == desiredDirection:  #only move when facing correct direction
-                    dx = math.cos((self.direction)*math.pi/float(180))*self.speed*dt
-                    dy = math.sin((self.direction)*math.pi/float(180))*self.speed*dt
-                    self.position = (self.position[0]+dx, self.position[1]+dy)
+                dx = math.cos((self.direction)*math.pi/float(180))*self.speed*dt
+                dy = math.sin((self.direction)*math.pi/float(180))*self.speed*dt
+                self.position = (self.position[0]+dx, self.position[1]+dy)
                 self.rect.center = self.position
 
             elif self.direction == desiredDirection:
                 #facing the target and close enough to walk there, so position = target (avoids endlessly circling it)
-                self.position = (target[0],target[1])
                 self.targets.pop()  #go for the next target if there is one
 
 
