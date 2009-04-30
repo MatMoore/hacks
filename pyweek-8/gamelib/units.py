@@ -3,9 +3,45 @@ import pygame
 import animation
 import mapobject
 import stuff
+import pathfinder
 from constants import *
 
+def vecadd(a, b):
+    if len(b) == 2:
+        return (a[0] + b[0], a[1] + b[1])
+    else:
+        return (a[0] + b, a[1] + b)
+
+def vecdel(a, b):
+    return (a[0] - b[0], a[1] - b[1])
+    
+def vecmul(a, b):
+    if len(b) == 2:
+        return (a[0] * b[0], a[1] * b[1])
+    else:
+        return (a[0] * b, a[1] * b)
+    
+def vecdot(a, b):
+    return a[0] * b[0] + a[1] * b[1]
+    
+
 #TODO: make an idle behaviour method - e.g. workers should seek out leaves
+def intersectCircleSegment(c,r,p1,p2):
+    dirr = vecdel(p2, p1)
+    diff = vecdel(c, p1)
+    t = float(vecdot(diff, dirr)) / float(vecdot(dirr, dirr))
+    
+    if (t < 0.0):
+        t = 0.0
+    if (t > 1.0):
+        t = 1.0
+        
+    closest = vecadd(p1, vecmul(dirr, t))
+    d = vecdel(c,closest)
+    distsqr = vecdot(d, d)
+    return distsqr <= r*r
+
+
 
 class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
@@ -28,6 +64,8 @@ class Unit(mapobject.MapObject):
         self.currentanimation = self.animations['default']  #set us to the default animation
         mapobject.MapObject.__init__(self, self.currentanimation.reset(), position) #init the base class with the first frame of the animation
         self.direction = 100
+        
+        self.pathFinder = pathfinder.PathFinder(self.radius)
         
     def getDistance(self, target):
         """get the distance from current location to target"""
@@ -89,9 +127,10 @@ class Unit(mapobject.MapObject):
             #update position and rect(i.e. Move him)
             if distance > self.speed*dt:
                 #not quite there yet...
-                dx = math.cos((self.direction)*math.pi/float(180))*self.speed*dt
-                dy = math.sin((self.direction)*math.pi/float(180))*self.speed*dt
-                self.position = (self.position[0]+dx, self.position[1]+dy)
+                if self.direction == desiredDirection:  #only move when facing correct direction
+                    dx = math.cos((self.direction)*math.pi/float(180))*self.speed*dt
+                    dy = math.sin((self.direction)*math.pi/float(180))*self.speed*dt
+                    self.position = (self.position[0]+dx, self.position[1]+dy)
                 self.rect.center = self.position
 
             elif self.direction == desiredDirection:
@@ -102,7 +141,8 @@ class Unit(mapobject.MapObject):
 
 
     def walkTo(self,position):
-        self.targets = [position]
+#        self.targets = [position]
+        self.targets = self.pathFinder.calcPath(self.position, position)
 
     def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything, and it will make the default behaviour == walk
         self.walkTo(unit.position)
@@ -116,19 +156,26 @@ class Unit(mapobject.MapObject):
             self.surface = self.currentanimation.reset()    #set the animation back to frame 0
 
     def interact(self, objects):
-        if len(self.targets) > 0:   #only wanna do collision detection/avoidance if we're moving
-            for item in objects:
-                if item != self and item.__class__ != mapobject.Leaves:    #make sure we're not targetting ourself
+        self.pathFinder.clearUp()   #delete all the moveable units from the pathfinder - leave only the solid things
+        for item in objects:
 
-                    if self.attackTarget.sprites():
-                        if item == self.attackTarget.sprites()[0]:
-                            continue    #consider next item
+            if self.attackTarget.sprites():
+                if item == self.attackTarget.sprites()[0]:
+                    continue    #consider next item
 
-                    try:
-                        itemPos = item.position
-                    except AttributeError:
-                        itemPos = item.rect.center
-                    
+            if item != self and item.__class__ != mapobject.Leaves:    #make sure we're not targetting ourself
+                
+                try:
+                    itemPos = item.position
+                except AttributeError:
+                    itemPos = item.rect.center
+                        
+                self.pathFinder.addObstacle(itemPos, item.radius)   #currently adding everything as non-permanent, no memory                
+
+
+                if len(self.targets) > 0:   #only wanna do collision detection/avoidance if we're moving
+                   
+                   
                     dist = self.getDistance(itemPos)
                     minDist = self.radius + item.radius
                     angleTo = self.getAngleTo(itemPos)
@@ -140,13 +187,22 @@ class Unit(mapobject.MapObject):
                         dy = math.sin(angle)*minDist
                         self.position = (itemPos[0] + dx, itemPos[1] + dy)
                         self.rect.center = self.position
-                        if itemPos == self.targets[-1]:
+                        
+                        itemTargetDistance = math.sqrt(float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2))
+                        if itemTargetDistance < item.radius+self.radius:
                             self.targets.pop()
                             break
-                    
+
+        #for item in objects:
+         #   if item != self:
+          #      for 
+
+
+
+
                     
                     #Now determine if it's in our way
-                    angleToUnit = self.fixAngle(angleTo)
+"""                    angleToUnit = self.fixAngle(angleTo)
                     angleToTarget = self.fixAngle(self.getAngleTo(self.targets[-1]))
                     distToTarget = self.getDistance(self.targets[-1])
                     if abs(angleToUnit - angleToTarget) < 45 and (dist+item.radius) < distToTarget and dist < (self.radius+AVOIDDISTANCE+item.radius):  #make sure we're close enough to the obstacle
@@ -161,7 +217,7 @@ class Unit(mapobject.MapObject):
                             dx = math.cos((angleAcrossLine)*math.pi/float(180))*minDist*1.5
                             dy = math.sin((angleAcrossLine)*math.pi/float(180))*minDist*1.5
                             self.targets.append((itemPos[0] + dx, itemPos[1] + dy))                        
-                 
+"""                 
                 
 class WorkerUnit(Unit):
     animations = {'default': 'worker1', 'carrying':'worker2'}

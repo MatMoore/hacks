@@ -70,20 +70,19 @@ class Game:
         self.world = world.World()
         self.state = GAMESTATE_RUN
         self.human = player.Player()
-        for i in range(3):
-            unit = self.human.buyUnit("SoldierUnit",self.graphics)
-            if unit:
-                self.world.addUnit(unit)
-        unit = self.human.buyUnit("WorkerUnit",self.graphics)
-        self.world.addUnit(unit)
+#        for i in range(3):
+#            unit = self.human.buyUnit("SoldierUnit",self.graphics)
+#            if unit:
+#                self.world.addUnit(unit)
+#        unit = self.human.buyUnit("WorkerUnit",self.graphics)
+#        self.world.addUnit(unit)
         #self.AIPlayers = [player.Player()] #ai does nothing yet
         #for i in range(3):
         #    unit = self.AIPlayers[0].buyUnit("Unit",self.graphics)
         #    if unit:
         #        self.world.addUnit(unit)
-            
-        self.world.addResource(mapobject.Leaves((200,100),self.graphics)) #this should probably go in world but it needs graphics garghghah
 
+        self.world.addResource(mapobject.Leaves((200,100),self.graphics)) #this should probably go in world but it needs graphics
         colony = mapobject.Colony(self.human,(-400,0),self.graphics)
         self.world.addObject(colony)
         self.human.addColony(colony)
