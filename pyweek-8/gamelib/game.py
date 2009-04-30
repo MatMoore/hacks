@@ -162,6 +162,7 @@ class Game:
                 self.graphics.drawRect(self.input.dragRect)
             self.human.drawSelectedRects(self.graphics)
             self.gui.draw(self.graphics)
+            self.world.drawMinimap(self.graphics)
             self.graphics.flip()
 
 if __name__ == '__main__':

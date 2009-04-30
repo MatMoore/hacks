@@ -171,6 +171,11 @@ class Graphics:
             y += self.screen.get_height()
         return (x,y)
 
+    def getCameraRect(self):
+        rect = pygame.Rect((0,0),self.screen.get_size())
+        rect.center = self.camera
+        return rect
+
     def loadImage(self, fileName):
         if fileName in self.images: #have we already loaded this file
             image = self.images[fileName]
@@ -264,6 +269,9 @@ class Graphics:
 
     def drawStaticRect(self,screenrect,color=DRAGRECTCOLOR, width=2):
         pygame.draw.rect(self.screen, color, screenrect, width)
+
+    def drawStaticCircle(self,center,radius,color=DRAGRECTCOLOR, width=2):
+        pygame.draw.circle(self.screen, color, center, radius, width)
     
     def __del__(self):
         pygame.quit()
