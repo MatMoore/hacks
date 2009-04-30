@@ -252,7 +252,7 @@ class Graphics:
             screenPos[1] > 0-size[1] and \
             screenPos[1] < SCREENSIZE[1]+size[1]:
             
-            if angle != 270 and anle != -90:
+            if angle != 270 and angle != -90:
                 drawImage = pygame.transform.rotozoom(image, 270-angle, 1)
             else:
                 drawImage = image
