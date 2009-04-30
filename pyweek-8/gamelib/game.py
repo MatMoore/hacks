@@ -82,9 +82,11 @@ class Game:
         #    if unit:
         #        self.world.addUnit(unit)
             
-        self.world.addResource(mapobject.Leaves((100,100),self.graphics)) #this should probably go in world but it needs graphics garghghah
+        self.world.addResource(mapobject.Leaves((200,100),self.graphics)) #this should probably go in world but it needs graphics garghghah
 
-        self.world.addObject(mapobject.Colony((-200,0),self.graphics)) #this should probably go in world but it needs graphics garghghah
+        colony = mapobject.Colony(self.human,(-400,0),self.graphics)
+        self.world.addObject(colony)
+        self.human.addColony(colony)
         self.input = Input()
         self.input.onClick(self.leftClick)
         self.input.onRightClick(self.rightClick)

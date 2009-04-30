@@ -1,12 +1,3 @@
-#TODO
-
-#all units inherit from a basic unit class, which inherits from mapobject
-
-#have some basic stats
-#and a state (what they are currently doing)
-
-#need an interact method which takes a list of visible stuff, and the unit changes its state as appropriate
-
 import math
 import pygame
 import animation
@@ -14,10 +5,8 @@ import mapobject
 import stuff
 from constants import *
 
+#TODO: make an idle behaviour method - e.g. workers should seek out leaves
 
-    
-
-   
 class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
     price = 0
@@ -28,10 +17,9 @@ class Unit(mapobject.MapObject):
         self.maxHealth = 100
         self.speed = 25
         self.targets = [] #walk target
-        self.gatherTarget = pygame.sprite.Group()   #i've kept these here so that the collision avoidance can check
+        self.seekTarget = pygame.sprite.Group()   #i've kept these here so that the collision avoidance can check
         self.attackTarget = pygame.sprite.Group()   #whether this unit is just trying to move or whether it's doing
                                                     #something useful - maybe there's a better way
-
 
         self.animations = dict()
         for action,anim in animations.iteritems():
@@ -45,6 +33,10 @@ class Unit(mapobject.MapObject):
         """get the distance from current location to target"""
         return math.sqrt(float((target[0]-self.position[0])**2+(target[1]-self.position[1])**2))
 
+
+    def changeAnimation(self,anim):
+        if anim in self.animations:
+            self.currentanimation = self.animations[anim]
 
     def fixAngle(self, angle, angle2 = None):
         """returns angle with a distance of no more than 180 from self.direction or angle2 - to correct for the discontinuity of 360 == 0"""
@@ -115,7 +107,7 @@ class Unit(mapobject.MapObject):
     def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything, and it will make the default behaviour == walk
         self.walkTo(unit.position)
         
-    def gather(self,resource):
+    def gather(self,resource,colony):
         self.walkTo(resource.rect.center)
         
     def setAnimation(self, animation):
@@ -172,30 +164,48 @@ class Unit(mapobject.MapObject):
                  
                 
 class WorkerUnit(Unit):
-    animations = {'default': 'worker1'}
+    animations = {'default': 'worker1', 'carrying':'worker2'}
     price = 0
 
     def __init__(self,graphics,position):
         Unit.__init__(self,graphics,position,WorkerUnit.animations)
         self.carrying = False
-        self.gatherRange = 20
+        #self.gatherRange = 20
         self.radius = 25
-    def gather(self, resource):
-        self.gatherTarget.empty()
-        self.gatherTarget.add(resource)
+
+    def gather(self, resource, colony):
+        self.seekTarget.empty()
+        self.seekTarget.add(colony)
+        self.seekTarget.add(resource)
         self.targets = [resource.rect.center]
         
         
     def update(self, dt):
-        if self.gatherTarget.sprites(): #there are targets
-            resource = (self.gatherTarget.sprites())[0]
-            distance = math.sqrt(float((resource.rect.centerx-self.position[0])**2+(resource.rect.centery-self.position[1])**2))
-            if distance < self.gatherRange:
-                #TODO: make leaf carrying animation
-                resource.take()
-                self.carrying = True
-                self.gatherTarget.empty()
-                self.targets = []
+        if len(self.seekTarget)>1: 
+            colony = None
+            leaves = None
+            for i in self.seekTarget: #yeah this sucks
+                if i.__class__ is mapobject.Colony:
+                    colony = i
+                elif i.__class__ is mapobject.Leaves:
+                    leaves = i
+                if colony and leaves:
+                    break
+
+            if colony and leaves:
+                if self.carrying and pygame.sprite.collide_circle(self,colony): #we are back at the colony
+                    colony.addLeaves(1)
+                    self.carrying = False
+                    print "return"
+                    self.setAnimation('default')
+                    self.targets = [leaves.rect.center]
+
+                elif not self.carrying and pygame.sprite.collide_circle(self,leaves):
+                    leaves.take()
+                    self.carrying = True
+                    print "carrying"
+                    self.setAnimation('carrying')
+                    self.targets = [colony.rect.center]
         
         Unit.update(self, dt)
 

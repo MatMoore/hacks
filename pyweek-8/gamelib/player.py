@@ -16,6 +16,7 @@ class Player:
         self.usedFood = 0
         self.leaves = 100 #collect leaves to feed fungus!
         self.units = pygame.sprite.Group()
+        self.colonies = pygame.sprite.Group()
         self.selectedUnits = pygame.sprite.Group()
 
     def buyUnit(self,type,graphics):
@@ -26,6 +27,9 @@ class Player:
             unit = unitClass(graphics,(0,0)) #TODO, make classes for each unit and give them their own animations
             self.units.add(unit)
             return unit
+
+    def addColony(self,colony):
+        self.colonies.add(colony)
             
     def isUnit(self, unit):
         return self.units.has(unit)
@@ -59,8 +63,10 @@ class Player:
             unit.attack(enemy)
 
     def doGather(self,resource):
-        for unit in self.selectedUnits:
-            unit.gather(resource)
+        if len(self.colonies):
+            colony = self.colonies.sprites()[0]
+            for unit in self.selectedUnits:
+                unit.gather(resource,colony)
             
     def drawSelectedRects(self, graphics):
         for unit in self.selectedUnits:
