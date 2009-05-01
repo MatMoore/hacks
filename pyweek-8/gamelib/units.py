@@ -223,7 +223,28 @@ class Unit(mapobject.MapObject):
                             break
 
                     if dist < (minDist + AVOIDDISTANCE):
-                        randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
+#                        randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
+
+                        #find a random target in a sector facing away from the thing
+                        fixAng = self.fixAngle(angleTo)
+                        if fixAng < self.direction:
+                            angle = angleTo + 45
+                        else:
+                            angle = angleTo - 45
+
+                        while True:
+                            randomAngle = random.uniform(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE)
+                            if randomAngle > RANDOMTARGETMINANGLE:
+                                randomAngle = (randomAngle + angle) % 2*math.pi
+                                break
+
+                        while True:
+                            randomDist = math.sqrt(random.random())*RANDOMTARGETMAX #this ensures that the random targets are uniformly spread out over the sector
+                            if randomDist > RANDOMTARGETMIN:
+                                break
+
+                        randomTarget = (randomDist*math.cos(randomAngle*180/math.pi),randomDist*math.sin(randomAngle*180/math.pi))
+
                         if len(self.targets) > 1:
                             if intersectCircleSegment(itemPos, item.radius, self.position, self.targets[-1]):
                                 self.targets[-1] = randomTarget

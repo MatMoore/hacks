@@ -14,9 +14,14 @@ HEALTHBARGAP = 15 #vertical position of health bar relative to the units rect
 HEALTHBARSIZE = (60,5)
 GRIDSIZE = 200  #size of a grid... this should never be below the sight distance, because a unit gets passed all units in the grid locations around itself but nothing further
 BUTTONSPACING = 5 #space between GUI buttons
-AVOIDDISTANCE = 50 # distance to begin avoid move at(in addition to the radiuses of each unit)
+AVOIDDISTANCE = 20 # distance to begin avoid move at(in addition to the radiuses of each unit)
 MINIMAPWIDTH = 150
 MINIMAPHEIGHT = 150
 MINIMAPSCALEX = 2
 MINIMAPSCALEY = 2
 MINIMAPDOTSIZE = 2
+import math
+RANDOMTARGETMAXANGLE = math.pi/2
+RANDOMTARGETMINANGLE = math.pi/6
+RANDOMTARGETMAX = 50
+RANDOMTARGETMIN = 10
