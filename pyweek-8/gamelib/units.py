@@ -232,12 +232,8 @@ class Unit(mapobject.MapObject):
                         else:
                             angle = angleTo - 45
 
-                        while True:
-                            randomAngle = random.uniform(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE)
-                            if randomAngle > RANDOMTARGETMINANGLE:
-                                randomAngle = (randomAngle + angle) % 2*math.pi
-                                break
-
+                        randomAngle = random.uniform(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE)
+                            
                         while True:
                             randomDist = math.sqrt(random.random())*RANDOMTARGETMAX #this ensures that the random targets are uniformly spread out over the sector
                             if randomDist > RANDOMTARGETMIN:
