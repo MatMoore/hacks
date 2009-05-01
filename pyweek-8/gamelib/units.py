@@ -209,7 +209,7 @@ class Unit(mapobject.MapObject):
                     dist = self.getDistance(itemPos)
                     minDist = self.radius + item.radius
                     angleTo = self.getAngleTo(itemPos)
-                    
+
                     #collisions
                     if dist < minDist:
                         angle = (angleTo-180)*math.pi/float(180)
@@ -221,31 +221,37 @@ class Unit(mapobject.MapObject):
                         if itemTargetDistance < minDist**2:
                             self.targets.pop()
                             break
+                    
+                    
+                    angleTarget = self.getAngleTo(self.targets[-1])
+                    fixAng = self.fixAngle(angleTo, angleTarget)
+                    print str(angleTarget) + " " + str(angleTo) + " " + str(fixAng) + " relative:" + str(fixAng - angleTarget )
 
-                    if dist < (minDist + AVOIDDISTANCE):
-#                        randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
+                                        
+                    if dist < (minDist + AVOIDDISTANCE) and abs(fixAng - angleTarget) < 90:  #are we close enough and is it in front of us
+                        if intersectCircleSegment(itemPos, item.radius, self.position, self.targets[-1]):
+                            #randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
 
-                        #find a random target in a sector facing away from the thing
-                        fixAng = self.fixAngle(angleTo)
-                        if fixAng < self.direction:
-                            angle = angleTo + 45
-                        else:
-                            angle = angleTo - 45
-
-                        randomAngle = random.uniform(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE)
+                            #find a random target in a sector facing away from the thing
                             
-                        while True:
-                            randomDist = math.sqrt(random.random())*RANDOMTARGETMAX #this ensures that the random targets are uniformly spread out over the sector
-                            if randomDist > RANDOMTARGETMIN:
-                                break
+                            if (fixAng - angleTarget) > 0:
+                                angle = angleTarget - 45
+                            else:
+                                angle = angleTarget + 45
+                            
+                            randomAngle = angle
+#                            randomAngle = random.randint(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE) + angle
+                            print randomAngle
+                                   
+                            randomDist = math.sqrt(random.random()*(RANDOMTARGETMAX**2-RANDOMTARGETMIN**2)) + RANDOMTARGETMIN #this ensures that the random targets are uniformly spread out over the sector
 
-                        randomTarget = (randomDist*math.cos(randomAngle*180/math.pi),randomDist*math.sin(randomAngle*180/math.pi))
+                            randomTarget = (randomDist*math.cos(randomAngle*math.pi/180),randomDist*math.sin(randomAngle*math.pi/180))
 
-                        if len(self.targets) > 1:
-                            if intersectCircleSegment(itemPos, item.radius, self.position, self.targets[-1]):
-                                self.targets[-1] = randomTarget
-                        else:
-                            self.targets.append(randomTarget)
+                            if len(self.targets) > 1:
+                                
+                                    self.targets[-1] = randomTarget
+                            else:
+                                self.targets.append(randomTarget)
                         
                         #checks whether our final target is within the unit and if it is then stay where we are.
                         itemTargetDistance = float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2)
