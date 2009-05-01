@@ -217,20 +217,24 @@ class Unit(mapobject.MapObject):
                         dy = math.sin(angle)*minDist
                         self.position = (itemPos[0] + dx, itemPos[1] + dy)
                         self.rect.center = self.position
-                        
                         itemTargetDistance = float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2)
-                        if itemTargetDistance < item.radius**2:
+                        if itemTargetDistance < minDist**2:
                             self.targets.pop()
                             break
+
                     if dist < (minDist + AVOIDDISTANCE):
                         randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
                         if len(self.targets) > 1:
-                            if intersectCircleSegment(itemPos, item.radius+self.radius, self.position, self.targets[-1]):
+                            if intersectCircleSegment(itemPos, item.radius, self.position, self.targets[-1]):
                                 self.targets[-1] = randomTarget
                         else:
                             self.targets.append(randomTarget)
                         
-
+                        #checks whether our final target is within the unit and if it is then stay where we are.
+                        itemTargetDistance = float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2)
+                        if itemTargetDistance < item.radius**2:
+                            self.targets.pop()
+                            break
                 
 class WorkerUnit(Unit):
     animations = {'default': 'worker1', 'carrying':'worker2'}
