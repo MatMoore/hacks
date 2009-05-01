@@ -1,4 +1,5 @@
 import math
+import random
 import pygame
 import animation
 import mapobject
@@ -7,29 +8,36 @@ import pathfinder
 from constants import *
 
 def vecadd(a, b):
-    if len(b) == 2:
+    try:
         return (a[0] + b[0], a[1] + b[1])
-    else:
+    except:
         return (a[0] + b, a[1] + b)
 
 def vecdel(a, b):
     return (a[0] - b[0], a[1] - b[1])
     
 def vecmul(a, b):
-    if len(b) == 2:
+    try:
         return (a[0] * b[0], a[1] * b[1])
-    else:
+    except:
         return (a[0] * b, a[1] * b)
     
 def vecdot(a, b):
     return a[0] * b[0] + a[1] * b[1]
     
-
+def vecnorm(a):
+    length = math.sqrt(a[0]**2 + a[1]**2)
+    return (a[0]/length, a[1]/length)
+    
+    
 #TODO: make an idle behaviour method - e.g. workers should seek out leaves
 def intersectCircleSegment(c,r,p1,p2):
     dirr = vecdel(p2, p1)
     diff = vecdel(c, p1)
-    t = float(vecdot(diff, dirr)) / float(vecdot(dirr, dirr))
+    try:
+        t = float(vecdot(diff, dirr)) / float(vecdot(dirr, dirr))
+    except ZeroDivisionError:
+        return False
     
     if (t < 0.0):
         t = 0.0
@@ -66,7 +74,30 @@ class Unit(mapobject.MapObject):
         self.direction = 100
         
         self.pathFinder = pathfinder.PathFinder(self.radius)
+    
+    def randomWalk(self, target, averagedistance = 200):
+        distance = self.getDistance(target)
+        numberofnodes = math.floor(distance/200) -1 # -1 because the target node is set outside the loop
+        vector = vecdel(target, self.position)
+        vector = vecnorm(vector)
+        vector = vecmul(vector, 0-averagedistance)  #multiplied by 0-average distance because we're going back from the end
+        currentpos = target
+        targets = []
         
+        #must add the target so here
+        randompos = (currentpos[0] + random.randint(0,averagedistance)-100, currentpos[1] + random.randint(0,averagedistance)-100)
+        targets.append(randompos)        
+        
+        for i in range(numberofnodes):
+            currentpos = vecadd(currentpos, vector)
+            randompos = (currentpos[0] + random.randint(0,averagedistance)-100, currentpos[1] + random.randint(0,averagedistance)-100)
+            targets.append(randompos)
+
+
+        return targets
+        
+    
+    
     def getDistance(self, target):
         """get the distance from current location to target"""
         return math.sqrt(float((target[0]-self.position[0])**2+(target[1]-self.position[1])**2))
@@ -140,8 +171,9 @@ class Unit(mapobject.MapObject):
 
     def walkTo(self,position):
 #        self.targets = [position]
-        self.targets = self.pathFinder.calcPath(self.position, position)
-
+#        self.targets = self.pathFinder.calcPath(self.position, position)
+         self.targets = self.randomWalk(position)
+         
     def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything, and it will make the default behaviour == walk
         self.walkTo(unit.position)
         
@@ -190,32 +222,15 @@ class Unit(mapobject.MapObject):
                         if itemTargetDistance < item.radius**2:
                             self.targets.pop()
                             break
+                    if dist < (minDist + AVOIDDISTANCE):
+                        randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
+                        if len(self.targets) > 1:
+                            if intersectCircleSegment(itemPos, item.radius+self.radius, self.position, self.targets[-1]):
+                                self.targets[-1] = randomTarget
+                        else:
+                            self.targets.append(randomTarget)
+                        
 
-        #for item in objects:
-         #   if item != self:
-          #      for 
-
-
-
-
-                    
-                    #Now determine if it's in our way
-"""                    angleToUnit = self.fixAngle(angleTo)
-                    angleToTarget = self.fixAngle(self.getAngleTo(self.targets[-1]))
-                    distToTarget = self.getDistance(self.targets[-1])
-                    if abs(angleToUnit - angleToTarget) < 45 and (dist+item.radius) < distToTarget and dist < (self.radius+AVOIDDISTANCE+item.radius):  #make sure we're close enough to the obstacle
-                        #calculate distance from the closest position on the line
-                        a = abs(angleToTarget - angleToUnit)
-                        distFromLine = math.sin(a * math.pi/float(180)) * dist
-                        if distFromLine < minDist: #the distance from the line is too close so we need to make a new target
-                            if angleToUnit < angleToTarget:
-                                angleAcrossLine = angleToUnit+90
-                            else:
-                                angleAcrossLine = angleToUnit-90
-                            dx = math.cos((angleAcrossLine)*math.pi/float(180))*minDist*1.5
-                            dy = math.sin((angleAcrossLine)*math.pi/float(180))*minDist*1.5
-                            self.targets.append((itemPos[0] + dx, itemPos[1] + dy))                        
-"""                 
                 
 class WorkerUnit(Unit):
     animations = {'default': 'worker1', 'carrying':'worker2'}
