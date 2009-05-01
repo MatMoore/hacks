@@ -81,7 +81,13 @@ class Game:
         #    unit = self.AIPlayers[0].buyUnit("Unit",self.graphics)
         #    if unit:
         #        self.world.addUnit(unit)
-
+        unit = self.human.buyUnit("WorkerUnit",self.graphics)
+        unit.name = "Worker1: "
+        self.world.addUnit(unit)
+        unit = self.human.buyUnit("WorkerUnit",self.graphics)
+        unit.name = "Worker2: "
+        self.world.addUnit(unit)
+                
         self.world.addResource(mapobject.Leaves((200,100),self.graphics)) #this should probably go in world but it needs graphics
         colony = mapobject.Colony(self.human,(-400,0),self.graphics)
         self.world.addObject(colony)

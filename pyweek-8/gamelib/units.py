@@ -64,7 +64,7 @@ class Unit(mapobject.MapObject):
         self.seekTarget = pygame.sprite.Group()   #i've kept these here so that the collision avoidance can check
         self.attackTarget = pygame.sprite.Group()   #whether this unit is just trying to move or whether it's doing
                                                     #something useful - maybe there's a better way
-
+        self.name = ""          #TODO: delete this
         self.animations = dict()
         for action,anim in animations.iteritems():
             self.animations[action] = animation.Animation(graphics, anim)
@@ -225,7 +225,7 @@ class Unit(mapobject.MapObject):
                     
                     angleTarget = self.getAngleTo(self.targets[-1])
                     fixAng = self.fixAngle(angleTo, angleTarget)
-                    print str(angleTarget) + " " + str(angleTo) + " " + str(fixAng) + " relative:" + str(fixAng - angleTarget )
+                    print self.name+str(angleTarget) + " " + str(angleTo) + " relative:" + str(fixAng - angleTarget )
 
                                         
                     if dist < (minDist + AVOIDDISTANCE) and abs(fixAng - angleTarget) < 90:  #are we close enough and is it in front of us
@@ -234,14 +234,14 @@ class Unit(mapobject.MapObject):
 
                             #find a random target in a sector facing away from the thing
                             
-                            if (fixAng - angleTarget) > 0:
-                                angle = angleTarget - 45
-                            else:
+                            if angleTarget > fixAng:
                                 angle = angleTarget + 45
+                            else:
+                                angle = angleTarget - 45
                             
                             randomAngle = angle
 #                            randomAngle = random.randint(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE) + angle
-                            print randomAngle
+                            print self.name+"NEW HEADING:" + str(randomAngle)
                                    
                             randomDist = math.sqrt(random.random()*(RANDOMTARGETMAX**2-RANDOMTARGETMIN**2)) + RANDOMTARGETMIN #this ensures that the random targets are uniformly spread out over the sector
 
