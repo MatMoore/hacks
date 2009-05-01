@@ -73,8 +73,9 @@ class Unit(mapobject.MapObject):
         mapobject.MapObject.__init__(self, self.currentanimation.reset(), position) #init the base class with the first frame of the animation
         self.direction = 100
         
-        self.pathFinder = pathfinder.PathFinder(self.radius)
-    
+        #self.pathFinder = pathfinder.PathFinder(self.radius)
+        self.avoiding = []
+        
     def randomWalk(self, target, averagedistance = 200):
         distance = self.getDistance(target)
         numberofnodes = math.floor(distance/200) -1 # -1 because the target node is set outside the loop
@@ -92,8 +93,7 @@ class Unit(mapobject.MapObject):
             currentpos = vecadd(currentpos, vector)
             randompos = (currentpos[0] + random.randint(0,averagedistance)-100, currentpos[1] + random.randint(0,averagedistance)-100)
             targets.append(randompos)
-
-
+        print targets
         return targets
         
     
@@ -166,13 +166,14 @@ class Unit(mapobject.MapObject):
             elif self.direction == desiredDirection:
                 #facing the target and close enough to walk there, so position = target (avoids endlessly circling it)
                 self.targets.pop()  #go for the next target if there is one
-
+                self.avoiding = []
 
 
     def walkTo(self,position):
 #        self.targets = [position]
 #        self.targets = self.pathFinder.calcPath(self.position, position)
          self.targets = self.randomWalk(position)
+         self.avoiding = []
          
     def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything, and it will make the default behaviour == walk
         self.walkTo(unit.position)
@@ -186,7 +187,6 @@ class Unit(mapobject.MapObject):
             self.surface = self.currentanimation.reset()    #set the animation back to frame 0
 
     def interact(self, objects):
-        self.pathFinder.clearUp()   #delete all the moveable units from the pathfinder - leave only the solid things
         for item in objects:
 
             if self.attackTarget.sprites():
@@ -200,8 +200,6 @@ class Unit(mapobject.MapObject):
                 except AttributeError:
                     itemPos = item.rect.center
                         
-                self.pathFinder.addObstacle(itemPos, item.radius)   #currently adding everything as non-permanent, no memory                
-
 
                 if len(self.targets) > 0:   #only wanna do collision detection/avoidance if we're moving
                    
@@ -225,11 +223,13 @@ class Unit(mapobject.MapObject):
                     
                     angleTarget = self.getAngleTo(self.targets[-1])
                     fixAng = self.fixAngle(angleTo, angleTarget)
-                    print self.name+str(angleTarget) + " " + str(angleTo) + " relative:" + str(fixAng - angleTarget )
+                    #print self.name+str(angleTarget) + " " + str(angleTo) + " relative:" + str(fixAng - angleTarget )
 
                                         
                     if dist < (minDist + AVOIDDISTANCE) and abs(fixAng - angleTarget) < 90:  #are we close enough and is it in front of us
                         if intersectCircleSegment(itemPos, item.radius, self.position, self.targets[-1]):
+                            if self in item.avoiding:
+                                break
                             #randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
 
                             #find a random target in a sector facing away from the thing
@@ -241,7 +241,7 @@ class Unit(mapobject.MapObject):
                             
                             randomAngle = angle
 #                            randomAngle = random.randint(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE) + angle
-                            print self.name+"NEW HEADING:" + str(randomAngle)
+                            #print self.name+"NEW HEADING:" + str(randomAngle)
                                    
                             randomDist = math.sqrt(random.random()*(RANDOMTARGETMAX**2-RANDOMTARGETMIN**2)) + RANDOMTARGETMIN #this ensures that the random targets are uniformly spread out over the sector
 
@@ -252,7 +252,9 @@ class Unit(mapobject.MapObject):
                                     self.targets[-1] = randomTarget
                             else:
                                 self.targets.append(randomTarget)
-                        
+                            
+                            self.avoiding.append(item)
+                            
                         #checks whether our final target is within the unit and if it is then stay where we are.
                         itemTargetDistance = float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2)
                         if itemTargetDistance < item.radius**2:
