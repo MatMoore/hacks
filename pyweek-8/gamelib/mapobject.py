@@ -12,12 +12,16 @@ class MapObject(pygame.sprite.Sprite):
         self.direction = 270
         self.radius = max(surface.get_size())/2 #default radius = maximum of the surface sizes divided by 2
         self.team = team
+        self.health = 100   #ok i've put this here, along with isDead() because maybe it'll be better
         
     def draw(self,graphics):
         '''Override draw method so that we can use world coordinates instead of camera ones'''
         
         self.rect = graphics.drawImage(self.surface, self.rect, round(self.direction))
         #we update the self.rect because the angle will change the rectangle shape
+
+    def isDead(self):
+        return self.health <= 0       
 
 class Leaves(MapObject):
     '''Resource for the worker ants to collect'''
@@ -44,10 +48,8 @@ class Colony(MapObject):
     def addLeaves(self,amount):
         self.player.leaves += amount
 
-    def isDead(self):
-        return self.health <= 0
+
 
     def bitten(self, power, unit):
         self.attackingUnit = unit
         self.health -= power
-        print self.health

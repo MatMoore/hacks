@@ -63,12 +63,12 @@ class AIPlayer(player.Player):
                 if unit.health < 30 and self.colonies.sprites():    #come home if low health
                     unit.walkTo((self.colonies.sprites()[0].rect.centerx + random.randint(-1000,1000), self.colonies.sprites()[0].rect.centery + random.randint(-1000,1000)))
             
-            #1 in 1000 chance of attacking colony
-            if random.randint(0,1000) == 500:
+            #1 in 100 chance of attacking colony
+            if random.randint(0,100) == 500 or (len(self.workers.sprites()) + len(self.fighters.sprites()) == len(self.world.units.sprites())):
                 for thing in self.world.bg:
                     if thing.__class__ == mapobject.Colony:
                         if self.colonies.sprites():
-                            if self.colonies.sprites()[0] != item:
+                            if self.colonies.sprites()[0] != thing:
                                 for unit in self.fighters:
                                     unit.attack(thing)
                     

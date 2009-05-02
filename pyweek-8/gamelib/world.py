@@ -59,17 +59,11 @@ class World:
 
     def removeDeadUnits(self):
         '''Remove units which have been killed since the last tick'''
-        for unit in self.units:
+        for unit in self.objects:
             if unit.isDead():
                 unit.kill() #TODO (maybe): keep track of dead units
                 
-        for unit in self.bg:
-            try:
-                if unit.isDead():
-                    unit.kill   #kill the colony
-            except:
-                pass
-                    
+
     def addLeaves(self, graphics):
         for i in range(NUMBEROFLEAVES):
             regen = True
