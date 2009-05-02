@@ -255,7 +255,7 @@ class Unit(mapobject.MapObject):
                             break
                 
 class WorkerUnit(Unit):
-    animations = {'default': 'worker1', 'carrying':'worker2'}
+    animations = {'default': 'worker1', 'carrying':'worker2','walk':'worker3'}
     price = 0
 
     def __init__(self,graphics,position):
@@ -297,7 +297,10 @@ class WorkerUnit(Unit):
                     print "carrying"
                     self.setAnimation('carrying')
                     self.targets = [colony.rect.center]
-        
+        if self.targets:
+            self.currentanimation = self.animations['walk']
+        else:
+            self.currentanimation = self.animations['default']
         Unit.update(self, dt)
 
 class SoldierUnit(Unit):
