@@ -26,14 +26,16 @@ class Player:
         self.graphics = graphics
         self.timerEnd = None
         self.awaitingBuild = None
-
+        self.timerLength = 0
+        
     def buyUnit(self,type):
         unitClass = getattr(units,type)
         price = unitClass.price
-        if self.food > price:
+        if self.food > price and self.timerEnd == None:
             self.food -= price        
             self.awaitingBuild = type
             self.timerEnd = pygame.time.get_ticks() + unitClass.buildTime
+            self.timerLength = unitClass.buildTime
             return True
         else:
             return False
@@ -110,15 +112,16 @@ class Player:
             for unit in self.selectedUnits:
                 unit.gather(resource,colony)
    
-    def getBuildStatus(self):   #returns True, False or None - True means it's just been built. False means it's being Built. None means there's nothing queued
+    def getBuildStatus(self):   #returns None or an integer - 0 means it's just been built. 1-100 means percentage still to go. None means there's nothing queued
         if self.timerEnd and self.awaitingBuild:
-            if pygame.time.get_ticks() >= self.timerEnd:
+            timeleft = self.timerEnd - pygame.time.get_ticks()
+            if timeleft <= 0:
                 self.buyUnitReal()
                 self.awaitingBuild = None
                 self.timerEnd = None
-                return True
+                return 0
             else:
-                return False
+                return int(math.ceil(timeleft/self.timerLength * 100))
         else:
             return None
             
