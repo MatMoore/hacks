@@ -153,6 +153,27 @@ class BuildWidget(ContainerWidget):
         else:
             return False
 
+class Minimap(Widget):
+    def __init__(self,rect,world):
+        self.rect = rect
+        self.world = world
+        Widget.__init__(self)
+
+    def draw(self,graphics):
+        #outline = pygame.Rect(graphics.normalizeScreenCoords((-MINIMAPWIDTH,-MINIMAPHEIGHT)),(MINIMAPWIDTH,MINIMAPHEIGHT))
+        outline = self.rect
+        graphics.drawStaticRect(outline,color=(0,0,0),width=0)
+        #graphics.drawStaticRect(outline,color=(0,255,0),width=2)
+        camera = graphics.camera
+        minimaprect = graphics.getCameraRect()
+        minimaprect.inflate_ip(minimaprect.width*MINIMAPSCALEX,minimaprect.height*MINIMAPSCALEY)
+        for i in self.world.units:
+            if i.rect.colliderect(minimaprect):
+                position = (outline.left+(i.rect.left-minimaprect.left)/float(minimaprect.width)*outline.width,outline.top+(i.rect.top-minimaprect.top)/float(minimaprect.height)*outline.height)
+                if position[0]-MINIMAPDOTSIZE > outline.left or position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(255,255,255),width=0)
+
+
 class Graphics:
     def __init__(self):
         pygame.init()

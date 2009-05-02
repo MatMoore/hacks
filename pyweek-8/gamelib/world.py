@@ -122,16 +122,3 @@ class World:
         filled.width = unit.health/float(unit.maxHealth)*filled.width
         graphics.drawRect(outline, (0,255,0), 1)
         graphics.drawRect(filled, (0,255,0), 0) #TODO: adjust colour if health is low
-
-    def drawMinimap(self,graphics):
-        outline = pygame.Rect(graphics.normalizeScreenCoords((-MINIMAPWIDTH,-MINIMAPHEIGHT)),(MINIMAPWIDTH,MINIMAPHEIGHT))
-        graphics.drawStaticRect(outline,color=(0,0,0),width=0)
-        #graphics.drawStaticRect(outline,color=(0,255,0),width=2)
-        camera = graphics.camera
-        minimaprect = graphics.getCameraRect()
-        minimaprect.inflate_ip(minimaprect.width*MINIMAPSCALEX,minimaprect.height*MINIMAPSCALEY)
-        for i in self.units:
-            if i.rect.colliderect(minimaprect):
-                position = (outline.left+(i.rect.left-minimaprect.left)/float(minimaprect.width)*outline.width,outline.top+(i.rect.top-minimaprect.top)/float(minimaprect.height)*outline.height)
-                if position[0]-MINIMAPDOTSIZE > outline.left or position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
-                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(255,255,255),width=0)

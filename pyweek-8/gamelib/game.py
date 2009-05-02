@@ -105,6 +105,10 @@ class Game:
         buildWidget.add(graphics.Button(pygame.Rect((0,0),(50,50)),'Worker',bgColor=(100,100,100),action=self.buyWorker))
         buildWidget.add(graphics.Button(pygame.Rect((0,0),(50,50)),'Queen',bgColor=(100,100,100)))
         self.gui.add(buildWidget)
+        position = self.graphics.normalizeScreenCoords((-150,-150))
+        rect = pygame.Rect(position,(150,150))
+        minimap = graphics.Minimap(rect,self.world)
+        self.gui.add(minimap)
     
     def drag(self,dragRect):
         self.human.doSelect(dragRect)
@@ -168,7 +172,7 @@ class Game:
                 self.graphics.drawRect(self.input.dragRect)
             self.human.drawSelectedRects(self.graphics)
             self.gui.draw(self.graphics)
-            self.world.drawMinimap(self.graphics)
+#            self.world.drawMinimap(self.graphics)
             self.graphics.flip()
 
 if __name__ == '__main__':
