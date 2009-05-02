@@ -60,6 +60,12 @@ class ContainerWidget(Widget):
                 return True
         return False
 
+    def mouseOver(self,position):
+        for i in self.components:
+            if i.mouseOver(position):
+                return True
+        return False
+
 class Button(Widget):
     '''Clickable buttons'''
     def __init__(self,rect,text='',color=None,bgColor=None,image=None,mouseOverImage=None,action=None):
@@ -83,6 +89,12 @@ class Button(Widget):
         if self.rect.collidepoint(position):
             if self.action:
                 self.action()
+            return True
+        else:
+            return False
+
+    def mouseOver(self,position):
+        if self.rect.collidepoint(position):
             return True
         else:
             return False
@@ -155,6 +167,13 @@ class BuildWidget(ContainerWidget):
         else:
             return False
 
+    def mouseOver(self,pos):
+        if self.rect.collidepoint(pos):
+            return True
+        else:
+            return False
+
+
 class Minimap(Widget):
     def __init__(self,rect,world,graphics):
         self.rect = rect
@@ -206,6 +225,12 @@ class Minimap(Widget):
             self.graphics.camera = (minimaprect.left+x/float(self.rect.width)*minimaprect.width,minimaprect.top+y/float(self.rect.height)*minimaprect.height)
             return True
         return False
+
+    def mouseOver(self,position):
+        if self.rect.collidepoint(position):
+            return True
+        else:
+            return False
 
 class Graphics:
     def __init__(self):

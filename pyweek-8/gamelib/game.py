@@ -142,6 +142,8 @@ class Game:
 
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()
+        if self.gui.mouseOver((x,y)):
+            return
         dx,dy = (0,0)
         if x < SCROLLWIDTH:
             dx = - SCROLLSPEED*dt
