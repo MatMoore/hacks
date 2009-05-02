@@ -298,10 +298,11 @@ class WorkerUnit(Unit):
                     print "carrying"
                     self.setAnimation('carrying')
                     self.targets = [colony.rect.center]
-        if self.targets:
-            self.currentanimation = self.animations['walk']
-        else:
-            self.currentanimation = self.animations['default']
+        if not self.carrying:
+            if self.targets:
+                self.currentanimation = self.animations['walk']
+            else:
+                self.currentanimation = self.animations['default']
         Unit.update(self, dt)
 
 class SoldierUnit(Unit):
