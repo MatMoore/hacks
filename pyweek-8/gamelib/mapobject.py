@@ -9,7 +9,7 @@ class MapObject(pygame.sprite.Sprite):
         self.surface = surface
         self.rect = pygame.Rect(surface.get_rect())
         self.rect.center = position
-        self.direction = 0
+        self.direction = 270
         self.radius = max(surface.get_size())/2 #default radius = maximum of the surface sizes divided by 2
         
     def draw(self,graphics):
