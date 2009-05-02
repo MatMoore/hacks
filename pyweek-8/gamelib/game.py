@@ -211,15 +211,11 @@ class Game:
                     self.graphics.drawStaticRect(screenrect,(128,0,0), width=0) #TODO: make this better
     #            self.world.drawMinimap(self.graphics)
                 
-                if self.human.colonies.sprites():
-                    pass
-                else:
-                    self.state == GAMESTATE_LOSE
+                if len(self.human.colonies) == 0:
+                    self.state = GAMESTATE_LOSE
 
-                if self.AIPlayer.colonies.sprites():
-                    pass
-                else:
-                    self.state == GAMESTATE_LOSE
+                if len(self.AIPlayer.colonies.sprites()) == 0:
+                    self.state = GAMESTATE_WIN
                 
             if self.state == GAMESTATE_PAUSE:
                 #self.graphics.clear()

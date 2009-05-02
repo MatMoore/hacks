@@ -30,7 +30,7 @@ class Player:
     def buyUnit(self,type):
         unitClass = getattr(units,type)
         price = unitClass.price
-        if self.leaves > price and self.timerEnd == None:
+        if self.leaves >= price and self.timerEnd == None:
             self.leaves -= price        
             self.awaitingBuild = type
             self.timerEnd = pygame.time.get_ticks() + unitClass.buildTime

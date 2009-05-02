@@ -213,7 +213,7 @@ class Minimap(Widget):
                         dotcolor = FRIENDLYCOLOR
                     else:
                         dotcolor = ENEMYCOLOR
-                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=dotcolor,width=0)
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE+2,color=dotcolor,width=0)
 
     def click(self,pos):
         '''Attempt to click on the widget. Returns false if pos is outside the widget'''
