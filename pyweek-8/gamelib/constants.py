@@ -15,10 +15,10 @@ HEALTHBARSIZE = (60,5)
 GRIDSIZE = 200  #size of a grid... this should never be below the sight distance, because a unit gets passed all units in the grid locations around itself but nothing further
 BUTTONSPACING = 5 #space between GUI buttons
 AVOIDDISTANCE = 50 # distance to begin avoid move at(in addition to the radiuses of each unit)
-MINIMAPWIDTH = 150
-MINIMAPHEIGHT = 150
-MINIMAPSCALEX = 3
-MINIMAPSCALEY = 3
+MINIMAPWIDTH = 200
+MINIMAPHEIGHT = 200
+MINIMAPSCALEX = 4
+MINIMAPSCALEY = 4
 MINIMAPDOTSIZE = 2
 
 RANDOMTARGETMAXANGLE = 45

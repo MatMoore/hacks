@@ -50,12 +50,26 @@ class World:
             if unit.rect.collidepoint(location):
                 return unit
 
+    def getColony(self,location):
+        for unit in self.bg:
+            if unit.__class__ is mapobject.Colony:
+                if unit.rect.collidepoint(location):
+                    return unit
+
+
     def removeDeadUnits(self):
         '''Remove units which have been killed since the last tick'''
         for unit in self.units:
             if unit.isDead():
                 unit.kill() #TODO (maybe): keep track of dead units
                 
+        for unit in self.bg:
+            try:
+                if unit.isDead():
+                    unit.kill   #kill the colony
+            except:
+                pass
+                    
     def addLeaves(self, graphics):
         for i in range(NUMBEROFLEAVES):
             regen = True

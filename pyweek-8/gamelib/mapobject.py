@@ -37,6 +37,17 @@ class Colony(MapObject):
         surface = graphics.loadImage(Colony.imageName)
         self.player = player
         MapObject.__init__(self,surface,position,team)
-    
+        self.position = self.rect.center    #since this is destructable and things rely on position, we add it here
+        self.health = 1000
+        self.attackingUnit = None
+        
     def addLeaves(self,amount):
         self.player.leaves += amount
+
+    def isDead(self):
+        return self.health <= 0
+
+    def bitten(self, power, unit):
+        self.attackingUnit = unit
+        self.health -= power
+        print self.health

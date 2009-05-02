@@ -40,6 +40,8 @@ class Input:
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     return False
+                if event.key == K_h:
+                    graphics.camera = [0,0]
             if event.type == MOUSEBUTTONDOWN:
                 self.clickLoc = graphics.calcWorldPos(pygame.mouse.get_pos())
             
@@ -126,6 +128,13 @@ class Game:
         if not self.gui.click(screenPos): #can't click on GUI
             target = self.world.getUnit(pos)
             resource = self.world.getResource(pos)
+            
+            if self.human.colonies.sprites():
+                colony = self.world.getColony(pos)
+                if colony and (self.human.colonies.sprites()[0] != colony):
+                    self.human.doAttack(colony)
+                    return
+                    
             if target and (self.human.isUnit(target) == False):
                 self.human.doAttack(target)
             elif resource:
@@ -168,10 +177,6 @@ class Game:
             if self.input.doInputEvents(self.graphics) == False:
                 self.state = GAMESTATE_QUIT
 
-            buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
-            if buildStatus != None:
-                #print buildStatus
-                pass    #TODO: display some progress bar here
             self.AIPlayer.update()
             self.world.update(dt)
             self.world.draw(self.graphics)
@@ -179,6 +184,11 @@ class Game:
                 self.graphics.drawRect(self.input.dragRect)
             self.human.drawSelectedRects()
             self.gui.draw(self.graphics)
+            buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
+            if buildStatus != None:
+                #print buildStatus
+                screenrect = (0,60,115-buildStatus,5)
+                self.graphics.drawStaticRect(screenrect,(128,0,0), width=0) #TODO: make this better
 #            self.world.drawMinimap(self.graphics)
             self.graphics.flip()
 

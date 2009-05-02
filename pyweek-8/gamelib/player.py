@@ -16,8 +16,6 @@ import random
 
 class Player:
     def __init__(self, graphics, world,team=1):
-        self.food = 100 #more food = more ants?
-        #self.usedFood = 0
         self.leaves = 100 #collect leaves to feed fungus!
         self.units = pygame.sprite.Group()
         self.colonies = pygame.sprite.Group()
@@ -32,8 +30,8 @@ class Player:
     def buyUnit(self,type):
         unitClass = getattr(units,type)
         price = unitClass.price
-        if self.food > price and self.timerEnd == None:
-            self.food -= price        
+        if self.leaves > price and self.timerEnd == None:
+            self.leaves -= price        
             self.awaitingBuild = type
             self.timerEnd = pygame.time.get_ticks() + unitClass.buildTime
             self.timerLength = unitClass.buildTime
@@ -42,7 +40,10 @@ class Player:
             return False
 
     def buyUnitReal(self):
-        colony = self.colonies.sprites()[0]
+        if self.colonies.sprites():
+            colony = self.colonies.sprites()[0]
+        else:
+            return
         position = colony.rect.center
         randomAngle = random.randint(0,360)
         randomDist = math.sqrt(random.random()*(colony.radius**2)) + colony.radius #this ensures that the random targets are uniformly spread out over the sector

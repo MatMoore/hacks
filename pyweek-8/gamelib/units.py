@@ -130,6 +130,9 @@ class Unit(mapobject.MapObject):
         return self.health <= 0
 
     def update(self,dt):
+    
+        if self.health < self.maxHealth:
+            self.health += 1*dt
         #continue animation    
         self.surface = self.currentanimation.update(dt)
 
@@ -261,7 +264,7 @@ class Unit(mapobject.MapObject):
                 
 class WorkerUnit(Unit):
     animations = {'default': 'worker1', 'carrying':'worker2','walk':'worker3','carryingstopped':'worker4'}
-    price = 0
+    price = 5
     buildTime = 3000 #in ms
     
     def __init__(self,graphics,position,team=1):
@@ -279,7 +282,8 @@ class WorkerUnit(Unit):
         
     def bitten(self, attackPower, unit):
         self.walkTo((self.position[0]+random.randint(-500,500), self.position[1] + random.randint(-500,500)))
-    
+        Unit.bitten(self, attackPower, unit)
+        
     def update(self, dt):
         if len(self.seekTarget)>1: 
             colony = None
@@ -296,14 +300,14 @@ class WorkerUnit(Unit):
                 if self.carrying and pygame.sprite.collide_circle(self,colony): #we are back at the colony
                     colony.addLeaves(1)
                     self.carrying = False
-                    print "return"
+                    #print "return"
 #                   self.setAnimation('default')
                     self.targets = [leaves.rect.center]
 
                 elif not self.carrying and pygame.sprite.collide_circle(self,leaves):
                     leaves.take()
                     self.carrying = True
-                    print "carrying"
+                    #print "carrying"
  #                  self.setAnimation('carrying')
                     self.targets = [colony.rect.center]
 
@@ -323,7 +327,7 @@ class WorkerUnit(Unit):
 
 class SoldierUnit(Unit):
     animations = {'default': 'soldier1','walk':'soldier2'}
-    price = 0
+    price = 10
     buildTime=3000 #in ms
     
     def __init__(self,graphics,position,team=1):
