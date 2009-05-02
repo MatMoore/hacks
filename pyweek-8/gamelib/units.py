@@ -86,7 +86,7 @@ class Unit(mapobject.MapObject):
 #        randompos = (currentpos[0] + random.randint(0,averagedistance)-averagedistance/2, currentpos[1] + random.randint(0,averagedistance)-averagedistance/2)
         targets.append(currentpos)
         
-        for i in range(numberofnodes):
+        for i in range(int(numberofnodes)):
             currentpos = vecadd(currentpos, vector)
             randompos = (currentpos[0] + random.randint(0,averagedistance)-averagedistance/2, currentpos[1] + random.randint(0,averagedistance)-averagedistance/2)
             targets.append(randompos)

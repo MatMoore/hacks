@@ -1,9 +1,15 @@
 SCREENSIZE = 800,600
 FILLCOLOR = 0,0,0   
 BACKGROUNDIMAGE = "background.jpg"
+
+GAMESTATE_TITLE = 0
 GAMESTATE_RUN = 1
 GAMESTATE_QUIT = 2
-SCROLLSPEED = 100 #100 pixels per second
+GAMESTATE_PAUSE = 3
+GAMESTATE_WIN = 4
+GAMESTATE_LOSE = 5
+
+SCROLLSPEED = 200 #100 pixels per second
 SCROLLWIDTH = 30 #width of border that makes it scroll
 FRAMERATE = 10  #frame rate of all animations
 DRAGDISTANCE = 4 #distance required to move mouse before it becomes a drag instead of a click

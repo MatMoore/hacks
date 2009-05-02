@@ -8,6 +8,7 @@ import random
 import math
 import aiplayer
 from constants import *
+import sys
 
 class Input:
     '''Reusable input class for handling mouse and keyboard input.'''
@@ -36,7 +37,8 @@ class Input:
     def doInputEvents(self,graphics):
         for event in pygame.event.get():
             if event.type == QUIT:
-                return False
+                pygame.quit()
+                sys.exit()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     return False
@@ -72,8 +74,12 @@ class Input:
 class Game:
     def __init__(self):
         self.graphics = graphics.Graphics()
+        self.titleScreen = self.graphics.loadImage("start.png")
+        self.pauseScreen = self.graphics.loadImage("pause.png")
+        self.winScreen = self.graphics.loadImage("win.png")
+        self.loseScreen = self.graphics.loadImage("lose.png")
         self.world = world.World()
-        self.state = GAMESTATE_RUN
+        self.state = GAMESTATE_TITLE
 
         #create human player
         self.human = player.Player(self.graphics, self.world,team=1)
@@ -90,7 +96,7 @@ class Game:
         position = (position[0]+randomDist*math.cos(randomAngle*math.pi/180),position[1]+randomDist*math.sin(randomAngle*math.pi/180))
         
         colony = mapobject.Colony(self.AIPlayer,position,self.graphics,team=2)
-        print "AI position: " + str(position)
+        #print "AI position: " + str(position)
         self.world.addObject(colony)
         self.AIPlayer.addColony(colony)
     
@@ -121,7 +127,7 @@ class Game:
     def leftClick(self,pos):
         screenPos = self.graphics.calcScreenPos(pos)
         if not self.gui.click(screenPos): #can't click on GUI
-            self.human.doSelect(pos) 
+            self.human.doSelect(pos)
 
     def rightClick(self,pos):
         screenPos = self.graphics.calcScreenPos(pos)
@@ -151,46 +157,93 @@ class Game:
 
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()
-        if self.gui.mouseOver((x,y)):
-            return
+#        if self.gui.mouseOver((x,y)):
+#           return
         dx,dy = (0,0)
-        if x < SCROLLWIDTH:
+        if x <= 1:
             dx = - SCROLLSPEED*dt
-        elif x > (SCREENSIZE[0]-SCROLLWIDTH):
+        elif x >= SCREENSIZE[0]-2:
             dx = SCROLLSPEED*dt
-        if y < SCROLLWIDTH:
+        if y <= 1:
             dy = -SCROLLSPEED*dt
-        elif y > (SCREENSIZE[1]-SCROLLWIDTH):
+        elif y >= SCREENSIZE[1]-2:
             dy = SCROLLSPEED*dt
         if dx or dy:
             self.graphics.moveCamera(dx,dy)
     
     def run(self):
         newtime = pygame.time.get_ticks()
-        while self.state == GAMESTATE_RUN:
-            oldtime = newtime
-            newtime = pygame.time.get_ticks()
-            dt = (newtime - oldtime)/1000.0
+        while self.state != GAMESTATE_QUIT:
 
-            self.doScroll(dt)
+            if self.state == GAMESTATE_TITLE:
+                self.graphics.drawStaticImage(self.titleScreen,(0,0))
+                for event in pygame.event.get():
+                    if event.type == QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == KEYDOWN:
+                        self.state = GAMESTATE_RUN
+                        pygame.event.set_grab(1)
+                        newtime = pygame.time.get_ticks()
+
+            if self.state == GAMESTATE_RUN:
+                oldtime = newtime
+                newtime = pygame.time.get_ticks()
+                dt = (newtime - oldtime)/1000.0
+
+                self.doScroll(dt)
+                
+                if self.input.doInputEvents(self.graphics) == False:
+                    self.state = GAMESTATE_PAUSE
+                    pygame.event.set_grab(0)
+
+                self.AIPlayer.update()
+                self.world.update(dt)
+                self.world.draw(self.graphics)
+                if self.input.dragRect != None:
+                    self.graphics.drawRect(self.input.dragRect)
+                self.human.drawSelectedRects()
+                self.gui.draw(self.graphics)
+                buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
+                if buildStatus != None:
+                    #print buildStatus
+                    screenrect = (0,60,115-buildStatus,5)
+                    self.graphics.drawStaticRect(screenrect,(128,0,0), width=0) #TODO: make this better
+    #            self.world.drawMinimap(self.graphics)
+                
+                if self.human.colonies.sprites():
+                    pass
+                else:
+                    self.state == GAMESTATE_LOSE
+
+                if self.AIPlayer.colonies.sprites():
+                    pass
+                else:
+                    self.state == GAMESTATE_LOSE
+                
+            if self.state == GAMESTATE_PAUSE:
+                #self.graphics.clear()
+                self.graphics.drawStaticImage(self.pauseScreen,(250,250))
+                if self.input.doInputEvents(self.graphics) == False:   
+                    newtime = pygame.time.get_ticks()      
+                    self.state = GAMESTATE_RUN
+                    pygame.event.set_grab(1)
             
-            if self.input.doInputEvents(self.graphics) == False:
-                self.state = GAMESTATE_QUIT
+            if self.state == GAMESTATE_WIN:
+                self.graphics.drawStaticImage(self.winScreen,(0,0))
+                for event in pygame.event.get():
+                    if event.type == QUIT or event.type == KEYDOWN:
+                        pygame.quit()
+                        sys.exit()
+            
+            if self.state == GAMESTATE_LOSE:
+                self.graphics.drawStaticImage(self.loseScreen,(0,0))
+                for event in pygame.event.get():
+                    if event.type == QUIT or event.type == KEYDOWN:
+                        pygame.quit()
+                        sys.exit()
 
-            self.AIPlayer.update()
-            self.world.update(dt)
-            self.world.draw(self.graphics)
-            if self.input.dragRect != None:
-                self.graphics.drawRect(self.input.dragRect)
-            self.human.drawSelectedRects()
-            self.gui.draw(self.graphics)
-            buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
-            if buildStatus != None:
-                #print buildStatus
-                screenrect = (0,60,115-buildStatus,5)
-                self.graphics.drawStaticRect(screenrect,(128,0,0), width=0) #TODO: make this better
-#            self.world.drawMinimap(self.graphics)
-            self.graphics.flip()
+            self.graphics.flip()    #all modes need this
 
 if __name__ == '__main__':
     game = maingame()
