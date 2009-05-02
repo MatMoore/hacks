@@ -73,20 +73,20 @@ class Game:
         self.state = GAMESTATE_RUN
 
         #create human player
-        self.human = player.Player(self.graphics, self.world)
+        self.human = player.Player(self.graphics, self.world,team=1)
         position = (0,0)
         colony = mapobject.Colony(self.human,position,self.graphics)
         self.world.addObject(colony)
         self.human.addColony(colony)
         
         #create AI Player
-        self.AIPlayer = player.Player(self.graphics, self.world) #ai does nothing yet
+        self.AIPlayer = player.Player(self.graphics, self.world,team=2) #ai does nothing yet
         #generate random position for AI colony
         randomAngle = random.randint(0,360)
         randomDist = math.sqrt(random.random()*((MAXAIDISTANCE-MINAIDISTANCE)**2) ) + MINAIDISTANCE #this ensures that the random targets are uniformly spread out over the sector
         position = (position[0]+randomDist*math.cos(randomAngle*math.pi/180),position[1]+randomDist*math.sin(randomAngle*math.pi/180))
         
-        colony = mapobject.Colony(self.AIPlayer,position,self.graphics)
+        colony = mapobject.Colony(self.AIPlayer,position,self.graphics,team=2)
         print "AI position: " + str(position)
         self.world.addObject(colony)
         self.AIPlayer.addColony(colony)

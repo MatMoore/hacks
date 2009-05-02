@@ -54,7 +54,7 @@ class Unit(mapobject.MapObject):
     """Base class for units (anything which can move)"""
     price = 0
 
-    def __init__(self, graphics, position, animations):
+    def __init__(self, graphics, position, animations, team=1):
         self.position = position
         self.health = 100
         self.maxHealth = 100
@@ -68,7 +68,7 @@ class Unit(mapobject.MapObject):
             self.animations[action] = animation.Animation(graphics, anim)
         
         self.currentanimation = self.animations['default']  #set us to the default animation
-        mapobject.MapObject.__init__(self, self.currentanimation.reset(), position) #init the base class with the first frame of the animation
+        mapobject.MapObject.__init__(self, self.currentanimation.reset(), position, team) #init the base class with the first frame of the animation
         self.direction = 100
         
         #self.pathFinder = pathfinder.PathFinder(self.radius)
@@ -259,8 +259,8 @@ class WorkerUnit(Unit):
     price = 0
     buildTime = 10000 #in ms
     
-    def __init__(self,graphics,position):
-        Unit.__init__(self,graphics,position,WorkerUnit.animations)
+    def __init__(self,graphics,position,team=1):
+        Unit.__init__(self,graphics,position,WorkerUnit.animations,team)
         self.carrying = False
         #self.gatherRange = 20
         self.radius = 25
@@ -309,8 +309,8 @@ class SoldierUnit(Unit):
     price = 0
     buildTime=10000 #in ms
     
-    def __init__(self,graphics,position):
-        Unit.__init__(self,graphics,position,SoldierUnit.animations)
+    def __init__(self,graphics,position,team=1):
+        Unit.__init__(self,graphics,position,SoldierUnit.animations,team)
         self.attackTime = 1000 #in ms
         self.attackRange = 10
         self.attackPower = 20

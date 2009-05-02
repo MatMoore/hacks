@@ -173,7 +173,11 @@ class Minimap(Widget):
             if i.rect.colliderect(minimaprect):
                 position = (outline.centerx+(i.rect.centerx-minimaprect.centerx)/float(minimaprect.width)*outline.width,outline.centery+(i.rect.centery-minimaprect.centery)/float(minimaprect.height)*outline.height)
                 if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
-                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(255,255,255),width=0)
+                    if i.team == 1:
+                        dotcolor = FRIENDLYCOLOR
+                    else:
+                        dotcolor = ENEMYCOLOR
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=dotcolor,width=0)
 
         for i in self.world.resources:
             if i.rect.colliderect(minimaprect):
@@ -185,7 +189,11 @@ class Minimap(Widget):
             if i.rect.colliderect(minimaprect) and i.__class__==mapobject.Colony:
                 position = (outline.centerx+(i.rect.centerx-minimaprect.centerx)/float(minimaprect.width)*outline.width,outline.centery+(i.rect.centery-minimaprect.centery)/float(minimaprect.height)*outline.height)
                 if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE*2 > outline.top: #this doesnt work right
-                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE*2,color=(255,255,255),width=0)
+                    if i.team == 1:
+                        dotcolor = FRIENDLYCOLOR
+                    else:
+                        dotcolor = ENEMYCOLOR
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=dotcolor,width=0)
 
     def click(self,pos):
         '''Attempt to click on the widget. Returns false if pos is outside the widget'''

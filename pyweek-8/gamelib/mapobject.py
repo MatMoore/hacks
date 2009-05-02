@@ -3,7 +3,7 @@ from pygame.locals import *
 
 class MapObject(pygame.sprite.Sprite):
     '''Base class for all objects that are part of a map'''
-    def __init__(self,surface,position):
+    def __init__(self,surface,position,team=None):
         '''Surface = image to use, position = top left coordinates'''
         pygame.sprite.Sprite.__init__(self)
         self.surface = surface
@@ -11,6 +11,7 @@ class MapObject(pygame.sprite.Sprite):
         self.rect.center = position
         self.direction = 270
         self.radius = max(surface.get_size())/2 #default radius = maximum of the surface sizes divided by 2
+        self.team = team
         
     def draw(self,graphics):
         '''Override draw method so that we can use world coordinates instead of camera ones'''
@@ -32,10 +33,10 @@ class Leaves(MapObject):
 
 class Colony(MapObject):
     imageName = 'mound.png'
-    def __init__(self,player,position,graphics):
+    def __init__(self,player,position,graphics,team=1):
         surface = graphics.loadImage(Colony.imageName)
         self.player = player
-        MapObject.__init__(self,surface,position)
+        MapObject.__init__(self,surface,position,team)
     
     def addLeaves(self,amount):
         self.player.leaves += amount

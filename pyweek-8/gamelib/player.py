@@ -15,7 +15,7 @@ import random
 
 
 class Player:
-    def __init__(self, graphics, world):
+    def __init__(self, graphics, world,team=1):
         self.food = 100 #more food = more ants?
         #self.usedFood = 0
         self.leaves = 100 #collect leaves to feed fungus!
@@ -27,6 +27,7 @@ class Player:
         self.timerEnd = None
         self.awaitingBuild = None
         self.timerLength = 0
+        self.team = team
         
     def buyUnit(self,type):
         unitClass = getattr(units,type)
@@ -47,7 +48,7 @@ class Player:
         randomDist = math.sqrt(random.random()*(colony.radius**2)) + colony.radius #this ensures that the random targets are uniformly spread out over the sector
         walkPos = (position[0]+randomDist*math.cos(randomAngle*math.pi/180),position[1]+randomDist*math.sin(randomAngle*math.pi/180))
         unitClass = getattr(units,self.awaitingBuild)
-        unit = unitClass(self.graphics,position) #TODO, make classes for each unit and give them their own animations
+        unit = unitClass(self.graphics,position,self.team) #TODO, make classes for each unit and give them their own animations
         unit.walkTo(walkPos)
         self.units.add(unit)
         self.world.addUnit(unit)
