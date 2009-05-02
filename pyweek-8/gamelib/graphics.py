@@ -5,6 +5,7 @@
 import data #used for figuring out path of files
 import math
 import pygame
+import mapobject
 from pygame.locals import *
 from constants import *
 
@@ -170,9 +171,21 @@ class Minimap(Widget):
         minimaprect.inflate_ip(minimaprect.width*MINIMAPSCALEX,minimaprect.height*MINIMAPSCALEY)
         for i in self.world.units:
             if i.rect.colliderect(minimaprect):
-                position = (outline.left+(i.rect.left-minimaprect.left)/float(minimaprect.width)*outline.width,outline.top+(i.rect.top-minimaprect.top)/float(minimaprect.height)*outline.height)
+                position = (outline.centerx+(i.rect.centerx-minimaprect.centerx)/float(minimaprect.width)*outline.width,outline.centery+(i.rect.centery-minimaprect.centery)/float(minimaprect.height)*outline.height)
                 if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
                     graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(255,255,255),width=0)
+
+        for i in self.world.resources:
+            if i.rect.colliderect(minimaprect):
+                position = (outline.centerx+(i.rect.centerx-minimaprect.centerx)/float(minimaprect.width)*outline.width,outline.centery+(i.rect.centery-minimaprect.centery)/float(minimaprect.height)*outline.height)
+                if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(0,255,0),width=0)
+
+        for i in self.world.bg:
+            if i.rect.colliderect(minimaprect) and i.__class__==mapobject.Colony:
+                position = (outline.centerx+(i.rect.centerx-minimaprect.centerx)/float(minimaprect.width)*outline.width,outline.centery+(i.rect.centery-minimaprect.centery)/float(minimaprect.height)*outline.height)
+                if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE*2 > outline.top: #this doesnt work right
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE*2,color=(255,255,255),width=0)
 
     def click(self,pos):
         '''Attempt to click on the widget. Returns false if pos is outside the widget'''
