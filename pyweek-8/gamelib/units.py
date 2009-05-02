@@ -303,7 +303,7 @@ class WorkerUnit(Unit):
         Unit.update(self, dt)
 
 class SoldierUnit(Unit):
-    animations = {'default': 'soldier1'}
+    animations = {'default': 'soldier1','walk':'soldier2'}
     price = 0
 
     def __init__(self,graphics,position):
@@ -338,4 +338,8 @@ class SoldierUnit(Unit):
                     self.targets[0] = enemy.position
                 except:
                     self.targets = [enemy.position]
+        if self.targets:
+            self.currentanimation = self.animations['walk']
+        else:
+            self.currentanimation = self.animations['default']
         Unit.update(self, dt)
