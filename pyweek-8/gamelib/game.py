@@ -129,8 +129,11 @@ class Game:
             self.music = False
             
         if self.music:
-            self.titlemusic = pygame.mixer.Sound(data.filepath('titlemusic.ogg'))
-            self.titlemusic.play(-1)
+            try:
+                self.titlemusic = pygame.mixer.Sound(data.filepath('titlemusic.ogg'))
+                self.titlemusic.play(-1)
+            except:
+                self.music = False
         
     def drag(self,dragRect):
         self.human.doSelect(dragRect)
@@ -197,7 +200,7 @@ class Game:
                         pygame.event.set_grab(1)
                         newtime = pygame.time.get_ticks()
                         if self.music:
-                            self.titlemusic.stop()
+                            self.titlemusic.fadeout(10000)
 
             if self.state == GAMESTATE_RUN:
                 oldtime = newtime

@@ -203,17 +203,17 @@ class Minimap(Widget):
             if i.rect.colliderect(minimaprect):
                 position = (outline.centerx+(i.rect.centerx-minimaprect.centerx)/float(minimaprect.width)*outline.width,outline.centery+(i.rect.centery-minimaprect.centery)/float(minimaprect.height)*outline.height)
                 if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
-                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(0,255,0),width=0)
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE+2,color=(0,255,0),width=0)
 
         for i in self.world.bg:
             if i.rect.colliderect(minimaprect) and i.__class__==mapobject.Colony:
                 position = (outline.centerx+(i.rect.centerx-minimaprect.centerx)/float(minimaprect.width)*outline.width,outline.centery+(i.rect.centery-minimaprect.centery)/float(minimaprect.height)*outline.height)
-                if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE*2 > outline.top: #this doesnt work right
+                if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
                     if i.team == 1:
                         dotcolor = FRIENDLYCOLOR
                     else:
                         dotcolor = ENEMYCOLOR
-                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE+2,color=dotcolor,width=0)
+                    graphics.drawStaticCircle(position,MINIMAPDOTSIZE+4,color=dotcolor,width=0)
 
     def click(self,pos):
         '''Attempt to click on the widget. Returns false if pos is outside the widget'''
@@ -241,7 +241,8 @@ class Graphics:
         self.loadImage(BACKGROUNDIMAGE)
         font = pygame.font.get_default_font()
         self.font = pygame.font.Font(font,24) #TODO: make this more flexible (e.g. support multiple sizes), bundle a prettier font
-
+        pygame.display.set_caption('mutANTs Part 1: Mandible Mayhem')
+        
     def normalizeScreenCoords(self,pos):
         x,y=pos
         if x < 0:
