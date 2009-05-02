@@ -73,17 +73,17 @@ class Game:
         self.state = GAMESTATE_RUN
 
         #create human player
-        self.human = player.Player()
+        self.human = player.Player(self.graphics, self.world)
         position = (0,0)
         colony = mapobject.Colony(self.human,position,self.graphics)
         self.world.addObject(colony)
         self.human.addColony(colony)
         
         #create AI Player
-        self.AIPlayer = player.Player() #ai does nothing yet
+        self.AIPlayer = player.Player(self.graphics, self.world) #ai does nothing yet
         #generate random position for AI colony
         randomAngle = random.randint(0,360)
-        randomDist = math.sqrt(random.random()*(5000**2)) + 5000 #this ensures that the random targets are uniformly spread out over the sector
+        randomDist = math.sqrt(random.random()*((MAXAIDISTANCE-MINAIDISTANCE)**2) ) + MINAIDISTANCE #this ensures that the random targets are uniformly spread out over the sector
         position = (position[0]+randomDist*math.cos(randomAngle*math.pi/180),position[1]+randomDist*math.sin(randomAngle*math.pi/180))
         
         colony = mapobject.Colony(self.AIPlayer,position,self.graphics)
@@ -91,6 +91,7 @@ class Game:
         self.world.addObject(colony)
         self.AIPlayer.addColony(colony)
     
+        self.world.addLeaves(self.graphics)  #add lots of random leaves
         
         self.input = Input()
         self.input.onClick(self.leftClick)
@@ -131,14 +132,11 @@ class Game:
                 self.human.doMove(pos)
 
     def buySoldier(self):
-        unit = self.human.buyUnit("SoldierUnit",self.graphics)
-        if unit:
-            self.world.addUnit(unit)
+        unit = self.human.buyUnit("SoldierUnit")
 
     def buyWorker(self):
-        unit = self.human.buyUnit("WorkerUnit",self.graphics)
-        if unit:
-            self.world.addUnit(unit)
+        unit = self.human.buyUnit("WorkerUnit")
+
 
     def doScroll(self, dt):
         x, y = pygame.mouse.get_pos()
@@ -165,12 +163,14 @@ class Game:
             
             if self.input.doInputEvents(self.graphics) == False:
                 self.state = GAMESTATE_QUIT
-                            
+
+            buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
+            
             self.world.update(dt)
             self.world.draw(self.graphics)
             if self.input.dragRect != None:
                 self.graphics.drawRect(self.input.dragRect)
-            self.human.drawSelectedRects(self.graphics)
+            self.human.drawSelectedRects()
             self.gui.draw(self.graphics)
 #            self.world.drawMinimap(self.graphics)
             self.graphics.flip()

@@ -13,31 +13,44 @@ import units
 import math
 import random
 
+
 class Player:
-    def __init__(self):
+    def __init__(self, graphics, world):
         self.food = 100 #more food = more ants?
-        self.usedFood = 0
+        #self.usedFood = 0
         self.leaves = 100 #collect leaves to feed fungus!
         self.units = pygame.sprite.Group()
         self.colonies = pygame.sprite.Group()
         self.selectedUnits = pygame.sprite.Group()
+        self.world = world
+        self.graphics = graphics
+        self.timerEnd = None
+        self.awaitingBuild = None
 
-
-    def buyUnit(self,type,graphics):
+    def buyUnit(self,type):
         unitClass = getattr(units,type)
         price = unitClass.price
-        if self.food-self.usedFood > price:
-            self.usedFood += price
-            colony = self.colonies.sprites()[0]
-            position = colony.rect.center
-            randomAngle = random.randint(0,360)
-            randomDist = math.sqrt(random.random()*(colony.radius**2)) + colony.radius #this ensures that the random targets are uniformly spread out over the sector
-            walkPos = (position[0]+randomDist*math.cos(randomAngle*math.pi/180),position[1]+randomDist*math.sin(randomAngle*math.pi/180))
-            unit = unitClass(graphics,position) #TODO, make classes for each unit and give them their own animations
-            unit.walkTo(walkPos)
-            self.units.add(unit)
-            return unit
+        if self.food > price:
+            self.food -= price        
+            self.awaitingBuild = type
+            self.timerEnd = pygame.time.get_ticks() + unitClass.buildTime
+            return True
+        else:
+            return False
 
+    def buyUnitReal(self):
+        colony = self.colonies.sprites()[0]
+        position = colony.rect.center
+        randomAngle = random.randint(0,360)
+        randomDist = math.sqrt(random.random()*(colony.radius**2)) + colony.radius #this ensures that the random targets are uniformly spread out over the sector
+        walkPos = (position[0]+randomDist*math.cos(randomAngle*math.pi/180),position[1]+randomDist*math.sin(randomAngle*math.pi/180))
+        unitClass = getattr(units,self.awaitingBuild)
+        unit = unitClass(self.graphics,position) #TODO, make classes for each unit and give them their own animations
+        unit.walkTo(walkPos)
+        self.units.add(unit)
+        self.world.addUnit(unit)
+        
+        
     def addColony(self,colony):
         self.colonies.add(colony)
             
@@ -96,8 +109,21 @@ class Player:
             colony = self.colonies.sprites()[0]
             for unit in self.selectedUnits:
                 unit.gather(resource,colony)
+   
+    def getBuildStatus(self):   #returns True, False or None - True means it's just been built. False means it's being Built. None means there's nothing queued
+        if self.timerEnd and self.awaitingBuild:
+            if pygame.time.get_ticks() >= self.timerEnd:
+                self.buyUnitReal()
+                self.awaitingBuild = None
+                self.timerEnd = None
+                return True
+            else:
+                return False
+        else:
+            return None
             
-    def drawSelectedRects(self, graphics):
+            
+    def drawSelectedRects(self):
         for unit in self.selectedUnits:
             rect = (unit.position[0]-unit.radius,unit.position[1]-unit.radius,unit.radius*2, unit.radius*2)
-            graphics.drawRect(rect, (255,0,0), 1)
+            self.graphics.drawRect(rect, (255,0,0), 1)

@@ -2,6 +2,9 @@ from constants import *
 import pygame
 import math
 import units
+import mapobject
+import random
+
 #TODO
 
 #Read map file to determine where initial objects go
@@ -52,6 +55,20 @@ class World:
         for unit in self.units:
             if unit.isDead():
                 unit.kill() #TODO (maybe): keep track of dead units
+                
+    def addLeaves(self, graphics):
+        for i in range(NUMBEROFLEAVES):
+            regen = True
+            while regen:
+                regen = False
+                randomPos = (random.randint(-MAXAIDISTANCE,MAXAIDISTANCE), random.randint(-MAXAIDISTANCE,MAXAIDISTANCE))
+                for bgobj in self.bg:
+                    pos = bgobj.rect.center
+                    if math.sqrt(  (pos[0]-randomPos[0])**2 + (pos[1]-randomPos[1])**2  ) < bgobj.radius + bgobj.radius + SEPERATION:
+                        regen = True
+                        break   #break out of for loop to gen a new random position
+                        
+            self.addResource(mapobject.Leaves(randomPos,graphics))
 
     def update(self,dt):
         '''Update the map. Update the objects animations and do collision detection stuff to find out which units are visible to others. Call the interact method of each unit with a list of visible objects.'''

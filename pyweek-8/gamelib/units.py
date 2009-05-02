@@ -257,7 +257,8 @@ class Unit(mapobject.MapObject):
 class WorkerUnit(Unit):
     animations = {'default': 'worker1', 'carrying':'worker2','walk':'worker3'}
     price = 0
-
+    buildTime = 10000 #in ms
+    
     def __init__(self,graphics,position):
         Unit.__init__(self,graphics,position,WorkerUnit.animations)
         self.carrying = False
@@ -306,7 +307,8 @@ class WorkerUnit(Unit):
 class SoldierUnit(Unit):
     animations = {'default': 'soldier1','walk':'soldier2'}
     price = 0
-
+    buildTime=10000 #in ms
+    
     def __init__(self,graphics,position):
         Unit.__init__(self,graphics,position,SoldierUnit.animations)
         self.attackTime = 1000 #in ms
