@@ -165,6 +165,8 @@ class Game:
                 self.state = GAMESTATE_QUIT
 
             buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
+            if buildStatus != None:
+                print buildStatus
             self.AIPlayer.getBuildStatus() #has to be called to let the aiplayer create units.. although eventually this'll be called from update
             self.world.update(dt)
             self.world.draw(self.graphics)

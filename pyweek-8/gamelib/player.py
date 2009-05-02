@@ -121,7 +121,7 @@ class Player:
                 self.timerEnd = None
                 return 0
             else:
-                return int(math.ceil(timeleft/self.timerLength * 100))
+                return int(math.ceil((timeleft/float(self.timerLength)) * 100))
         else:
             return None
             
