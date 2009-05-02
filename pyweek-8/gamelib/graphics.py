@@ -62,7 +62,7 @@ class ContainerWidget(Widget):
 
 class Button(Widget):
     '''Clickable buttons'''
-    def __init__(self,rect,text,color=None,bgColor=None,image=None,mouseOverImage=None,action=None):
+    def __init__(self,rect,text='',color=None,bgColor=None,image=None,mouseOverImage=None,action=None):
         Widget.__init__(self)
         self.rect = rect
         self.action = action
@@ -76,7 +76,8 @@ class Button(Widget):
                 graphics.drawStaticImage(self.image,self.rect.topleft)
             elif self.bgColor:
                 graphics.drawStaticRect(self.rect, self.bgColor, 0)
-            graphics.writeText(self.text,self.rect.center,center=True,rect=self.rect)
+            if self.text:
+                graphics.writeText(self.text,self.rect.center,center=True,rect=self.rect)
 
     def click(self,position):
         if self.rect.collidepoint(position):
@@ -214,7 +215,7 @@ class Graphics:
         self.camera = (0,0)
         self.loadImage(BACKGROUNDIMAGE)
         font = pygame.font.get_default_font()
-        self.font = pygame.font.Font(font,14) #TODO: make this more flexible (e.g. support multiple sizes), bundle a prettier font
+        self.font = pygame.font.Font(font,24) #TODO: make this more flexible (e.g. support multiple sizes), bundle a prettier font
 
     def normalizeScreenCoords(self,pos):
         x,y=pos
