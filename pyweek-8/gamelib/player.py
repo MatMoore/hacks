@@ -11,6 +11,7 @@
 import pygame
 import units
 import math
+import random
 
 class Player:
     def __init__(self):
@@ -27,7 +28,13 @@ class Player:
         price = unitClass.price
         if self.food-self.usedFood > price:
             self.usedFood += price
-            unit = unitClass(graphics,(0,0)) #TODO, make classes for each unit and give them their own animations
+            colony = self.colonies.sprites()[0]
+            position = colony.rect.center
+            randomAngle = random.randint(0,360)
+            randomDist = math.sqrt(random.random()*(colony.radius**2)) + colony.radius #this ensures that the random targets are uniformly spread out over the sector
+            walkPos = (position[0]+randomDist*math.cos(randomAngle*math.pi/180),position[1]+randomDist*math.sin(randomAngle*math.pi/180))
+            unit = unitClass(graphics,position) #TODO, make classes for each unit and give them their own animations
+            unit.walkTo(walkPos)
             self.units.add(unit)
             return unit
 

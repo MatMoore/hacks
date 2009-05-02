@@ -53,6 +53,9 @@ class World:
             if unit.isDead():
                 unit.kill() #TODO (maybe): keep track of dead units
 
+    def generate
+
+
     def update(self,dt):
         '''Update the map. Update the objects animations and do collision detection stuff to find out which units are visible to others. Call the interact method of each unit with a list of visible objects.'''
         self.objects.update(dt)
