@@ -171,7 +171,7 @@ class Minimap(Widget):
         for i in self.world.units:
             if i.rect.colliderect(minimaprect):
                 position = (outline.left+(i.rect.left-minimaprect.left)/float(minimaprect.width)*outline.width,outline.top+(i.rect.top-minimaprect.top)/float(minimaprect.height)*outline.height)
-                if position[0]-MINIMAPDOTSIZE > outline.left or position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
+                if position[0]-MINIMAPDOTSIZE > outline.left and position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
                     graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(255,255,255),width=0)
 
     def click(self,pos):
