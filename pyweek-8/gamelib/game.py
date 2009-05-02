@@ -9,6 +9,8 @@ import math
 import aiplayer
 from constants import *
 import sys
+import data
+
 
 class Input:
     '''Reusable input class for handling mouse and keyboard input.'''
@@ -120,7 +122,16 @@ class Game:
         rect = pygame.Rect(position,(150,150))
         minimap = graphics.Minimap(rect,self.world,self.graphics)
         self.gui.add(minimap)
-    
+        try:
+            pygame.mixer.init()
+            self.music = True
+        except:
+            self.music = False
+            
+        if self.music:
+            self.titlemusic = pygame.mixer.Sound(data.filepath('titlemusic.ogg'))
+            self.titlemusic.play(-1)
+        
     def drag(self,dragRect):
         self.human.doSelect(dragRect)
 
@@ -185,6 +196,8 @@ class Game:
                         self.state = GAMESTATE_RUN
                         pygame.event.set_grab(1)
                         newtime = pygame.time.get_ticks()
+                        if self.music:
+                            self.titlemusic.stop()
 
             if self.state == GAMESTATE_RUN:
                 oldtime = newtime
