@@ -184,11 +184,6 @@ class Unit(mapobject.MapObject):
 
     def interact(self, objects):
         for item in objects:
-
-            if self.attackTarget.sprites():
-                if item == self.attackTarget.sprites()[0]:
-                    continue    #consider next item
-
             if item != self and item.__class__ != mapobject.Leaves:    #make sure we're not targetting ourself
                 
                 try:
@@ -216,7 +211,10 @@ class Unit(mapobject.MapObject):
                             self.targets.pop()
                             break
                     
-                    
+                    if self.attackTarget.sprites():
+                        if item == self.attackTarget.sprites()[0]:
+                            continue    #consider next item so we don't avoid targets
+                                        
                     angleTarget = self.getAngleTo(self.targets[-1])
                     fixAng = self.fixAngle(angleTo, angleTarget)
                     #print self.name+str(angleTarget) + " " + str(angleTo) + " relative:" + str(fixAng - angleTarget )
@@ -312,7 +310,14 @@ class SoldierUnit(Unit):
         self.attackRange = 10
         self.attackPower = 20
         self.attackTimer = stuff.Timer(self.attackTime)
+        self.laser = False
         self.radius = 40
+
+    def walkTo(self,position):
+        self.attackTarget.empty()
+        self.laser = False
+        Unit.walkTo(self, position)
+
     def attack(self, unit):
         self.attackTarget.empty()
         self.attackTarget.add(unit)
@@ -326,18 +331,25 @@ class SoldierUnit(Unit):
         #attack stuff
         if self.attackTarget.sprites(): #there are targets
             enemy = (self.attackTarget.sprites())[0]
-            distance = math.sqrt(float((enemy.position[0]-self.position[0])**2+(enemy.position[1]-self.position[1])**2))
+            distance = self.getDistance(enemy.position)
+            #math.sqrt(float((enemy.position[0]-self.position[0])**2+(enemy.position[1]-self.position[1])**2))
             if distance < (self.radius + self.attackRange + enemy.radius):
                 #TODO: make attack animation
                 #attack enemy
                 if self.attackTimer.ready():
-                    self.bite(enemy)
-                self.targets = []
+                    if self.laser:
+                        self.bite(enemy)
+                        self.laser = False
+                    else:
+                        self.laser = True
+                    
+                self.targets = [enemy.position]
             else:
                 try:
                     self.targets[0] = enemy.position
                 except:
                     self.targets = [enemy.position]
+                self.laser = False
         if self.targets:
             self.currentanimation = self.animations['walk']
         else:

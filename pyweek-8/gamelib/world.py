@@ -1,6 +1,7 @@
 from constants import *
 import pygame
 import math
+import units
 #TODO
 
 #Read map file to determine where initial objects go
@@ -105,6 +106,12 @@ class World:
         for i in self.units:        #then units
             i.draw(graphics)
             self.drawHealthBar(graphics,i)
+
+        for i in self.units:    #doing this afterwards so that lasers are on top of stuff
+            if i.__class__ is units.SoldierUnit:
+                if i.laser and i.attackTarget.sprites():
+                    graphics.drawLine(i.position, i.attackTarget.sprites()[0].position)
+
 
     def drawHealthBar(self,graphics,unit):
         outline = pygame.Rect(unit.position[0]-unit.radius,unit.position[1]-unit.radius,unit.radius*2, unit.radius*2)

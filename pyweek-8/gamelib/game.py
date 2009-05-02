@@ -76,11 +76,11 @@ class Game:
 #                self.world.addUnit(unit)
 #        unit = self.human.buyUnit("WorkerUnit",self.graphics)
 #        self.world.addUnit(unit)
-        #self.AIPlayers = [player.Player()] #ai does nothing yet
-        #for i in range(3):
-        #    unit = self.AIPlayers[0].buyUnit("Unit",self.graphics)
-        #    if unit:
-        #        self.world.addUnit(unit)
+        self.AIPlayers = [player.Player()] #ai does nothing yet
+        for i in range(3):
+            unit = self.AIPlayers[0].buyUnit("SoldierUnit",self.graphics)
+            if unit:
+                self.world.addUnit(unit)
 
                 
         self.world.addResource(mapobject.Leaves((200,100),self.graphics)) #this should probably go in world but it needs graphics

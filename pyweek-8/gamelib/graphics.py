@@ -267,6 +267,11 @@ class Graphics:
         screenrect = (self.calcScreenPos((rect[0],rect[1])), (rect[2], rect[3]))
         self.drawStaticRect(screenrect, color, width)
 
+    def drawLine(self, p1, p2, color=LASERCOLOR, width=4):
+        p1 = self.calcScreenPos(p1)
+        p2 = self.calcScreenPos(p2)
+        pygame.draw.line(self.screen, color, p1, p2, width)
+
     def drawStaticRect(self,screenrect,color=DRAGRECTCOLOR, width=2):
         pygame.draw.rect(self.screen, color, screenrect, width)
 

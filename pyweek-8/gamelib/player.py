@@ -11,6 +11,7 @@
 import pygame
 import units
 import math
+
 class Player:
     def __init__(self):
         self.food = 100 #more food = more ants?
@@ -19,6 +20,7 @@ class Player:
         self.units = pygame.sprite.Group()
         self.colonies = pygame.sprite.Group()
         self.selectedUnits = pygame.sprite.Group()
+
 
     def buyUnit(self,type,graphics):
         unitClass = getattr(units,type)
