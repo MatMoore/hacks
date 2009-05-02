@@ -120,7 +120,12 @@ class Unit(mapobject.MapObject):
         if result < 0:
             result += 360
         return result
-    
+        
+        
+    def bitten(self, attackPower, fromUnit):
+        self.health -= attackPower
+        
+        
     def isDead(self):
         return self.health <= 0
 
@@ -153,7 +158,7 @@ class Unit(mapobject.MapObject):
             distance = self.getDistance(target)
 
             #update position and rect(i.e. Move him)
-            if distance > 15:   #15 is roughly the turning radius
+            if distance > 50:   #roughly the turning radius
                 #not quite there yet...
                 dx = math.cos((self.direction)*math.pi/float(180))*self.speed*dt
                 dy = math.sin((self.direction)*math.pi/float(180))*self.speed*dt
@@ -257,21 +262,24 @@ class Unit(mapobject.MapObject):
 class WorkerUnit(Unit):
     animations = {'default': 'worker1', 'carrying':'worker2','walk':'worker3','carryingstopped':'worker4'}
     price = 0
-    buildTime = 10000 #in ms
+    buildTime = 3000 #in ms
     
     def __init__(self,graphics,position,team=1):
         Unit.__init__(self,graphics,position,WorkerUnit.animations,team)
         self.carrying = False
         #self.gatherRange = 20
         self.radius = 25
-
+        self.speed = 100
+        
     def gather(self, resource, colony):
         self.seekTarget.empty()
         self.seekTarget.add(colony)
         self.seekTarget.add(resource)
         self.targets = [resource.rect.center]
         
-        
+    def bitten(self, attackPower, unit):
+        self.walkTo((self.position[0]+random.randint(-500,500), self.position[1] + random.randint(-500,500)))
+    
     def update(self, dt):
         if len(self.seekTarget)>1: 
             colony = None
@@ -298,7 +306,7 @@ class WorkerUnit(Unit):
                     print "carrying"
  #                  self.setAnimation('carrying')
                     self.targets = [colony.rect.center]
-  
+
         #this sucks but nevermind
         if self.carrying:
             if self.targets:
@@ -310,12 +318,13 @@ class WorkerUnit(Unit):
                 self.currentanimation = self.animations['walk']
             else:
                 self.currentanimation = self.animations['default']
+
         Unit.update(self, dt)
 
 class SoldierUnit(Unit):
     animations = {'default': 'soldier1','walk':'soldier2'}
     price = 0
-    buildTime=10000 #in ms
+    buildTime=3000 #in ms
     
     def __init__(self,graphics,position,team=1):
         Unit.__init__(self,graphics,position,SoldierUnit.animations,team)
@@ -325,6 +334,7 @@ class SoldierUnit(Unit):
         self.attackTimer = stuff.Timer(self.attackTime)
         self.laser = False
         self.radius = 40
+        self.speed = 75
 
     def walkTo(self,position):
         self.attackTarget.empty()
@@ -337,9 +347,14 @@ class SoldierUnit(Unit):
         self.targets = [unit.position]  #set the first element of the list to refer to the target
 
     def bite(self,unit):
-        unit.health -= self.attackPower #TODO give the units a "defense" stat which reduces the strength of the attack by some factor
-                                        #ALSO the unit under attack needs to be notified of this
-                                        
+        unit.bitten( random.gauss(self.attackPower, 5), self)
+
+    def bitten(self, attackPower, unit):
+        #attack attacking unit
+        self.attackTarget.empty()
+        self.attackTarget.add(unit)
+        Unit.bitten(self, attackPower, unit)
+                              
     def update(self, dt):
         #attack stuff
         if self.attackTarget.sprites(): #there are targets

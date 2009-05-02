@@ -170,7 +170,8 @@ class Game:
 
             buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
             if buildStatus != None:
-                print buildStatus
+                #print buildStatus
+                pass    #TODO: display some progress bar here
             self.AIPlayer.update()
             self.world.update(dt)
             self.world.draw(self.graphics)
