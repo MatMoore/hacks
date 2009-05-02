@@ -107,7 +107,7 @@ class Game:
         self.gui.add(buildWidget)
         position = self.graphics.normalizeScreenCoords((-150,-150))
         rect = pygame.Rect(position,(150,150))
-        minimap = graphics.Minimap(rect,self.world)
+        minimap = graphics.Minimap(rect,self.world,self.graphics)
         self.gui.add(minimap)
     
     def drag(self,dragRect):

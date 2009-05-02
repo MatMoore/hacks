@@ -154,9 +154,10 @@ class BuildWidget(ContainerWidget):
             return False
 
 class Minimap(Widget):
-    def __init__(self,rect,world):
+    def __init__(self,rect,world,graphics):
         self.rect = rect
         self.world = world
+        self.graphics = graphics
         Widget.__init__(self)
 
     def draw(self,graphics):
@@ -173,6 +174,14 @@ class Minimap(Widget):
                 if position[0]-MINIMAPDOTSIZE > outline.left or position[1]-MINIMAPDOTSIZE > outline.top: #this doesnt work right
                     graphics.drawStaticCircle(position,MINIMAPDOTSIZE,color=(255,255,255),width=0)
 
+    def click(self,pos):
+        '''Attempt to click on the widget. Returns false if pos is outside the widget'''
+        if self.rect.collidepoint(pos):
+            x = pos[0]-self.rect.left
+            y = pos[1]-self.rect.top
+            minimaprect = self.graphics.getCameraRect()
+            minimaprect.inflate_ip(minimaprect.width*MINIMAPSCALEX,minimaprect.height*MINIMAPSCALEY)
+            self.graphics.camera = (minimaprect.left+x/float(self.rect.width)*minimaprect.width,minimaprect.top+y/float(self.rect.height)*minimaprect.height)
 
 class Graphics:
     def __init__(self):
