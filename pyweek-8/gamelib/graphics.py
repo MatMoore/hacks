@@ -203,6 +203,8 @@ class Minimap(Widget):
             minimaprect = self.graphics.getCameraRect()
             minimaprect.inflate_ip(minimaprect.width*MINIMAPSCALEX,minimaprect.height*MINIMAPSCALEY)
             self.graphics.camera = (minimaprect.left+x/float(self.rect.width)*minimaprect.width,minimaprect.top+y/float(self.rect.height)*minimaprect.height)
+            return True
+        return False
 
 class Graphics:
     def __init__(self):
