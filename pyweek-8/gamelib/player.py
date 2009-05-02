@@ -52,6 +52,7 @@ class Player:
         unit.walkTo(walkPos)
         self.units.add(unit)
         self.world.addUnit(unit)
+        return unit
         
         
     def addColony(self,colony):

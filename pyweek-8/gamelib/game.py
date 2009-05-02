@@ -6,6 +6,7 @@ import player
 import mapobject
 import random
 import math
+import aiplayer
 from constants import *
 
 class Input:
@@ -80,7 +81,7 @@ class Game:
         self.human.addColony(colony)
         
         #create AI Player
-        self.AIPlayer = player.Player(self.graphics, self.world,team=2) #ai does nothing yet
+        self.AIPlayer = aiplayer.AIPlayer(self.graphics, self.world,team=2) #ai does nothing yet
         #generate random position for AI colony
         randomAngle = random.randint(0,360)
         randomDist = math.sqrt(random.random()*((MAXAIDISTANCE-MINAIDISTANCE)**2) ) + MINAIDISTANCE #this ensures that the random targets are uniformly spread out over the sector
@@ -167,7 +168,7 @@ class Game:
             buildStatus = self.human.getBuildStatus()   #this simultaneously updates the build status and returns whether it's built or not
             if buildStatus != None:
                 print buildStatus
-            self.AIPlayer.getBuildStatus() #has to be called to let the aiplayer create units.. although eventually this'll be called from update
+            self.AIPlayer.update()
             self.world.update(dt)
             self.world.draw(self.graphics)
             if self.input.dragRect != None:
