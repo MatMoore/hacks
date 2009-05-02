@@ -17,8 +17,8 @@ BUTTONSPACING = 5 #space between GUI buttons
 AVOIDDISTANCE = 50 # distance to begin avoid move at(in addition to the radiuses of each unit)
 MINIMAPWIDTH = 150
 MINIMAPHEIGHT = 150
-MINIMAPSCALEX = 2
-MINIMAPSCALEY = 2
+MINIMAPSCALEX = 3
+MINIMAPSCALEY = 3
 MINIMAPDOTSIZE = 2
 
 RANDOMTARGETMAXANGLE = 45

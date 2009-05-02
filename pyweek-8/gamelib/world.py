@@ -107,7 +107,7 @@ class World:
             self.drawHealthBar(graphics,i)
 
     def drawHealthBar(self,graphics,unit):
-        outline = pygame.Rect(unit.position[0]-unit.radius,unit.position[1]-unit.radius,unit.radius, unit.radius)
+        outline = pygame.Rect(unit.position[0]-unit.radius,unit.position[1]-unit.radius,unit.radius*2, unit.radius*2)
         outline.top -= HEALTHBARGAP
         outline.height = HEALTHBARSIZE[1]
         outline.width = HEALTHBARSIZE[0]

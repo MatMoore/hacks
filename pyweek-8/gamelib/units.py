@@ -4,7 +4,6 @@ import pygame
 import animation
 import mapobject
 import stuff
-import pathfinder
 from constants import *
 
 def vecadd(a, b):
@@ -64,7 +63,6 @@ class Unit(mapobject.MapObject):
         self.seekTarget = pygame.sprite.Group()   #i've kept these here so that the collision avoidance can check
         self.attackTarget = pygame.sprite.Group()   #whether this unit is just trying to move or whether it's doing
                                                     #something useful - maybe there's a better way
-        self.name = ""          #TODO: delete this
         self.animations = dict()
         for action,anim in animations.iteritems():
             self.animations[action] = animation.Animation(graphics, anim)
@@ -74,7 +72,6 @@ class Unit(mapobject.MapObject):
         self.direction = 100
         
         #self.pathFinder = pathfinder.PathFinder(self.radius)
-        self.avoiding = []
         
     def randomWalk(self, target, averagedistance = 200):
         distance = self.getDistance(target)
@@ -86,14 +83,14 @@ class Unit(mapobject.MapObject):
         targets = []
         
         #must add the target so here
-        randompos = (currentpos[0] + random.randint(0,averagedistance)-100, currentpos[1] + random.randint(0,averagedistance)-100)
-        targets.append(randompos)        
+#        randompos = (currentpos[0] + random.randint(0,averagedistance)-averagedistance/2, currentpos[1] + random.randint(0,averagedistance)-averagedistance/2)
+        targets.append(currentpos)
         
         for i in range(numberofnodes):
             currentpos = vecadd(currentpos, vector)
-            randompos = (currentpos[0] + random.randint(0,averagedistance)-100, currentpos[1] + random.randint(0,averagedistance)-100)
+            randompos = (currentpos[0] + random.randint(0,averagedistance)-averagedistance/2, currentpos[1] + random.randint(0,averagedistance)-averagedistance/2)
             targets.append(randompos)
-        print targets
+        #print targets
         return targets
         
     
@@ -166,14 +163,13 @@ class Unit(mapobject.MapObject):
             elif self.direction == desiredDirection:
                 #facing the target and close enough to walk there, so position = target (avoids endlessly circling it)
                 self.targets.pop()  #go for the next target if there is one
-                self.avoiding = []
+
 
 
     def walkTo(self,position):
 #        self.targets = [position]
 #        self.targets = self.pathFinder.calcPath(self.position, position)
          self.targets = self.randomWalk(position)
-         self.avoiding = []
          
     def attack(self,unit):  #if we put these here then all types of units will have these even if they don't do anything, and it will make the default behaviour == walk
         self.walkTo(unit.position)
@@ -228,8 +224,7 @@ class Unit(mapobject.MapObject):
                                         
                     if dist < (minDist + AVOIDDISTANCE) and abs(fixAng - angleTarget) < 90:  #are we close enough and is it in front of us
                         if intersectCircleSegment(itemPos, item.radius, self.position, self.targets[-1]):
-                            if self in item.avoiding:
-                                break
+
                             #randomTarget = (self.position[0] + random.randint(-100,100), self.position[1] + random.randint(-100,100))
 
                             #find a random target in a sector facing away from the thing
@@ -242,19 +237,19 @@ class Unit(mapobject.MapObject):
                             randomAngle = angle
 #                            randomAngle = random.randint(-RANDOMTARGETMAXANGLE,RANDOMTARGETMAXANGLE) + angle
                             #print self.name+"NEW HEADING:" + str(randomAngle)
-                                   
+                                       
                             randomDist = math.sqrt(random.random()*(RANDOMTARGETMAX**2-RANDOMTARGETMIN**2)) + RANDOMTARGETMIN #this ensures that the random targets are uniformly spread out over the sector
 
-                            randomTarget = (randomDist*math.cos(randomAngle*math.pi/180),randomDist*math.sin(randomAngle*math.pi/180))
+                            randomTarget = (self.position[0]+randomDist*math.cos(randomAngle*math.pi/180),self.position[1]+randomDist*math.sin(randomAngle*math.pi/180))
 
                             if len(self.targets) > 1:
                                 
                                     self.targets[-1] = randomTarget
                             else:
                                 self.targets.append(randomTarget)
-                            
-                            self.avoiding.append(item)
-                            
+                       
+
+                           
                         #checks whether our final target is within the unit and if it is then stay where we are.
                         itemTargetDistance = float((self.targets[-1][0]-itemPos[0])**2+(self.targets[-1][1]-itemPos[1])**2)
                         if itemTargetDistance < item.radius**2:

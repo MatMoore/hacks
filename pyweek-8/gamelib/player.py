@@ -10,6 +10,7 @@
 #available units ("tech level"
 import pygame
 import units
+import math
 class Player:
     def __init__(self):
         self.food = 100 #more food = more ants?
@@ -55,8 +56,27 @@ class Player:
                     break
     
     def doMove(self, location):
-        for unit in self.selectedUnits:
-            unit.walkTo(location)
+        if len(self.selectedUnits) == 1:
+            self.selectedUnits.sprites()[0].walkTo(location)
+        else:   #give targets seperated by the maximum radius
+            #get the biggest unit
+            maxRadius = 0
+            for unit in self.selectedUnits:
+                if unit.radius > maxRadius:
+                    maxRadius = unit.radius
+            
+            num = math.floor(math.sqrt(len(self.selectedUnits)))
+            x = location[0] - math.floor(num/2.0)*maxRadius*2
+            y = location[1] - math.floor(num/2.0)*maxRadius*2
+            c = 0
+            for i in range(len(self.selectedUnits)):
+                self.selectedUnits.sprites()[i].walkTo((x,y))
+                x += maxRadius*2
+                c += 1
+                if c > num:
+                    c = 0
+                    y += maxRadius*2
+                    x -= maxRadius*2*(num+1)
 
     def doAttack(self,enemy):
         for unit in self.selectedUnits:
@@ -70,4 +90,5 @@ class Player:
             
     def drawSelectedRects(self, graphics):
         for unit in self.selectedUnits:
-            graphics.drawRect(unit.rect, (255,0,0), 1)
+            rect = (unit.position[0]-unit.radius,unit.position[1]-unit.radius,unit.radius*2, unit.radius*2)
+            graphics.drawRect(rect, (255,0,0), 1)
