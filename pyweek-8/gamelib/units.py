@@ -255,7 +255,7 @@ class Unit(mapobject.MapObject):
                             break
                 
 class WorkerUnit(Unit):
-    animations = {'default': 'worker1', 'carrying':'worker2','walk':'worker3'}
+    animations = {'default': 'worker1', 'carrying':'worker2','walk':'worker3','carryingstopped':'worker4'}
     price = 0
     buildTime = 10000 #in ms
     
@@ -289,16 +289,23 @@ class WorkerUnit(Unit):
                     colony.addLeaves(1)
                     self.carrying = False
                     print "return"
-                    self.setAnimation('default')
+#                   self.setAnimation('default')
                     self.targets = [leaves.rect.center]
 
                 elif not self.carrying and pygame.sprite.collide_circle(self,leaves):
                     leaves.take()
                     self.carrying = True
                     print "carrying"
-                    self.setAnimation('carrying')
+ #                  self.setAnimation('carrying')
                     self.targets = [colony.rect.center]
-        if not self.carrying:
+  
+        #this sucks but nevermind
+        if self.carrying:
+            if self.targets:
+                self.currentanimation = self.animations['carrying']
+            else:
+                self.currentanimation = self.animations['carryingstopped']
+        else:
             if self.targets:
                 self.currentanimation = self.animations['walk']
             else:
