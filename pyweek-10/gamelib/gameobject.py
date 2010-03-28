@@ -1,11 +1,12 @@
-import constants
+from constants import *
+from numpy import *
 
 class GameObject
 	def __init__(physicsTimeStep):
-		self._position = (0, 0, 0)
-		self._positionOld = (0, 0, 0)
-		self._orientation = (0, 0, 0)	#these might be really bad defaults
-		self._orientationOld = (0, 0, 0)
+		self._position = array([0.0, 0.0, 0.0])
+		self._positionOld = array([0.0, 0.0, 0.0])
+		self._orientation = array([0.0, 0.0, 0.0])	#these might be really bad defaults
+		self._orientationOld = array([0.0, 0.0, 0.0])
 		self.timeSinceUpdate = 0
 
 
@@ -16,7 +17,7 @@ class GameObject
 		return (newVal + (newVal-oldVal)*self.timeSinceUpdate)
 		
 	def interVector(self, newVec, oldVec)
-		return (self.interValues(newVec[0], oldVec[0]), self.interValues(newVec[1], oldVec[1]), , self.interValues(newVec[2], oldVec[2]))
+		return newVec + (newVec-oldVec)*self.timeSinceUpdate
 
 	@property
 	def position
