@@ -6,8 +6,13 @@ Feel free to put all your game code here, or in other modules in this "gamelib"
 package.
 '''
 
-import data
+import data, game, constants
 
 def main():
-    print "Hello from your game's main()"
-    print data.load('sample.txt').read()
+
+	gameInstance = game.Game()
+	gameState = constants.gsInGame
+
+	while gameState != constants.gsQuit:
+		if gameState == constants.gsInGame:
+			gameState = gameInstance.main()
