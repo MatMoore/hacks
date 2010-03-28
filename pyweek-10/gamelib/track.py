@@ -43,11 +43,11 @@ class Track:
 			iP2 = p2 + n1*constants.roadwidth
 			iP3 = p2 + n2*constants.roadwidth
 			iP4 = p3 + n2*constants.roadwidth
-			self.inside.append(iP1)
 			#the above 4 points refer to the 2 outer lines that make the angle, now we need to find the intersection, to find the inside point
 			#insidePoint = geometry.getIntersectPoint(iP1, iP2, iP3, iP4)
 			point = self.lineLineIntersection(iP1, iP2, iP3, iP4)
 			if point.all() == False:
+				print "here"
 				point = iP2	#it returns false if the lines are parallel (which could happen) so here we set it to the point
 			self.inside.append(point)
 
@@ -69,9 +69,8 @@ class Track:
 
 if __name__ == "__main__":
 	track = Track()
-	track.generateTrack(12,100)
+	track.generateTrack(40,100)
 	track.makeQuads()
-	print(track.track)
 	import pygame
 	pygame.init()
 	window = pygame.display.set_mode((640, 640)) 
