@@ -12,17 +12,14 @@ class GameObject
 
 	def update():
 		pass
-
-	def interValues(self, newVal, oldVal)
-		return (newVal + (newVal-oldVal)*self.timeSinceUpdate)
 		
-	def interVector(self, newVec, oldVec)
-		return newVec + (newVec-oldVec)*self.timeSinceUpdate
+	def interpolate(self, newVal, oldVal)
+		return newVal + (newVal-oldVal)*self.timeSinceUpdate
 
 	@property
 	def position
-		return self.interVector(self._position, self._positionOld)
+		return self.interpolate(self._position, self._positionOld)
 		
 	@property
 	def orientation
-		return self.interVector(self._orientation, self._orientationOld)
+		return self.interpolate(self._orientation, self._orientationOld)
