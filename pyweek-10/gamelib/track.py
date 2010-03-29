@@ -53,10 +53,10 @@ class Track:
 			n2 = n2 / linalg.norm(n2)
 			
 			#now use the normal vector to shift both lines outwards
-			iP1 = p1 + n1*constants.roadwidth
-			iP2 = p2 + n1*constants.roadwidth
-			iP3 = p2 + n2*constants.roadwidth
-			iP4 = p3 + n2*constants.roadwidth
+			iP1 = p1 + n1*constants.roadWidth
+			iP2 = p2 + n1*constants.roadWidth
+			iP3 = p2 + n2*constants.roadWidth
+			iP4 = p3 + n2*constants.roadWidth
 			
 			#the above 4 points refer to the 2 outer lines that make the angle, now we need to find the intersection, to find the inside point
 			#insidePoint = geometry.getIntersectPoint(iP1, iP2, iP3, iP4)
@@ -82,6 +82,8 @@ class Track:
 			distance = random.normal(size, size/5)	#get a random distance based around a normal distribution
 			point = array([distance*math.sin(angle), distance*math.cos(angle)])
 			points.append(point)
+			if (i==0):
+				self.startingPoint = (point[0]+constants.roadWidth/2, point[1]+constants.roadWidth/2)
 		self.track = points
 		self.makeOutsideTrack()
 

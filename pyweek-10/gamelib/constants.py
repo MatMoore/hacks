@@ -1,3 +1,3 @@
 gsQuit = 0
 gsInGame = 10
-roadwidth = 10
+roadWidth = 10
