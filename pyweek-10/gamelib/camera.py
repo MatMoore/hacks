@@ -23,9 +23,6 @@ class Camera:
 		glEnable(GL_DEPTH_TEST)
 		glDepthFunc(GL_LEQUAL)
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
-		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST)
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
-		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)				
 		glClearColor(.5,.5,1,0)
 		self.orientation = (0,-90,0) 	#current orientation
 		self.position = (0,3,0)		#current position
