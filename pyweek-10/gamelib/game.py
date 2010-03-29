@@ -17,7 +17,7 @@ class Game:
 		self.camera.drawTrack(self.track)
 		self.camera.drawPyramid()
 		self.camera.flip()
-		pygame.time.wait(50)
+		pygame.time.wait(40)
 		
 
 		
@@ -34,13 +34,17 @@ class Game:
 		if keys[pygame.K_UP]:
 			pos = self.camera.position
 			ang = misc.degToRad(180-self.camera.orientation[1])
-			newposX = pos[0] + 0.2*math.sin(ang)
-			newposY = pos[2] + 0.2*math.cos(ang)			
+			newposX = pos[0] + 0.5*math.sin(ang)
+			newposY = pos[2] + 0.5*math.cos(ang)			
 			self.camera.position = (newposX, self.camera.position[1], newposY)
 		if keys[pygame.K_DOWN]:
 			pos = self.camera.position
 			ang = misc.degToRad(180-self.camera.orientation[1])
-			newposX = pos[0] - 0.2*math.sin(ang)
-			newposY = pos[2] - 0.2*math.cos(ang)			
+			newposX = pos[0] - 0.5*math.sin(ang)
+			newposY = pos[2] - 0.5*math.cos(ang)			
 			self.camera.position = (newposX, self.camera.position[1], newposY)
+		if keys[pygame.K_a]:
+			self.camera.position = (self.camera.position[0], self.camera.position[1] + 0.5, self.camera.position[2])
+		if keys[pygame.K_z]:
+			self.camera.position = (self.camera.position[0], self.camera.position[1] - 0.5, self.camera.position[2])
 		return constants.gsInGame

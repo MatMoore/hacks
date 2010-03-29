@@ -42,21 +42,28 @@ class Camera:
 	def translateForCameraCoords(self, position):
 		glTranslatef(position[0]-self.position[0], position[1]-self.position[1], position[2]-self.position[2])
 
-	def rotateForCameraRotation(self, orientation):
-		glRotatef(self.orientation[0]-orientation[0],1,0,0)
-		glRotatef(self.orientation[1]-orientation[1],0,1,0)
-		glRotatef(self.orientation[2]-orientation[2],0,0,1)
+	def rotateForObjectRotation(self, orientation):
+		glRotatef(orientation[0],1,0,0)
+		glRotatef(orientation[1],0,1,0)
+		glRotatef(orientation[2],0,0,1)
+
+	def rotateForCameraRotation(self):
+		glRotatef(self.orientation[0],1,0,0)
+		glRotatef(self.orientation[1],0,1,0)
+		glRotatef(self.orientation[2],0,0,1)
 
 	def drawPyramid(self):
-		self.tempY += 0.01
-		self.rotateForCameraRotation((0,0,0))		#lets rotate it 45 degrees in the y axis
+		self.tempY += 1
+		self.rotateForCameraRotation()
 		self.translateForCameraCoords((0,3,0))		#stick it floating in the air in the middle of the track a bit
+		self.rotateForObjectRotation((0,self.tempY,0))		#lets rotate it 45 degrees in the y axis
 		glCallList(self.objects['pyramid'].gl_list)
 		self.resetForNextObject()
 
 	def drawGround(self):
-		self.rotateForCameraRotation((0,0,0))		#the ground plane is not rotated
+		self.rotateForCameraRotation()		#the ground plane is not rotated
 		self.translateForCameraCoords((0,-0.01,0))	#we do lower it ever so slightly though, this is so the track can go on 0,0,0 without any possible interference
+		self.rotateForObjectRotation((0,0,0))
 		glColor3d(0,0.4,0)							#it should be green
 		glBegin(GL_QUADS)							#draw a big quad for the grass
 		glVertex3f(-200,0,200)
@@ -68,8 +75,9 @@ class Camera:
 
 
 	def drawTrack(self, track):
-		self.rotateForCameraRotation((0,0,0))		#track doesnt need rotating
+		self.rotateForCameraRotation()	
 		self.translateForCameraCoords((0,0,0))		#center of track is at 0,0,0
+		self.rotateForObjectRotation((0,0,0))		#track doesnt need rotating
 		glColor3f(0.4,0.4,0.4)						#make it grey
 		glBegin(GL_QUAD_STRIP)
 		for point in track.quadPoints:
