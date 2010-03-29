@@ -5,6 +5,8 @@ from pygame.locals import *
 import math
 import constants
 import misc
+import objloader
+import data
 
 class Camera:
 	def __init__(self, resX = 800, resY = 600):
@@ -26,6 +28,13 @@ class Camera:
 		glClearColor(.5,.5,1,0)
 		self.orientation = (0,-90,0) 	#current orientation
 		self.position = (0,3,0)		#current position
+		self.loadObjects()
+		self.tempY = 0.01
+
+	def loadObjects(self):
+		self.objects = {}
+		self.objects['pyramid'] = objloader.OBJ("pyramid.obj")
+
 
 	def resetForNextObject(self):
 		glLoadIdentity()
@@ -34,9 +43,16 @@ class Camera:
 		glTranslatef(position[0]-self.position[0], position[1]-self.position[1], position[2]-self.position[2])
 
 	def rotateForCameraRotation(self, orientation):
-		glRotatef(orientation[0]-self.orientation[0],1,0,0)
-		glRotatef(orientation[1]-self.orientation[1],0,1,0)
-		glRotatef(orientation[2]-self.orientation[2],0,0,1)				
+		glRotatef(self.orientation[0]-orientation[0],1,0,0)
+		glRotatef(self.orientation[1]-orientation[1],0,1,0)
+		glRotatef(self.orientation[2]-orientation[2],0,0,1)
+
+	def drawPyramid(self):
+		self.tempY += 0.01
+		self.rotateForCameraRotation((0,0,0))		#lets rotate it 45 degrees in the y axis
+		self.translateForCameraCoords((0,3,0))		#stick it floating in the air in the middle of the track a bit
+		glCallList(self.objects['pyramid'].gl_list)
+		self.resetForNextObject()
 
 	def drawGround(self):
 		self.rotateForCameraRotation((0,0,0))		#the ground plane is not rotated
@@ -52,7 +68,6 @@ class Camera:
 
 
 	def drawTrack(self, track):
-		self.position = (track.startingPoint[0], 3, track.startingPoint[1])
 		self.rotateForCameraRotation((0,0,0))		#track doesnt need rotating
 		self.translateForCameraCoords((0,0,0))		#center of track is at 0,0,0
 		glColor3f(0.4,0.4,0.4)						#make it grey
