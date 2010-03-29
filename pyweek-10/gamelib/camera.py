@@ -75,7 +75,7 @@ class Camera:
 		self.tempY += 1
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords((0,3,0))				#stick it floating in the air in the middle of the track a bit
-		self.rotateForObjectRotation((0,self.tempY,0))		#lets rotate it 45 degrees in the y axis
+		self.rotateForObjectRotation((self.tempY,0,0))		#lets rotate it 45 degrees in the y axis
 		glCallList(self.objects['pyramid'].gl_list)
 		self.resetForNextObject()
 
