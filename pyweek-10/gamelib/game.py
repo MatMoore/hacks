@@ -17,7 +17,7 @@ class Game:
 		self.camera.drawTrack(self.track)
 		self.camera.drawPyramid()
 		self.camera.flip()
-		pygame.time.wait(40)
+		pygame.time.wait(20)
 		
 
 		

@@ -19,22 +19,40 @@ class Camera:
 		gluPerspective(45, 1.0*resX/resY, 0.1, 300.0)
 		glMatrixMode(GL_MODELVIEW)
 		glLoadIdentity()
+		glEnable(GL_TEXTURE_2D);
+		self.loadTextures()
 		glShadeModel(GL_SMOOTH)
-		glClearColor(0.0, 0.0, 0.0, 0.0)
+		glClearColor(.5,.5,1,0)
 		glClearDepth(1.0)
 		glEnable(GL_DEPTH_TEST)
 		glDepthFunc(GL_LEQUAL)
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
-		glClearColor(.5,.5,1,0)
+		self.loadObjects()
 		self.orientation = (0,-90,0) 	#current orientation
 		self.position = (0,3,0)		#current position
-		self.loadObjects()
 		self.tempY = 0.01
 
 	def loadObjects(self):
 		self.objects = {}
 		self.objects['pyramid'] = objloader.OBJ("pyramid.obj")
 
+	def loadTexture(self, filename, name):
+		texturefile = data.filepath(filename)
+		textureSurface = pygame.image.load(texturefile)
+		textureData = pygame.image.tostring(textureSurface, "RGBX", 1)
+		self.textures[name] = self.textureNum
+		self.textureNum += 1	#we need a unique number for each texture.
+		glBindTexture(GL_TEXTURE_2D, self.textures[name])
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, textureSurface.get_width(), textureSurface.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
+#		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );		
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+	def loadTextures(self):
+		self.textures = {}
+		self.textureNum = 1
+		self.loadTexture('grass.png', 'grass')
+		print self.textures
 
 	def resetForNextObject(self):
 		glLoadIdentity()
@@ -55,22 +73,29 @@ class Camera:
 	def drawPyramid(self):
 		self.tempY += 1
 		self.rotateForCameraRotation()
-		self.translateForCameraCoords((0,3,0))		#stick it floating in the air in the middle of the track a bit
+		self.translateForCameraCoords((0,3,0))				#stick it floating in the air in the middle of the track a bit
 		self.rotateForObjectRotation((0,self.tempY,0))		#lets rotate it 45 degrees in the y axis
 		glCallList(self.objects['pyramid'].gl_list)
 		self.resetForNextObject()
 
 	def drawGround(self):
+		glEnable(GL_TEXTURE_2D);
 		self.rotateForCameraRotation()		#the ground plane is not rotated
-		self.translateForCameraCoords((0,-0.01,0))	#we do lower it ever so slightly though, this is so the track can go on 0,0,0 without any possible interference
+		self.translateForCameraCoords((0,-0.1,0))	#we do lower it ever so slightly though, this is so the track can go on 0,0,0 without any possible interference
 		self.rotateForObjectRotation((0,0,0))
-		glColor3d(0,0.4,0)							#it should be green
+		glColor3f(0,0.4,0)							#it should be green
+		glBindTexture(GL_TEXTURE_2D, self.textures['grass'])
 		glBegin(GL_QUADS)							#draw a big quad for the grass
-		glVertex3f(-200,0,200)
-		glVertex3f(200,0,200)
-		glVertex3f(200,0,-200)
+		glTexCoord2f(0, 0)
 		glVertex3f(-200,0,-200)
+		glTexCoord2f(0.0, 20.0)
+		glVertex3f(-200,0,200)
+		glTexCoord2f(20.0, 20.0)
+		glVertex3f(200,0,200)
+		glTexCoord2f(20.0, 0.0)
+		glVertex3f(200,0,-200)
 		glEnd()
+		glDisable(GL_TEXTURE_2D)
 		self.resetForNextObject()
 
 
