@@ -35,6 +35,7 @@ class Camera:
 	def loadObjects(self):
 		self.objects = {}
 		self.objects['pyramid'] = objloader.OBJ("pyramid.obj")
+		self.objects['wheel'] = objloader.OBJ("wheel.obj")
 
 	def loadTexture(self, filename, name):
 		texturefile = data.filepath(filename)
@@ -108,6 +109,14 @@ class Camera:
 		for point in track.quadPoints:
 			glVertex3f(point[0], 0, point[1])
 		glEnd()
+		self.resetForNextObject()
+
+	def drawUnicycle(self, position, orientation):
+		glDisable(GL_TEXTURE_2D)
+		self.rotateForCameraRotation()
+		self.translateForCameraCoords(position)
+		self.rotateForObjectRotation(orientation)
+		glCallList(self.objects['wheel'].gl_list)
 		self.resetForNextObject()
 
 	def clear(self):
