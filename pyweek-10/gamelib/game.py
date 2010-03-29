@@ -11,13 +11,15 @@ class Game:
 		self.track = track.Track()
 		self.track.generateTrack(20,50)
 		self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
+		self.rotation = 0
 	def main(self):
 		self.camera.clear()
 		self.camera.drawGround()
 		self.camera.drawTrack(self.track)
 		self.camera.drawPyramid()
-		self.camera.drawUnicycle((self.track.startingPoint[0], 0.6, self.track.startingPoint[1]), (0,0,0))	#puts a unicycle at the start, the 0.3 hopefully moves it up out of the ground, since the wheel is 0.6 (60cm) around
-		self.camera.flip()																					#error^^ i made it 0.6 RADIUS, not 0.6 width. woops. TODO: fix this
+		self.rotation += 3
+		self.camera.drawUnicycle((self.track.startingPoint[0], 0.3, self.track.startingPoint[1]), (0,0,self.rotation))	#puts a unicycle at the start, the 0.3 hopefully moves it up out of the ground, since the wheel is 0.6 (60cm) around
+		self.camera.flip()
 		pygame.time.wait(20)
 		
 

@@ -75,7 +75,7 @@ class Camera:
 		self.tempY += 1
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords((0,3,0))				#stick it floating in the air in the middle of the track a bit
-		self.rotateForObjectRotation((self.tempY,0,0))		#lets rotate it 45 degrees in the y axis
+		self.rotateForObjectRotation((self.tempY,self.tempY,self.tempY))		#lets rotate it 45 degrees in the y axis
 		glCallList(self.objects['pyramid'].gl_list)
 		self.resetForNextObject()
 
@@ -115,7 +115,10 @@ class Camera:
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(position)
-		self.rotateForObjectRotation(orientation)
+		#self.rotateForObjectRotation(orientation)	#commented out because we need rotation in a different order
+		glRotatef(orientation[1],0,1,0)
+		glRotatef(orientation[2],0,0,1)
+		glRotatef(orientation[0],1,0,0)		
 		glCallList(self.objects['wheel'].gl_list)
 		self.resetForNextObject()
 
