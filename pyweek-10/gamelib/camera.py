@@ -29,7 +29,7 @@ class Camera:
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
 		self.loadObjects()
 		self.orientation = (0,-90,0) 	#current orientation
-		self.position = (0,3,0)		#current position
+		self.position = (0,1,0)		#current position
 		self.tempY = 0.01
 
 	def loadObjects(self):
@@ -81,18 +81,18 @@ class Camera:
 	def drawGround(self):
 		glEnable(GL_TEXTURE_2D);
 		self.rotateForCameraRotation()		#the ground plane is not rotated
-		self.translateForCameraCoords((0,-0.1,0))	#we do lower it ever so slightly though, this is so the track can go on 0,0,0 without any possible interference
+		self.translateForCameraCoords((0,-0.01,0))	#we do lower it ever so slightly though, this is so the track can go on 0,0,0 without any possible interference
 		self.rotateForObjectRotation((0,0,0))
-		glColor3f(0,0.4,0)							#it should be green
+		glColor3f(0.2,0.4,0.2)							#it should be green
 		glBindTexture(GL_TEXTURE_2D, self.textures['grass'])
 		glBegin(GL_QUADS)							#draw a big quad for the grass
 		glTexCoord2f(0, 0)
 		glVertex3f(-200,0,-200)
-		glTexCoord2f(0.0, 20.0)
+		glTexCoord2f(0.0, 50.0)
 		glVertex3f(-200,0,200)
-		glTexCoord2f(20.0, 20.0)
+		glTexCoord2f(50.0, 50.0)
 		glVertex3f(200,0,200)
-		glTexCoord2f(20.0, 0.0)
+		glTexCoord2f(50.0, 0.0)
 		glVertex3f(200,0,-200)
 		glEnd()
 		glDisable(GL_TEXTURE_2D)

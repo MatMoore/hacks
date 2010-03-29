@@ -10,7 +10,7 @@ class Game:
 		self.camera = camera.Camera()
 		self.track = track.Track()
 		self.track.generateTrack(20,50)
-		self.camera.position = (self.track.startingPoint[0], 3, self.track.startingPoint[1])
+		self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 	def main(self):
 		self.camera.clear()
 		self.camera.drawGround()
