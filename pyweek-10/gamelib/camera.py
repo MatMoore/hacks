@@ -7,6 +7,7 @@ import constants
 import misc
 import objloader
 import data
+import racer
 
 class Camera:
 	def __init__(self, resX = 800, resY = 600):
@@ -31,6 +32,9 @@ class Camera:
 		self.orientation = (0,-90,0) 	#current orientation
 		self.position = (0,1,0)		#current position
 		self.tempY = 0.01
+		
+		self.quadratic = gluNewQuadric()
+		gluQuadricTexture(self.quadratic, True)
 
 	def loadObjects(self):
 		self.objects = {}
@@ -51,9 +55,9 @@ class Camera:
 
 	def loadTextures(self):
 		self.textures = {}
-		self.textureNum = 1
+		self.textureNum = 0
 		self.loadTexture('grass.png', 'grass')
-		print self.textures
+		self.loadTexture('sky.jpg', 'sky')
 
 	def resetForNextObject(self):
 		glLoadIdentity()
@@ -99,6 +103,15 @@ class Camera:
 		glDisable(GL_TEXTURE_2D)
 		self.resetForNextObject()
 
+	def drawSky(self):
+		self.rotateForCameraRotation()
+		self.rotateForObjectRotation((90,0,90))
+		glColor4f(1,1,1,1)
+		glEnable(GL_TEXTURE_2D)
+		glBindTexture(GL_TEXTURE_2D, self.textures['sky'])
+		gluSphere(self.quadratic,300,20,20)
+		glDisable(GL_TEXTURE_2D)
+		self.resetForNextObject()
 
 	def drawTrack(self, track):
 		self.rotateForCameraRotation()	
@@ -111,15 +124,33 @@ class Camera:
 		glEnd()
 		self.resetForNextObject()
 
-	def drawUnicycle(self, position, orientation):
+	def drawUnicycle(self, unicycle):
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(position)
-		#self.rotateForObjectRotation(orientation)	#commented out because we need rotation in a different order
-		glRotatef(orientation[1],0,1,0)
-		glRotatef(orientation[2],0,0,1)
-		glRotatef(orientation[0],1,0,0)		
+		glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
+
+#		#self.rotateForObjectRotation(orientation)	#commented out because we need rotation in a different order
+#		glRotatef(orientation[1],0,1,0)
+#		glRotatef(orientation[0],1,0,0)
+#		glRotatef(orientation[2],0,0,1)
+
 		glCallList(self.objects['wheel'].gl_list)
+		glColor3f(1,0,0)
+		glBegin(GL_LINES)
+			glVertex3f(0,0,0)
+			glVertex3f(unicycle.forward[0], unicycle.forward[1], unicycle.forward[2])
+		glEnd()
+		glColor3f(0,1,0)
+		glBegin(GL_LINES)
+			glVertex3f(0,0,0)
+			glVertex3f(unicycle.right[0], unicycle.right[1], unicycle.right[2])
+		glEnd()
+		glColor3f(0,0,1)
+		glBegin(GL_LINES)
+			glVertex3f(0,0,0)
+			glVertex3f(unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
+		glEnd()
 		self.resetForNextObject()
 
 	def clear(self):

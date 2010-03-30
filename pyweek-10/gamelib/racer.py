@@ -71,7 +71,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 		# Work out the direction we're moving in
 		# The unicycle starts vertical, so the "facing" angle is the angle from the x axis.
-		self.forward = array([1,0,0]) * rotationMatrix(array([0,1,0]) facing)
+		self.forward = array([1,0,0]) * rotationMatrix(array([0,1,0]), facing)
 		GameObject.__init__(position,orientation,facing)
 
 	@property
