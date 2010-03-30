@@ -57,7 +57,6 @@ class Camera:
 		self.textureNum = 0
 		self.loadTexture('grass.png', 'grass')
 		self.loadTexture('sky.jpg', 'sky')
-		print self.textures
 
 	def resetForNextObject(self):
 		glLoadIdentity()
