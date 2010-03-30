@@ -129,19 +129,8 @@ class Camera:
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(unicycle.position)
 		glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
-#		print unicycle.orientation
-#		print unicycle.rotation
-#		print unicycle.position
-#		print unicycle.rotation
-
-
-#		#self.rotateForObjectRotation(orientation)	#commented out because we need rotation in a different order
-#		glRotatef(orientation[1],0,1,0)
-#		glRotatef(orientation[0],1,0,0)
-#		glRotatef(orientation[2],0,0,1)
 
 		glCallList(self.objects['wheel'].gl_list)
-#		print unicycle.forward
 #		glColor3f(1,0,0)
 #		glBegin(GL_LINES)
 #		glVertex3f(0,0,0)

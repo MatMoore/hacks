@@ -16,9 +16,13 @@ class Game:
 		self.rotation = 0
 		self.unicycles = []
 		self.unicycles.append(racer.Unicycle(array([2,0.3,2]), array([0,1,0]), 0))
-		self.unicycles.append(racer.Unicycle(array([-2,0.3,2]), array([1,0,0]), math.pi/2))
+		self.unicycles.append(racer.Unicycle(array([-2,0.3,2]), array([0,0,1]), math.pi/2))
 		self.unicycles.append(racer.Unicycle(array([2,0.3,-2]), array([0,1,0]), math.pi))
 		self.unicycles.append(racer.Unicycle(array([-2,0.3,-2]), array([0,1,0]), 1.5*math.pi))
+		self.unicycles.append(racer.Unicycle(array([0,0.3,2]), array([1,0,0]), math.pi*0.75))
+		self.unicycles.append(racer.Unicycle(array([-2,0.3,0]), array([1,0,0]), 1.3*math.pi))
+		self.unicycles.append(racer.Unicycle(array([0,0.3,-2]), array([0,0,1]), math.pi))
+		self.unicycles.append(racer.Unicycle(array([2,0.3,0]), array([0,0,1]), 1.5*math.pi))
 	def main(self):
 		self.camera.clear()
 		self.camera.drawSky()
