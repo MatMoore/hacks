@@ -2,6 +2,7 @@
 from constants import *
 from numpy import *
 from gameobject import GameObject
+from utils import *
 import pygame
 
 class Racer:
@@ -22,7 +23,7 @@ class Racer:
 		#
 
 		# Map mouse movement to rider (not uncycle) tilt
-		dthetaLR, dthetaFB = map(lamda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP), pygame.mouse.get_rel()
+		#dthetaLR, dthetaFB = map(lamda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP), pygame.mouse.get_rel()
 		# Update rider orientation
 		self.rider.lean(dthetaLR, dthetaFB)
 
@@ -72,7 +73,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		# Work out the direction we're moving in
 		# The unicycle starts vertical, so the "facing" angle is the angle from the x axis.
 		self.forward = array([1,0,0]) * rotationMatrix(array([0,1,0]), facing)
-		GameObject.__init__(position,orientation,facing)
+		GameObject.__init__(self, position,orientation,facing)
 
 	@property
 	def left(self):
@@ -93,7 +94,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		normal = cross(self.forward, self.orientation)
 		return  pi/2 - angleBetween(y, normal)
 
-	@theraLR.setter
+	@thetaLR.setter
 	def thetaLR(self, value):
 		'''Rotate around the forward vector'''
 
@@ -110,7 +111,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		normal = cross(self.left, self.orientation)
 		return  pi/2 - angleBetween(y, normal)
 
-	@theraFB.setter
+	@thetaFB.setter
 	def thetaFB(self, value):
 		'''Rotate around the left vector'''
 

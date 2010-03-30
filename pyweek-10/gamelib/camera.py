@@ -127,7 +127,7 @@ class Camera:
 	def drawUnicycle(self, unicycle):
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
-		self.translateForCameraCoords(position)
+		self.translateForCameraCoords(unicycle.position)
 		glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
 
 #		#self.rotateForObjectRotation(orientation)	#commented out because we need rotation in a different order
@@ -136,21 +136,22 @@ class Camera:
 #		glRotatef(orientation[2],0,0,1)
 
 		glCallList(self.objects['wheel'].gl_list)
-		glColor3f(1,0,0)
-		glBegin(GL_LINES)
-			glVertex3f(0,0,0)
-			glVertex3f(unicycle.forward[0], unicycle.forward[1], unicycle.forward[2])
-		glEnd()
-		glColor3f(0,1,0)
-		glBegin(GL_LINES)
-			glVertex3f(0,0,0)
-			glVertex3f(unicycle.right[0], unicycle.right[1], unicycle.right[2])
-		glEnd()
-		glColor3f(0,0,1)
-		glBegin(GL_LINES)
-			glVertex3f(0,0,0)
-			glVertex3f(unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
-		glEnd()
+#		print unicycle.forward
+#		glColor3f(1,0,0)
+#		glBegin(GL_LINES)
+#		glVertex3f(0,0,0)
+#		glVertex3f(unicycle.forward[0], unicycle.forward[1], unicycle.forward[2])
+#		glEnd()
+#		glColor3f(0,1,0)
+#		glBegin(GL_LINES)
+#		glVertex3f(0,0,0)
+#		glVertex3f(unicycle.right[0], unicycle.right[1], unicycle.right[2])
+#		glEnd()
+#		glColor3f(0,0,1)
+#		glBegin(GL_LINES)
+#		glVertex3f(0,0,0)
+#		glVertex3f(unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
+#		glEnd()
 		self.resetForNextObject()
 
 	def clear(self):

@@ -1,7 +1,7 @@
 from constants import *
 from numpy import *
 
-class GameObject
+class GameObject:
 	def __init__(self, position=None, orientation=None, facing=0):
 		'''Orientation is a vector which points in the direction of "up" for this object. Facing is the angle the object is rotated about that axis.'''
 		# Some defaults
@@ -26,17 +26,17 @@ class GameObject
 	def update(self):
 		pass
 
-	def interpolate(self, newVal, oldVal)
+	def interpolate(self, newVal, oldVal):
 		return newVal + (newVal-oldVal)*self.timeSinceUpdate
 
 	@property
-	def position(self)
+	def position(self):
 		return self.interpolate(self._position, self._positionOld)
 
 	@property
-	def orientation(self)
+	def orientation(self):
 		return self.interpolate(self._orientation, self._orientationOld)
 
 	@property
-	def rotation(self)
+	def rotation(self):
 		return self.interpolate(self._rotation, self._rotationOld)

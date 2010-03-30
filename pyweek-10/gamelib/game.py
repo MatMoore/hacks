@@ -5,6 +5,7 @@ import pygame
 import math
 import misc
 import racer
+from numpy import *
 
 class Game:
 	def __init__(self):
@@ -13,7 +14,7 @@ class Game:
 		self.track.generateTrack(20,50)
 		self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
-		self.unicycles = [racer.Unicycle(array[(0,0,0)], array[(0,0,0)])
+		self.unicycles = [racer.Unicycle(array([0,0,0]), array([0,0,0]), 0)]
 	def main(self):
 		self.camera.clear()
 		self.camera.drawSky()
