@@ -6,10 +6,10 @@ from utils import *
 import pygame
 
 class Racer:
-	def __init__(position,orientation,mass=75,height=1.0):
+	def __init__(position,facing,mass=75,height=1.0):
 		self.height = height
-		self.unicycle = GameObject()
-		self.rider = GameObject()
+		self.unicycle = Unicycle(position, facing)
+		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing)
 
 	def update(self):
 		#         ahhh!
@@ -60,15 +60,14 @@ class Racer:
 		
 		# update rider position by sticking him back on the top of the unicycle
 
-class Unicycle(GameObject):
-	'''Unicycle directions/angles:
+class WibblyWobbly(GameObject):
+	'''Directions/angles:
 	Forward,backward,left,right are all unit vectors in the X-Z plane, describing which way the unicycle wheel is moving
-	Orientation is the "up" unit vector, and describes how the unicycle is tilted
+	Orientation is the "up" unit vector, and describes how the wobbly is tilted
 thetaFB is the angle from vertical the left-up plane is rotated
 thetaLR is the angle from vertical the forward-up plane is rotated
 	'''
-	def __init__(self,position, facing):
-		self.wheelvelocity = array([0,0,0]) # velocity of the unicycle wheel (should be in the horizontal plane!)
+	def __init__(self, position, facing):
 
 		orientation = array([0, 1, 0]) # Start upright
 
@@ -131,3 +130,21 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		self.orientation = dot(self.orientation, rotationMatrix(self.left, value))
 
 
+class Rider(GameObject):
+	def __init__(self, position, facing):
+		orientation = array([0, 1, 0]) # Start upright
+		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
+		GameObject.__init__(self, position,orientation,facing)
+
+		def lean(dThetaLR, dThetaFB):
+			self.thetaLR += dThetaLR
+			self.thetaFB += dThetaFB
+
+class Unicycle(WibblyWobbly):
+	def __init__(self,position, facing):
+		self.speed = 0 # wheel speed
+		self.acceleration = 0 # wheel acceleration
+		WibblyWobbly.__init__(self,position,facing)
+
+	def accelerate(dt):
+		self.position += self.speed * self.forward * dt
