@@ -7,6 +7,7 @@ import constants
 import misc
 import objloader
 import data
+import racer
 
 class Camera:
 	def __init__(self, resX = 800, resY = 600):
@@ -123,14 +124,15 @@ class Camera:
 		glEnd()
 		self.resetForNextObject()
 
-	def drawUnicycle(self, position, orientation):
+	def drawUnicycle(self, unicycle):
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
-		self.translateForCameraCoords(position)
-		#self.rotateForObjectRotation(orientation)	#commented out because we need rotation in a different order
-		glRotatef(orientation[1],0,1,0)
-		glRotatef(orientation[0],1,0,0)
-		glRotatef(orientation[2],0,0,1)
+		
+#		self.translateForCameraCoords(position)
+#		#self.rotateForObjectRotation(orientation)	#commented out because we need rotation in a different order
+#		glRotatef(orientation[1],0,1,0)
+#		glRotatef(orientation[0],1,0,0)
+#		glRotatef(orientation[2],0,0,1)
 
 		glCallList(self.objects['wheel'].gl_list)
 		self.resetForNextObject()

@@ -4,6 +4,7 @@ import track
 import pygame
 import math
 import misc
+import racer
 
 class Game:
 	def __init__(self):
@@ -12,6 +13,7 @@ class Game:
 		self.track.generateTrack(20,50)
 		self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
+		self.unicycles = [racer.Unicycle(array[(0,0,0)], array[(0,0,0)])
 	def main(self):
 		self.camera.clear()
 		self.camera.drawSky()
@@ -20,7 +22,9 @@ class Game:
 		self.camera.drawPyramid()
 		self.rotation += 3
 		self.tilt = 20 * math.sin(self.rotation/100.0)
-		self.camera.drawUnicycle((self.track.startingPoint[0], 0.3, self.track.startingPoint[1]), (self.tilt,0,self.rotation))	#puts a unicycle at the start, the 0.3 hopefully moves it up out of the ground, since the wheel is 0.6 (60cm) around
+#		self.camera.drawUnicycle((self.track.startingPoint[0], 0.3, self.track.startingPoint[1]), (self.tilt,0,self.rotation))	#puts a unicycle at the start, the 0.3 hopefully moves it up out of the ground, since the wheel is 0.6 (60cm) around
+		for unicycle in self.unicycles:
+			self.camera.drawUnicycle(unicycle)
 		self.camera.flip()
 		pygame.time.wait(20)
 		
