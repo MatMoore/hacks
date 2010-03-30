@@ -1,3 +1,4 @@
+# If this class doesn't make sense to you don't worry, it doesn't make sense to me either.
 from constants import *
 from numpy import *
 from gameobject import GameObject
@@ -59,30 +60,64 @@ class Racer:
 		# update rider position by sticking him back on the top of the unicycle
 
 class Unicycle(GameObject):
+	'''Unicycle directions/angles:
+	Forward,backward,left,right are all unit vectors in the X-Z plane, describing which way the unicycle wheel is moving
+	Orientation is the "up" unit vector, and describes how the unicycle is tilted
+thetaFB is the angle from vertical the left-up plane is rotated
+thetaLR is the angle from vertical the forward-up plane is rotated
+	'''
 	def __init__(self,position,orientation, facing):
 		self.wheelvelocity = array([0,0,0]) # velocity of the unicycle wheel (should be in the horizontal plane!)
+
+		# Work out the direction we're moving in
+		# The unicycle starts vertical, so the "facing" angle is the angle from the x axis.
+		self.forward = array([1,0,0]) * rotationMatrix(array([0,1,0]) facing)
 		GameObject.__init__(position,orientation,facing)
 
 	@property
-	def self.forward(self):
-		pass
+	def left(self):
+		cross(y, self.forward)
+
+	@property
+	def right(self):
+		return -self.left
+
+	@property
+	def backward(self):
+		return -self.forward
 
 	@property
 	def thetaLR(self):
-		'''Get the angle the unicycle is tilting around the forward vector'''
-		return angleBetween(self.orientation,self.forward)
+		'''The angle between the forward-up unicycle plane and the y axis.'''
+		# This is 90 deg - (angle between the normal and the y axis)
+		normal = cross(self.forward, self.orientation)
+		return  pi/2 - angleBetween(y, normal)
 
 	@theraLR.setter
 	def thetaLR(self, value):
-		'''Set the angle the unicycle is tilting around the forward vector'''
-		pass
+		'''Rotate around the forward vector'''
+
+		# Go back to vertical
+		self.orientation *= rotationMatrix(self.forward, -self.thetaLR)
+
+		# Rotate to new angle
+		self.orientation *= rotationMatrix(self.forward, value)
 
 	@property
 	def thetaFB(self):
-		'''Get the angle the unicycle is tilting in the forward backward direction'''
-		return
+		'''The angle between the left-up unicycle plane and the y axis'''
+		# This is 90 deg - (angle between the normal and the y axis)
+		normal = cross(self.left, self.orientation)
+		return  pi/2 - angleBetween(y, normal)
 
 	@theraFB.setter
 	def thetaFB(self, value):
-		'''Set the angle the unicycle is tilting in the forward backward direction'''
-		pass
+		'''Rotate around the left vector'''
+
+		# Go back to vertical
+		self.orientation *= rotationMatrix(self.left, -self.thetaFB)
+
+		# Rotate to new angle
+		self.orientation *= rotationMatrix(self.left, value)
+
+
