@@ -130,10 +130,7 @@ class Camera:
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(unicycle.position)
 		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 180
-		glRotatef(uniAngle, 0, 1, 0)
 		glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
-		glCallList(self.objects['wheel'].gl_list)
-		glColor3f(1,0,0)
 		glBegin(GL_LINES)
 		glVertex3f(0,0,0)
 		glVertex3f(unicycle.forward[0], unicycle.forward[1], unicycle.forward[2])
@@ -150,6 +147,9 @@ class Camera:
 		glVertex3f(0,0,0)
 		glVertex3f(unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
 		glEnd()
+		glRotatef(uniAngle, 0, 1, 0)
+		glCallList(self.objects['wheel'].gl_list)
+		glColor3f(1,0,0)
 		self.resetForNextObject()
 
 	def clear(self):
