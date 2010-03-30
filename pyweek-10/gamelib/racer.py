@@ -67,17 +67,19 @@ class Unicycle(GameObject):
 thetaFB is the angle from vertical the left-up plane is rotated
 thetaLR is the angle from vertical the forward-up plane is rotated
 	'''
-	def __init__(self,position,orientation, facing):
+	def __init__(self,position, facing):
 		self.wheelvelocity = array([0,0,0]) # velocity of the unicycle wheel (should be in the horizontal plane!)
+
+		orientation = array([0, 1, 0]) # Start upright
 
 		# Work out the direction we're moving in
 		# The unicycle starts vertical, so the "facing" angle is the angle from the x axis.
-		self.forward = array([1,0,0]) * rotationMatrix(array([0,1,0]), facing)
+		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
 		GameObject.__init__(self, position,orientation,facing)
 
 	@property
 	def left(self):
-		cross(y, self.forward)
+		return cross(y, self.forward)
 
 	@property
 	def right(self):
@@ -99,10 +101,10 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		'''Rotate around the forward vector'''
 
 		# Go back to vertical
-		self.orientation *= rotationMatrix(self.forward, -self.thetaLR)
+		self.orientation = dot(self.orientation, rotationMatrix(self.forward, -self.thetaLR))
 
 		# Rotate to new angle
-		self.orientation *= rotationMatrix(self.forward, value)
+		self.orientation = dot(self.orientation, rotationMatrix(self.forward, value))
 
 	@property
 	def thetaFB(self):
@@ -116,9 +118,9 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		'''Rotate around the left vector'''
 
 		# Go back to vertical
-		self.orientation *= rotationMatrix(self.left, -self.thetaFB)
+		self.orientation = dot(self.orientation, rotationMatrix(self.left, -self.thetaFB))
 
 		# Rotate to new angle
-		self.orientation *= rotationMatrix(self.left, value)
+		self.orientation = dot(self.orientation, rotationMatrix(self.left, value))
 
 

@@ -5,6 +5,7 @@ import pygame
 import math
 import misc
 import racer
+from utils import *
 from numpy import *
 
 class Game:
@@ -15,14 +16,17 @@ class Game:
 		self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
 		self.unicycles = []
-		self.unicycles.append(racer.Unicycle(array([2,0.3,2]), array([0,1,0]), 0))
-		self.unicycles.append(racer.Unicycle(array([-2,0.3,2]), array([0,0,1]), math.pi/2))
-		self.unicycles.append(racer.Unicycle(array([2,0.3,-2]), array([0,1,0]), math.pi))
-		self.unicycles.append(racer.Unicycle(array([-2,0.3,-2]), array([0,1,0]), 1.5*math.pi))
-		self.unicycles.append(racer.Unicycle(array([0,0.3,2]), array([1,0,0]), math.pi*0.75))
-		self.unicycles.append(racer.Unicycle(array([-2,0.3,0]), array([1,0,0]), 1.3*math.pi))
-		self.unicycles.append(racer.Unicycle(array([0,0.3,-2]), array([0,0,1]), math.pi))
-		self.unicycles.append(racer.Unicycle(array([2,0.3,0]), array([0,0,1]), 1.5*math.pi))
+		self.unicycles.append(racer.Unicycle(array([2,0.3,2]), 0))
+		tilted = racer.Unicycle(array([-2,0.3,2]), 0)
+		tilted.orientation = array([1, 1, 0])
+		self.unicycles.append(tilted)
+#		self.unicycles.append(racer.Unicycle(array([-2,0.3,2]), array([0,0,1]), math.pi/2))
+#		self.unicycles.append(racer.Unicycle(array([2,0.3,-2]), array([0,1,0]), math.pi))
+#		self.unicycles.append(racer.Unicycle(array([-2,0.3,-2]), array([0,1,0]), 1.5*math.pi))
+#		self.unicycles.append(racer.Unicycle(array([0,0.3,2]), array([1,0,0]), math.pi*0.75))
+#		self.unicycles.append(racer.Unicycle(array([-2,0.3,0]), array([1,0,0]), 1.3*math.pi))
+#		self.unicycles.append(racer.Unicycle(array([0,0.3,-2]), array([0,0,1]), math.pi))
+#		self.unicycles.append(racer.Unicycle(array([2,0.3,0]), array([0,0,1]), 1.5*math.pi))
 	def main(self):
 		self.camera.clear()
 		self.camera.drawSky()
@@ -33,6 +37,8 @@ class Game:
 		self.tilt = 20 * math.sin(self.rotation/100.0)
 #		self.camera.drawUnicycle((self.track.startingPoint[0], 0.3, self.track.startingPoint[1]), (self.tilt,0,self.rotation))	#puts a unicycle at the start, the 0.3 hopefully moves it up out of the ground, since the wheel is 0.6 (60cm) around
 		for unicycle in self.unicycles:
+			# Rotate about y axis
+			unicycle.forward = dot(unicycle.forward, rotationMatrix(y, pi/200))
 			self.camera.drawUnicycle(unicycle)
 		self.camera.flip()
 		pygame.time.wait(20)
