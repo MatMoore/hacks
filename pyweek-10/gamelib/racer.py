@@ -89,6 +89,13 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def backward(self):
 		return -self.forward
 
+	def turnRight(self, angle):
+		self.forward = dot(self.forward, rotationMatrix(y, angle))
+		self.orientation = dot(self.orientation, rotationMatrix(y,angle))
+
+	def turnLeft(self, angle):
+		self.turnRight(-angle)
+
 	@property
 	def thetaLR(self):
 		'''The angle between the forward-up unicycle plane and the y axis.'''

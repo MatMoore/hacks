@@ -129,7 +129,7 @@ class Camera:
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(unicycle.position)
-		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 180
+		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 90
 		glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
 
 		glColor3f(1,0,0)

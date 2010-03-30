@@ -38,7 +38,8 @@ class Game:
 #		self.camera.drawUnicycle((self.track.startingPoint[0], 0.3, self.track.startingPoint[1]), (self.tilt,0,self.rotation))	#puts a unicycle at the start, the 0.3 hopefully moves it up out of the ground, since the wheel is 0.6 (60cm) around
 		for unicycle in self.unicycles:
 			# Rotate about y axis
-			unicycle.forward = dot(unicycle.forward, rotationMatrix(y, pi/200))
+			#unicycle.forward = dot(unicycle.forward, rotationMatrix(y, pi/200))
+			unicycle.turnRight(pi/200)
 			self.camera.drawUnicycle(unicycle)
 		self.camera.flip()
 		pygame.time.wait(20)
