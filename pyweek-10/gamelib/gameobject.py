@@ -5,8 +5,15 @@ class GameObject
 	def __init__(self):
 		self._position = array([0.0, 0.0, 0.0])
 		self._positionOld = array([0.0, 0.0, 0.0])
-		self._orientation = array([0.0, 0.0, 0.0])	#these might be really bad defaults
+
+		# Which way "up" is pointing
+		self._orientation = array([0.0, 0.0, 0.0])
 		self._orientationOld = array([0.0, 0.0, 0.0])
+
+		# Rotation about the self._orientation axis
+		self._rotation = 0
+		self._rotationOld = 0
+
 		self.timeSinceUpdate = 0
 
 
@@ -23,3 +30,7 @@ class GameObject
 	@property
 	def orientation(self)
 		return self.interpolate(self._orientation, self._orientationOld)
+
+	@property
+	def rotation(self)
+		return self.interpolate(self._rotation, self._rotationOld)
