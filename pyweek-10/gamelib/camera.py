@@ -8,6 +8,7 @@ import misc
 import objloader
 import data
 import racer
+from utils import *
 
 class Camera:
 	def __init__(self, resX = 800, resY = 600):
@@ -128,8 +129,9 @@ class Camera:
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(unicycle.position)
+		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 180
+		glRotatef(uniAngle, 0, 1, 0)
 		glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
-
 		glCallList(self.objects['wheel'].gl_list)
 		glColor3f(1,0,0)
 		glBegin(GL_LINES)

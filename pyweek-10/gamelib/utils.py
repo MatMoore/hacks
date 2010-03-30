@@ -2,6 +2,7 @@
 These functions use angles in radians.'''
 
 from constants import *
+from math import *
 from numpy import *
 
 def rotationMatrix(axis, angle):
