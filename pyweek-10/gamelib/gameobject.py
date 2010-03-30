@@ -18,8 +18,8 @@ class GameObject:
 		self._orientationOld = orientation.copy()
 
 		# Rotation about the self._orientation axis
-		self._rotation = 0
-		self._rotationOld = 0
+		self._rotation = facing
+		self._rotationOld = facing
 
 		self.timeSinceUpdate = 0
 
