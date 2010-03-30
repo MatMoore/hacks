@@ -14,11 +14,15 @@ class Game:
 		self.track.generateTrack(20,50)
 		self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
-		self.unicycles = [racer.Unicycle(array([0,0,0]), array([0,0,0]), 0)]
+		self.unicycles = []
+		self.unicycles.append(racer.Unicycle(array([2,0.3,2]), array([0,1,0]), 0))
+		self.unicycles.append(racer.Unicycle(array([-2,0.3,2]), array([1,0,0]), math.pi/2))
+		self.unicycles.append(racer.Unicycle(array([2,0.3,-2]), array([0,1,0]), math.pi))
+		self.unicycles.append(racer.Unicycle(array([-2,0.3,-2]), array([0,1,0]), 1.5*math.pi))
 	def main(self):
 		self.camera.clear()
 		self.camera.drawSky()
-		self.camera.drawGround()
+		#self.camera.drawGround()
 		self.camera.drawTrack(self.track)
 		self.camera.drawPyramid()
 		self.rotation += 3
