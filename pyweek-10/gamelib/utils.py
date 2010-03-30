@@ -19,6 +19,9 @@ def angleBetween(vec1, vec2):
 	'''The angle between two vectors'''
 	return acos(dot(vec1,vec2)/(linalg.norm(vec1)*linalg.norm(vec2)))
 
+def integrate(x, v, a):
+	return (v*timestep, a*timestep)
+
 x = array([1,0,0])
 y = array([0,1,0])
 z = array([0,0,1])
