@@ -27,7 +27,7 @@ class Game:
 		self.unicycles.append(tilted2)
 		
 		tilted3 = racer.Unicycle(array([-2,0.3,-2]), 0)
-		tilted3.orientation = array([1, 1, 1])
+		tilted3.orientation = array([-1, -1, -1])
 		self.unicycles.append(tilted3)
 		
 		self.currentTime = pygame.time.get_ticks()
