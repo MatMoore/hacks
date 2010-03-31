@@ -64,8 +64,12 @@ class Game:
 			self.camera.position = (self.camera.position[0], self.camera.position[1] - 0.4, self.camera.position[2])
 		
 		if keys[pygame.K_w]:
-			self.unicycles[0].accelerate()
-
+			self.unicycles[0].speed = 1
+		elif keys[pygame.K_s]:
+			self.unicycles[0].speed = -1
+		else:
+			self.unicycles[0].speed = 0
+		self.unicycles[0].move()
 
 	def update(self):
 		for unicycle in self.unicycles:

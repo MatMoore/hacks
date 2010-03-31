@@ -22,11 +22,12 @@ class Racer:
 		#  ___O_____
 		#
 
+# TODO move this to input code (need to draw a rider first!)
 		# Map mouse movement to rider (not uncycle) tilt
-		dthetaLR, dthetaFB = map((lambda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP)), pygame.mouse.get_rel())
+		#dthetaLR, dthetaFB = map((lambda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP)), pygame.mouse.get_rel())
 
 		# Update rider orientation
-		self.rider.lean(dthetaLR, dthetaFB)
+		#self.rider.lean(dthetaLR, dthetaFB)
 
 		# Ok, our rider is now a perfect sphere sitting on a massless stick. DO NOT QUESTION THIS.
 		#     o   <-- rider's mass
@@ -52,9 +53,11 @@ class Racer:
 		# Now we will attempt to calculate the new angle of the system. Assuming that the unicycle will rotate due to a) acceleration of the wheel and b) torque due to the riders COM
 
 		# Equation of motion (THIS IS PROBABLY WRONG):
-		# L alpha = g sin theta - a cos theta
+		# mL^2 alpha = m L sin theta - M a L cos theta
+		# L alpha = g sin theta - M/m a cos theta
+		# L alpha = g sin theta - CONST a cost theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
-		alpha = g * sin(theta) - self.unicycle.acceleration * cos(theta)
+		alpha = g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
 
 		# integrate to get new angle
 		newTheta, newAngularVel = integrate(theta,alpha,self.unicycle.angularVel)
@@ -66,10 +69,7 @@ class Racer:
 		self.unicycle.thetaFB += dtheta
 
 		# update unicycle position using wheel accn
-		newPos, newVel = integrate(self.unicycle.position, self.unicycle.speed * self.unicycle.forward, self.unicycle.acceleration)
-		newSpeed = (newVel / self.unicycle.forward)[0]
-		self.unicycle.position = newPos
-		self.unicycle.speed = newSpeed
+		unicycle.move()
 
 		# update rider position by sticking him back on the top of the unicycle
 		self.rider.position = self.unicycle.position + unicycle.orientation * UNICYCLE_HEIGHT
@@ -166,14 +166,17 @@ class Rider(GameObject):
 
 class Unicycle(WibblyWobbly):
 	def __init__(self,position, facing=0):
-		self.speed = 1 # wheel speed
+		self.speed = 0 # wheel speed
 		self.acceleration = 0 # wheel acceleration
 		self.angularVel = 0 # angular velocity of frame
 		WibblyWobbly.__init__(self,position,facing)
 
-	def accelerate(self):
-		self.position += self.speed * self.forward * TIMESTEP
-
+	def move(self):
+		'''Apply the wheel acceleration'''
+		newPos, newVel = integrate(self.position, self.speed * self.forward, self.acceleration)
+		newSpeed = linalg.norm(newVel)
+		self.position = newPos
+		self.speed = newSpeed
 
 if __name__ == "__main__":
 	unicycle = Unicycle(array([0,0,0]), 0)
