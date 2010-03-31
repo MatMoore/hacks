@@ -155,12 +155,11 @@ class Camera:
 		glVertex3f(unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
 		glEnd()
 		
+		tiltLRAngle = misc.radToDeg(unicycle.thetaLR)
+		glRotatef(tiltLRAngle, unicycle.forward[0], unicycle.forward[1], unicycle.forward[2])
 
 		tiltFBAngle = misc.radToDeg(unicycle.thetaFB)
 		glRotatef(tiltFBAngle, unicycle.left[0], unicycle.left[1], unicycle.left[2])	
-		
-		tiltLRAngle = misc.radToDeg(unicycle.thetaLR)
-		glRotatef(tiltLRAngle, unicycle.forward[0], unicycle.forward[1], unicycle.forward[2])
 		
 		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 90
 		glRotatef(uniAngle, 0, 1, 0)
