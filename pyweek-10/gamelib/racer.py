@@ -11,7 +11,7 @@ class Racer:
 		self.unicycle = Unicycle(position, facing)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing)
 
-	def update(self):
+	def update(self, dt):
 		#         ahhh!
 		#     o_   /
 		#    _/\\
@@ -23,7 +23,8 @@ class Racer:
 		#
 
 		# Map mouse movement to rider (not uncycle) tilt
-		#dthetaLR, dthetaFB = map(lamda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP), pygame.mouse.get_rel()
+		dthetaLR, dthetaFB = map(lamda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP), pygame.mouse.get_rel()
+
 		# Update rider orientation
 		self.rider.lean(dthetaLR, dthetaFB)
 
@@ -37,28 +38,42 @@ class Racer:
 		# Calculate vector from wheel to rider
 		stickVector = self.unicycle.orientation * UNICYCLE_HEIGHT + 0.5 * self.rider.height * self.rider.orientation
 
+		# Project that into the forward-y plane
+		stickVector = self.unicycle.rightYProjection(stickVector)
+
 		# Get current angle of the stick from vetical
 		#     o
 		#     :\
 		#     :t\
 		#     :--\
 		#     :   O
+		theta = angleBetween(stickVector, y)
 
-		# Now we will attempt to calculate the new angle of the system.
+		# Now we will attempt to calculate the new angle of the system. Assuming that the unicycle will rotate due to a) acceleration of the wheel and b) torque due to the riders COM
 
-		# Equation of motion:
+		# Equation of motion (THIS IS PROBABLY WRONG):
 		# L alpha = g sin theta - a cos theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
+		alpha = g * sin(theta) - self.unicycle.acceleration * cos(theta)
 
 		# integrate to get new angle
+		newTheta, newAngularVel = integrate(theta,alpha,self.unicycle.angularVel)
+		dtheta = newTheta - theta
 
 		# Ok lets work out what the actual unicycle angle would be to make this sphereonstick angle. Btw I am assuming rider is not wibbly wobbly indepent of the uni.
-
+		
 		# update unicycle orientation
+		self.unicycle.thetaFB += dtheta
 
 		# update unicycle position using wheel accn
-		
+		newPos, newVel = integrate(self.unicycle.position, self.unicycle.speed * self.unicycle.forward, self.unicycle.acceleration)
+		newSpeed = (newVel / self.unicycle.forward)[0]
+		self.unicycle.position = newPos
+		self.unicycle.speed = newSpeed
+
 		# update rider position by sticking him back on the top of the unicycle
+		self.rider.position = self.unicycle.position + unicycle.orientation * UNICYCLE_HEIGHT
+
 
 class WibblyWobbly(GameObject):
 	'''Directions/angles:
@@ -95,12 +110,20 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def turnLeft(self, angle):
 		self.turnRight(-angle)
 
+	def forwardYProjection(self, vector):
+		'''Return the component of the vector in the forward-Y plane'''
+		normal = cross(self.forward, y)
+		return cross(vector, (cross(a,vector/norm(vector))) / norm(vector)
+
+	def rightYProjection(self, vector):
+		'''Return the component of the vector orientation in the right-Y plane'''
+		normal = cross(self.right, y)
+		return cross(vector, (cross(a,vector/norm(vector))) / norm(vector)
+
 	@property
 	def thetaLR(self):
 		'''The angle between the forward-up unicycle plane and the y axis.'''
-		# This is 90 deg - (angle between the normal and the y axis)
-		normal = cross(self.forward, self.orientation)
-		return  pi/2 - angleBetween(y, normal)
+		return angleBetween(self.forwardYProjection(self.orientation), y)
 
 	@thetaLR.setter
 	def thetaLR(self, value):
@@ -116,8 +139,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def thetaFB(self):
 		'''The angle between the left-up unicycle plane and the y axis'''
 		# This is 90 deg - (angle between the normal and the y axis)
-		normal = cross(self.left, self.orientation)
-		return  pi/2 - angleBetween(y, normal)
+	return angleBetween(self.rightYProjection(self.orientation), y)
 
 	@thetaFB.setter
 	def thetaFB(self, value):
@@ -144,6 +166,7 @@ class Unicycle(WibblyWobbly):
 	def __init__(self,position, facing):
 		self.speed = 0 # wheel speed
 		self.acceleration = 0 # wheel acceleration
+		self.angularVel = 0 # angular velocity of frame
 		WibblyWobbly.__init__(self,position,facing)
 
 	def accelerate(dt):
