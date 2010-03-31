@@ -17,6 +17,7 @@ def rotationMatrix(axis, angle):
 
 def angleBetween(vec1, vec2):
 	'''The angle between two vectors'''
+	print vec1, vec2
 	return acos(dot(vec1,vec2)/(linalg.norm(vec1)*linalg.norm(vec2)))
 
 def integrate(x, v, a):

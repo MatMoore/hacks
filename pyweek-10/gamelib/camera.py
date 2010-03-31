@@ -121,8 +121,21 @@ class Camera:
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(unicycle.position)
-		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 90
-		glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
+		#glRotatef(misc.radToDeg(unicycle.rotation), unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
+
+		vec = unicycle.forwardYProjection(unicycle.orientation)
+		glColor3f(1,1,0)
+		glBegin(GL_LINES)
+		glVertex3f(0,0,0)
+		glVertex3f(vec[0], vec[1], vec[2])
+		glEnd()
+
+		vec = unicycle.rightYProjection(unicycle.orientation)
+		glColor3f(0,1,1)
+		glBegin(GL_LINES)
+		glVertex3f(0,0,0)
+		glVertex3f(vec[0], vec[1], vec[2])
+		glEnd()
 
 		glColor3f(1,0,0)
 		glBegin(GL_LINES)
@@ -141,8 +154,17 @@ class Camera:
 		glVertex3f(0,0,0)
 		glVertex3f(unicycle.orientation[0], unicycle.orientation[1], unicycle.orientation[2])
 		glEnd()
+		
 
+		tiltFBAngle = misc.radToDeg(unicycle.thetaFB)
+		glRotatef(tiltFBAngle, unicycle.left[0], unicycle.left[1], unicycle.left[2])	
+		
+		tiltLRAngle = misc.radToDeg(unicycle.thetaLR)
+		glRotatef(tiltLRAngle, unicycle.forward[0], unicycle.forward[1], unicycle.forward[2])
+		
+		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 90
 		glRotatef(uniAngle, 0, 1, 0)
+		
 		glCallList(self.objects['wheel'].gl_list)
 		glCallList(self.objects['frame'].gl_list)
 		self.resetForNextObject()

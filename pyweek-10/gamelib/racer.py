@@ -23,7 +23,7 @@ class Racer:
 		#
 
 		# Map mouse movement to rider (not uncycle) tilt
-		dthetaLR, dthetaFB = map(lamda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP), pygame.mouse.get_rel()
+		dthetaLR, dthetaFB = map((lambda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP)), pygame.mouse.get_rel())
 
 		# Update rider orientation
 		self.rider.lean(dthetaLR, dthetaFB)
@@ -112,18 +112,20 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 	def forwardYProjection(self, vector):
 		'''Return the component of the vector in the forward-Y plane'''
+		# A || B = B x (AxB / |B|) / |B|
+		# where A is vector B is normal to the plane
 		normal = cross(self.forward, y)
-		return cross(vector, (cross(a,vector/norm(vector))) / norm(vector)
+		return cross(normal, (cross(vector,normal)/linalg.norm(normal))) / linalg.norm(normal)
 
 	def rightYProjection(self, vector):
 		'''Return the component of the vector orientation in the right-Y plane'''
 		normal = cross(self.right, y)
-		return cross(vector, (cross(a,vector/norm(vector))) / norm(vector)
+		return cross(normal, (cross(vector,normal)/linalg.norm(normal))) / linalg.norm(normal)
 
 	@property
 	def thetaLR(self):
 		'''The angle between the forward-up unicycle plane and the y axis.'''
-		return angleBetween(self.forwardYProjection(self.orientation), y)
+		return angleBetween(self.rightYProjection(self.orientation), y)
 
 	@thetaLR.setter
 	def thetaLR(self, value):
@@ -139,7 +141,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def thetaFB(self):
 		'''The angle between the left-up unicycle plane and the y axis'''
 		# This is 90 deg - (angle between the normal and the y axis)
-	return angleBetween(self.rightYProjection(self.orientation), y)
+		return angleBetween(self.forwardYProjection(self.orientation), y)
 
 	@thetaFB.setter
 	def thetaFB(self, value):
@@ -158,9 +160,9 @@ class Rider(GameObject):
 		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
 		GameObject.__init__(self, position,orientation,facing)
 
-		def lean(dThetaLR, dThetaFB):
-			self.thetaLR += dThetaLR
-			self.thetaFB += dThetaFB
+	def lean(dThetaLR, dThetaFB):
+		self.thetaLR += dThetaLR
+		self.thetaFB += dThetaFB
 
 class Unicycle(WibblyWobbly):
 	def __init__(self,position, facing):

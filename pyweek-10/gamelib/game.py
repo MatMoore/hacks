@@ -14,14 +14,22 @@ class Game:
 		self.camera = camera.Camera()
 		self.track = track.Track()
 		self.track.generateTrack(20,50)
-		self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
+		#self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
 		self.unicycles = []
 		self.unicycles.append(racer.Unicycle(array([2,0.3,2]), 0))
 		tilted = racer.Unicycle(array([-2,0.3,2]), 0)
 		tilted.orientation = array([1, 1, 0])
 		self.unicycles.append(tilted)
-
+		
+		tilted2 = racer.Unicycle(array([2,0.3,-2]), 0)
+		tilted2.orientation = array([0, 1, 1])
+		self.unicycles.append(tilted2)
+		
+		tilted3 = racer.Unicycle(array([-2,0.3,-2]), 0)
+		tilted3.orientation = array([1, 1, 1])
+		self.unicycles.append(tilted3)
+		
 		self.currentTime = pygame.time.get_ticks()
 		self.accumulator = 0
 #		self.unicycles.append(racer.Unicycle(array([-2,0.3,2]), array([0,0,1]), math.pi/2))
