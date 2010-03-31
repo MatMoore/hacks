@@ -62,6 +62,9 @@ class Game:
 			self.camera.position = (self.camera.position[0], self.camera.position[1] + 0.4, self.camera.position[2])
 		if keys[pygame.K_z]:
 			self.camera.position = (self.camera.position[0], self.camera.position[1] - 0.4, self.camera.position[2])
+		
+		if keys[pygame.K_w]:
+			self.unicycles[0].accelerate()
 
 
 	def update(self):
@@ -74,7 +77,7 @@ class Game:
 	def render(self):
 		self.camera.clear()
 		self.camera.drawSky()
-		#self.camera.drawGround()
+		self.camera.drawGround()
 		self.camera.drawTrack(self.track)
 		self.rotation += 3
 		self.tilt = 20 * math.sin(self.rotation/100.0)
@@ -93,7 +96,7 @@ class Game:
 			self.update()
 			self.accumulator -= constants.TIMESTEP
 
-		gameobject.GameObject.timeSinceLastUpdate = self.accumulator	#set the timeSinceLastUpdate so that the interpolation on the objects will work
+		gameobject.GameObject.timeSinceUpdate = self.accumulator	#set the timeSinceLastUpdate so that the interpolation on the objects will work
 		self.render()
 
 

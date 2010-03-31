@@ -11,7 +11,7 @@ class Racer:
 		self.unicycle = Unicycle(position, facing)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing)
 
-	def update(self, dt):
+	def update(self):
 		#         ahhh!
 		#     o_   /
 		#    _/\\
@@ -125,7 +125,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	@property
 	def thetaLR(self):
 		'''The angle between the forward-up unicycle plane and the y axis.'''
-		return angleBetween(self.rightYProjection(self.orientation), y)
+		return angleBetween(self.forwardYProjection(self.orientation), y)
 
 	@thetaLR.setter
 	def thetaLR(self, value):
@@ -141,7 +141,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def thetaFB(self):
 		'''The angle between the left-up unicycle plane and the y axis'''
 		# This is 90 deg - (angle between the normal and the y axis)
-		return angleBetween(self.forwardYProjection(self.orientation), y)
+		return angleBetween(self.rightYProjection(self.orientation), y)
 
 	@thetaFB.setter
 	def thetaFB(self, value):
@@ -165,11 +165,19 @@ class Rider(GameObject):
 		self.thetaFB += dThetaFB
 
 class Unicycle(WibblyWobbly):
-	def __init__(self,position, facing):
-		self.speed = 0 # wheel speed
+	def __init__(self,position, facing=0):
+		self.speed = 1 # wheel speed
 		self.acceleration = 0 # wheel acceleration
 		self.angularVel = 0 # angular velocity of frame
 		WibblyWobbly.__init__(self,position,facing)
 
-	def accelerate(dt):
-		self.position += self.speed * self.forward * dt
+	def accelerate(self):
+		self.position += self.speed * self.forward * TIMESTEP
+
+
+if __name__ == "__main__":
+	unicycle = Unicycle(array([0,0,0]), 0)
+	print unicycle.thetaFB
+	print math.pi * 0.25
+	unicycle.thetaFB = math.pi*0.25
+	print unicycle.thetaFB

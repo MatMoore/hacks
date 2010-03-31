@@ -25,7 +25,9 @@ class GameObject:
 		self.timeSinceUpdate = 0
 
 	def update(self):
-		pass
+		self._orientationOld = self._orientation.copy()
+		self._rotationOld = self._rotation
+		self._positionOld = self._position.copy()
 
 	def interpolate(self, newVal, oldVal):
 		return newVal + (newVal-oldVal)*GameObject.timeSinceUpdate
