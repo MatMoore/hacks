@@ -6,10 +6,10 @@ from utils import *
 import pygame
 
 class Racer:
-	def __init__(position,facing,mass=75,height=1.0):
+	def __init__(self,position,facing,mass=75,height=1.0):
 		self.height = height
 		self.unicycle = Unicycle(position, facing)
-		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing)
+		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 
 	def update(self):
 		#         ahhh!
@@ -40,7 +40,7 @@ class Racer:
 		stickVector = self.unicycle.orientation * UNICYCLE_HEIGHT + 0.5 * self.rider.height * self.rider.orientation
 
 		# Project that into the forward-y plane
-		stickVector = self.unicycle.rightYProjection(stickVector)
+		stickVector = self.unicycle.forwardYProjection(stickVector)
 
 		# Get current angle of the stick from vetical
 		#     o
@@ -60,19 +60,24 @@ class Racer:
 		alpha = g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
 
 		# integrate to get new angle
-		newTheta, newAngularVel = integrate(theta,alpha,self.unicycle.angularVel)
+		print "angularvel = %s" % self.unicycle.angularVel
+		newTheta, newAngularVel = integrate(theta,self.unicycle.angularVel,alpha)
 		dtheta = newTheta - theta
+		print "Theta = %s, a=%s, alpha = %s, newAngularVel=%s, dtheta=%s" %(theta,self.unicycle.acceleration,alpha,newAngularVel,dtheta)
 
 		# Ok lets work out what the actual unicycle angle would be to make this sphereonstick angle. Btw I am assuming rider is not wibbly wobbly indepent of the uni.
 		
 		# update unicycle orientation
+		self.unicycle.angularVel = newAngularVel
 		self.unicycle.thetaFB += dtheta
+		print 'unicycle angular vel is now %s, thetaFB is %s' % (self.unicycle.angularVel, self.unicycle.thetaFB)
+		print 'orientation='+str(self.unicycle.orientation)
 
 		# update unicycle position using wheel accn
-		unicycle.move()
+		self.unicycle.move()
 
 		# update rider position by sticking him back on the top of the unicycle
-		self.rider.position = self.unicycle.position + unicycle.orientation * UNICYCLE_HEIGHT
+		self.rider.position = self.unicycle.position + self.unicycle.orientation * UNICYCLE_HEIGHT
 
 
 class WibblyWobbly(GameObject):
@@ -137,25 +142,29 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		# Rotate to new angle
 		self.orientation = dot(self.orientation, rotationMatrix(self.forward, value))
 
-	@property
-	def thetaFB(self):
+	#@property
+	def getThetaFB(self):
 		'''The angle between the left-up unicycle plane and the y axis'''
 		# This is 90 deg - (angle between the normal and the y axis)
 		return angleBetween(self.rightYProjection(self.orientation), y)
 
-	@thetaFB.setter
-	def thetaFB(self, value):
+	#@thetaFB.setter
+	def setThetaFB(self, value):
 		'''Rotate around the left vector'''
-
+		print 'thetaFB set'
 		# Go back to vertical
 		self.orientation = dot(self.orientation, rotationMatrix(self.left, -self.thetaFB))
 
 		# Rotate to new angle
 		self.orientation = dot(self.orientation, rotationMatrix(self.left, value))
 
+	thetaFB = property(getThetaFB,setThetaFB)
+
 
 class Rider(GameObject):
-	def __init__(self, position, facing):
+	def __init__(self, position, facing, mass, height):
+		self.mass = mass
+		self.height = height
 		orientation = array([0, 1, 0]) # Start upright
 		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
 		GameObject.__init__(self, position,orientation,facing)
@@ -174,13 +183,15 @@ class Unicycle(WibblyWobbly):
 	def move(self):
 		'''Apply the wheel acceleration'''
 		newPos, newVel = integrate(self.position, self.speed * self.forward, self.acceleration)
-		newSpeed = linalg.norm(newVel)
+		newSpeed = dot(newVel,transpose(self.forward))
 		self.position = newPos
 		self.speed = newSpeed
 
 if __name__ == "__main__":
 	unicycle = Unicycle(array([0,0,0]), 0)
 	print unicycle.thetaFB
+	print unicycle.orientation
 	print math.pi * 0.25
 	unicycle.thetaFB = math.pi*0.25
 	print unicycle.thetaFB
+	print unicycle.orientation
