@@ -1,0 +1,11 @@
+gsQuit = 0
+gsInGame = 10
+TIMESTEP = 0.05
+roadWidth = 10
+UNICYCLE_HEIGHT = 0.5
+TILT_ANGLE_PER_PIXEL_PER_SEC = 0.05
+g = 9.8
+UNICYCLE_MASS = 10.0
+viewDistanceBack = 3
+viewDistanceUp = 1
+lookAngleAdjust = -10
