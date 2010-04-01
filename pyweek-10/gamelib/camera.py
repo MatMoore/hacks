@@ -126,6 +126,20 @@ class Camera:
 		glEnd()
 		self.resetForNextObject()
 
+	def drawRider(self, racer):
+		rider = racer.rider
+		glDisable(GL_TEXTURE_2D)
+		self.rotateForCameraRotation()
+		self.translateForCameraCoords(rider.position)
+
+		vec = rider.orientation * rider.height
+		glColor3f(1,1,1)
+		glBegin(GL_LINES)
+		glVertex3f(0,0,0)
+		glVertex3f(vec[0], vec[1], vec[2])
+		glEnd()
+		self.resetForNextObject()
+
 	def drawUnicycle(self, racer):
 		unicycle = racer.unicycle
 		glDisable(GL_TEXTURE_2D)

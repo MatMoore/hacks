@@ -11,6 +11,7 @@ class Racer:
 		self.unicycle = Unicycle(position, facing)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 		self.unicycle.thetaFB = 0.1
+		self.rider.thetaFB = 0.4
 
 	def update(self):
 		#         ahhh!

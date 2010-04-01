@@ -89,6 +89,7 @@ class Game:
 		self.tilt = 20 * math.sin(self.rotation/100.0)
 		for unicycle in self.unicycles:
 			self.camera.drawUnicycle(unicycle)
+			self.camera.drawRider(unicycle)
 		self.camera.flip()
 
 	def main(self):
