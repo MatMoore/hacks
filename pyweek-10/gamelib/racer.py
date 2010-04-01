@@ -68,18 +68,18 @@ class Racer:
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
 		alpha = -0.4*g * sin(theta) + UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
 		# integrate to get new angle
-		print "angularvel = %s" % self.unicycle.angularVel
+		#print "angularvel = %s" % self.unicycle.angularVel
 		newTheta, newAngularVel = integrate(theta,self.unicycle.angularVel,alpha)
 		dtheta = newTheta - theta
-		print "Theta = %s, a=%s, alpha = %s, newAngularVel=%s, dtheta=%s" %(theta,self.unicycle.acceleration,alpha,newAngularVel,dtheta)
+		#print "Theta = %s, a=%s, alpha = %s, newAngularVel=%s, dtheta=%s" %(theta,self.unicycle.acceleration,alpha,newAngularVel,dtheta)
 
 		# Ok lets work out what the actual unicycle angle would be to make this sphereonstick angle. Btw I am assuming rider is not wibbly wobbly indepent of the uni.
 		
 		# update unicycle orientation
 		self.unicycle.angularVel = newAngularVel
 		self.unicycle.thetaFB += dtheta
-		print 'unicycle angular vel is now %s, thetaFB is %s' % (self.unicycle.angularVel, self.unicycle.thetaFB)
-		print 'orientation='+str(self.unicycle.orientation)
+		#print 'unicycle angular vel is now %s, thetaFB is %s' % (self.unicycle.angularVel, self.unicycle.thetaFB)
+		#print 'orientation='+str(self.unicycle.orientation)
 
 		# update unicycle position using wheel accn
 		self.unicycle.move()
@@ -137,7 +137,16 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 	@property
 	def thetaLR(self):
-		return angleBetween(self.rightYProjection(self.orientation), y)
+		projection = self.rightYProjection(self.orientation)
+		angle = angleBetween(projection, y)
+		print 'thetaLR:'
+		print angle
+		if (angle != 0) and angleBetween(dot(y, rotationMatrix(self.forward, angle)), projection) < 0.01:
+			# Rotating y right gets to projection
+			return angle
+		else:
+			return -angle
+
 
 	@thetaLR.setter
 	def thetaLR(self, value):
@@ -209,3 +218,13 @@ if __name__ == "__main__":
 	print unicycle.thetaFB
 	print unicycle._orientation
 	print unicycle.forwardYProjection(unicycle.orientation)
+	print 'sideways'
+#	unicycle = Unicycle(array([0,0,0]), 0)
+	print unicycle.thetaLR
+	print 'positive:'
+	unicycle.thetaLR = math.pi*0.25
+	print unicycle.thetaLR
+
+	print 'negative:'
+	unicycle.thetaLR = -math.pi*0.25
+	print unicycle.thetaLR

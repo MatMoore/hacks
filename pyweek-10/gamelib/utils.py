@@ -17,17 +17,27 @@ def rotationMatrix(axis, angle):
 
 def angleBetween(vec1, vec2):
 	'''The angle between two vectors'''
+	#print 'anglebetween'
+	#print vec1
+	#print vec2
 	d = dot(vec1,vec2)
 	if d > 1: d = 1
 	elif d<-1: d = -1
-	print 'd=%s' %d
 	ab = linalg.norm(vec1) * linalg.norm(vec2)
 	if ab == 0:
 		print 'fuck'
 		return 0
-	print 'ab=%s'% ab
 	# WTF why does this return math domain errors
-	return acos(d) / ab
+	bla = d/ab
+	try:
+		bla2 = acos(bla)
+	except:
+		print 'd=%s' %d
+		print 'ab=%s'% ab
+		print str(bla)
+		print acos.__doc__
+		bla2 = 0
+	return bla2
 
 def integrate(x, v, a):
 	return (x+v*TIMESTEP, v+a*TIMESTEP)
