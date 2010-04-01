@@ -187,9 +187,15 @@ class Unicycle(WibblyWobbly):
 
 if __name__ == "__main__":
 	unicycle = Unicycle(array([0,0,0]), 0)
+	print 'positive:'
 	print unicycle.thetaFB
-	print unicycle.orientation
-	print math.pi * 0.25
 	unicycle.thetaFB = math.pi*0.25
 	print unicycle.thetaFB
 	print unicycle.orientation
+	print unicycle.forwardYProjection(unicycle.orientation)
+	print 'negative:'
+	print unicycle.thetaFB
+	unicycle.thetaFB = -math.pi*0.25
+	print unicycle.thetaFB
+	print unicycle.orientation
+	print unicycle.forwardYProjection(unicycle.orientation)
