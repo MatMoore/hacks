@@ -67,7 +67,7 @@ class Racer:
 		# L alpha = g sin theta - M/m a cos theta
 		# L alpha = g sin theta - CONST a cost theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
-		alpha = -0.4*g * sin(theta) + UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
+		alpha = 0.4*g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
 		# integrate to get new angle
 		#print "angularvel = %s" % self.unicycle.angularVel
 		newTheta, newAngularVel = integrate(theta,self.unicycle.angularVel,alpha)
@@ -173,10 +173,10 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def thetaFB(self, value):
 		'''Rotate around the left vector'''
 		# Go back to vertical
-		self._orientation = dot(self.orientation, rotationMatrix(self.left, -self.thetaFB))
+		self._orientation = dot(self.orientation, rotationMatrix(self.right, -self.thetaFB))
 
 		# Rotate to new angle
-		self._orientation = dot(self.orientation, rotationMatrix(self.left, value))
+		self._orientation = dot(self.orientation, rotationMatrix(self.right, value))
 
 
 class Rider(WibblyWobbly):
