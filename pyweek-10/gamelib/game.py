@@ -64,9 +64,9 @@ class Game:
 			self.camera.position = (self.camera.position[0], self.camera.position[1] - 0.4, self.camera.position[2])
 		
 		if keys[pygame.K_w]:
-			self.unicycles[0].unicycle.acceleration = 1.0
+			self.unicycles[0].unicycle.acceleration = 4.0
 		elif keys[pygame.K_s]:
-			self.unicycles[0].unicycle.acceleration = -1.0
+			self.unicycles[0].unicycle.acceleration = -4.0
 		else:
 			self.unicycles[0].unicycle.acceleration = 0
 		#self.unicycles[0].update()

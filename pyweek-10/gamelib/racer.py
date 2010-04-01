@@ -10,6 +10,7 @@ class Racer:
 		self.height = height
 		self.unicycle = Unicycle(position, facing)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
+		self.unicycle.thetaFB = 0.1
 
 	def update(self):
 		#         ahhh!
@@ -65,8 +66,7 @@ class Racer:
 		# L alpha = g sin theta - M/m a cos theta
 		# L alpha = g sin theta - CONST a cost theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
-		alpha = 0 *g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
-		alpha -= 1
+		alpha = -0.4*g * sin(theta) + UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
 		# integrate to get new angle
 		print "angularvel = %s" % self.unicycle.angularVel
 		newTheta, newAngularVel = integrate(theta,self.unicycle.angularVel,alpha)
