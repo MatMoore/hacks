@@ -125,7 +125,8 @@ class Camera:
 		glEnd()
 		self.resetForNextObject()
 
-	def drawUnicycle(self, unicycle):
+	def drawUnicycle(self, racer):
+		unicycle = racer.unicycle
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(unicycle.position)
@@ -176,7 +177,6 @@ class Camera:
 		glVertex3f(normal[0]*2, normal[1]*2, normal[2]*2)
 		glEnd()
 		normAng = -misc.radToDeg(angleBetween(unicycle.orientation, y))
-		print normAng
 		glRotatef(normAng, normal[0], normal[1], normal[2])
 		
 		uniAngle = misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 90

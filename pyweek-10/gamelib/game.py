@@ -17,16 +17,16 @@ class Game:
 		#self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
 		self.unicycles = []
-		self.unicycles.append(racer.Unicycle(array([2,0.3,2]), 0))
-		tilted = racer.Unicycle(array([-2,0.3,2]), 0)
+		self.unicycles.append(racer.Racer(array([2,0.3,2]), 0))
+		tilted = racer.Racer(array([-2,0.3,2]), 0)
 		tilted.orientation = array([1, 1, 0])
 		self.unicycles.append(tilted)
 		
-		tilted2 = racer.Unicycle(array([2,0.3,-2]), 0)
+		tilted2 = racer.Racer(array([2,0.3,-2]), 0)
 		tilted2.orientation = array([0, 1, 1])
 		self.unicycles.append(tilted2)
 		
-		tilted3 = racer.Unicycle(array([-2,0.3,-2]), 0)
+		tilted3 = racer.Racer(array([-2,0.3,-2]), 0)
 		tilted3.orientation = array([1, 1, 1])
 		self.unicycles.append(tilted3)
 		
@@ -64,16 +64,17 @@ class Game:
 			self.camera.position = (self.camera.position[0], self.camera.position[1] - 0.4, self.camera.position[2])
 		
 		if keys[pygame.K_w]:
-			self.unicycles[0].speed = 1
+			self.unicycles[0].unicycle.acceleration = 1.0
 		elif keys[pygame.K_s]:
-			self.unicycles[0].speed = -1
+			self.unicycles[0].unicycle.acceleration = -1.0
 		else:
-			self.unicycles[0].speed = 0
-		self.unicycles[0].move()
+			self.unicycles[0].unicycle.acceleration = 0
+		#self.unicycles[0].update()
 
 	def update(self):
 		for unicycle in self.unicycles:
-			unicycle.turnRight(pi/200)
+			#unicycle.turnRight(pi/200)
+			unicycle.update()
 			# Rotate about y axis
 			#unicycle.forward = dot(unicycle.forward, rotationMatrix(y, pi/200))
 
