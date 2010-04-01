@@ -1,7 +1,7 @@
 from constants import *
 from numpy import *
 
-class GameObject:
+class GameObject(object):
 	timeSinceUpdate = 0.0
 	def __init__(self, position=None, orientation=None, facing=0):
 		'''Orientation is a vector which points in the direction of "up" for this object. Facing is the angle the object is rotated about that axis.'''

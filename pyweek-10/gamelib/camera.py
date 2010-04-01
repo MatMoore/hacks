@@ -38,7 +38,8 @@ class Camera:
 		gluQuadricTexture(self.quadratic, True)
 
 
-	def follow(self, unicycle):
+	def follow(self, racer):
+		unicycle = racer.unicycle
 		self.following = unicycle
 		self.position = unicycle.position - (unicycle.forward * constants.viewDistanceBack)
 		self.position += array([0,constants.viewDistanceUp,0])

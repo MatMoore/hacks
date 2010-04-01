@@ -22,6 +22,10 @@ class Racer:
 		#  ___O_____
 		#
 
+		# Base class update stuff
+		GameObject.update(self.unicycle)
+		GameObject.update(self.rider)
+
 # TODO move this to input code (need to draw a rider first!)
 		# Map mouse movement to rider (not uncycle) tilt
 		#dthetaLR, dthetaFB = map((lambda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP)), pygame.mouse.get_rel())
@@ -77,7 +81,7 @@ class Racer:
 		self.unicycle.move()
 
 		# update rider position by sticking him back on the top of the unicycle
-		self.rider.position = self.unicycle.position + self.unicycle.orientation * UNICYCLE_HEIGHT
+		self.rider._position = self.unicycle.position + self.unicycle.orientation * UNICYCLE_HEIGHT
 
 
 class WibblyWobbly(GameObject):
@@ -129,39 +133,33 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 	@property
 	def thetaLR(self):
-		'''The angle between the forward-up unicycle plane and the y axis.'''
-		return angleBetween(self.forwardYProjection(self.orientation), y)
+		return angleBetween(self.rightYProjection(self.orientation), y)
 
 	@thetaLR.setter
 	def thetaLR(self, value):
 		'''Rotate around the forward vector'''
 
 		# Go back to vertical
-		self.orientation = dot(self.orientation, rotationMatrix(self.forward, -self.thetaLR))
+		self._orientation = dot(self.orientation, rotationMatrix(self.forward, -self.thetaLR))
 
 		# Rotate to new angle
-		self.orientation = dot(self.orientation, rotationMatrix(self.forward, value))
+		self._orientation = dot(self.orientation, rotationMatrix(self.forward, value))
 
-	#@property
-	def getThetaFB(self):
-		'''The angle between the left-up unicycle plane and the y axis'''
-		# This is 90 deg - (angle between the normal and the y axis)
-		return angleBetween(self.rightYProjection(self.orientation), y)
+	@property
+	def thetaFB(self):
+		return angleBetween(self.forwardYProjection(self.orientation), y)
 
-	#@thetaFB.setter
-	def setThetaFB(self, value):
+	@thetaFB.setter
+	def thetaFB(self, value):
 		'''Rotate around the left vector'''
-		print 'thetaFB set'
 		# Go back to vertical
-		self.orientation = dot(self.orientation, rotationMatrix(self.left, -self.thetaFB))
+		self._orientation = dot(self.orientation, rotationMatrix(self.left, -self.thetaFB))
 
 		# Rotate to new angle
-		self.orientation = dot(self.orientation, rotationMatrix(self.left, value))
-
-	thetaFB = property(getThetaFB,setThetaFB)
+		self._orientation = dot(self.orientation, rotationMatrix(self.left, value))
 
 
-class Rider(GameObject):
+class Rider(WibblyWobbly):
 	def __init__(self, position, facing, mass, height):
 		self.mass = mass
 		self.height = height
@@ -184,7 +182,7 @@ class Unicycle(WibblyWobbly):
 		'''Apply the wheel acceleration'''
 		newPos, newVel = integrate(self.position, self.speed * self.forward, self.acceleration)
 		newSpeed = dot(newVel,transpose(self.forward))
-		self.position = newPos
+		self._position = newPos
 		self.speed = newSpeed
 
 if __name__ == "__main__":
