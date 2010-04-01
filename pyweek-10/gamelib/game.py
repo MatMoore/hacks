@@ -74,7 +74,6 @@ class Game:
 		rider = self.camera.following.rider
 		# Map mouse movement to rider (not uncycle) tilt
 		x,y = pygame.mouse.get_pos()
-		print y
 		thetaFB = -(y - HEIGHT/2) * TILT_ANGLE_PER_PIXEL
 		if thetaFB > pi/2:
 			thetaFB = pi/2

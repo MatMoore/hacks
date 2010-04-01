@@ -81,7 +81,7 @@ class Racer:
 		self.unicycle.move()
 
 		# update rider position by sticking him back on the top of the unicycle
-		self.rider._position = self.unicycle.position + self.unicycle.orientation * UNICYCLE_HEIGHT
+		self.rider._position = self.unicycle.position + self.unicycle.orientation / linalg.norm(self.unicycle.orientation) * UNICYCLE_HEIGHT
 
 
 class WibblyWobbly(GameObject):
