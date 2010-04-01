@@ -147,7 +147,13 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 	@property
 	def thetaFB(self):
-		return angleBetween(self.forwardYProjection(self.orientation), y)
+		projection = self.forwardYProjection(self.orientation)
+		angle = angleBetween(projection, y)
+		if angleBetween(dot(y, rotationMatrix(self.right, angle)), projection) < 0.01:
+			# Rotating y forward gets to projection
+			return -angle
+		else:
+			return angle
 
 	@thetaFB.setter
 	def thetaFB(self, value):
@@ -157,6 +163,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 		# Rotate to new angle
 		self._orientation = dot(self.orientation, rotationMatrix(self.left, value))
+		print 'end setter'
 
 
 class Rider(WibblyWobbly):
@@ -191,11 +198,11 @@ if __name__ == "__main__":
 	print unicycle.thetaFB
 	unicycle.thetaFB = math.pi*0.25
 	print unicycle.thetaFB
-	print unicycle.orientation
+	print unicycle._orientation
 	print unicycle.forwardYProjection(unicycle.orientation)
 	print 'negative:'
 	print unicycle.thetaFB
 	unicycle.thetaFB = -math.pi*0.25
 	print unicycle.thetaFB
-	print unicycle.orientation
+	print unicycle._orientation
 	print unicycle.forwardYProjection(unicycle.orientation)
