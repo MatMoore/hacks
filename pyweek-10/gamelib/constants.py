@@ -8,4 +8,5 @@ g = 9.8
 UNICYCLE_MASS = 10.0
 viewDistanceBack = 3
 viewDistanceUp = 1
+viewDistanceRight = 0.5
 lookAngleAdjust = -10

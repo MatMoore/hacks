@@ -41,7 +41,7 @@ class Camera:
 	def follow(self, racer):
 		unicycle = racer.unicycle
 		self.following = unicycle
-		self.position = unicycle.position - (unicycle.forward * constants.viewDistanceBack)
+		self.position = unicycle.position - (unicycle.forward * constants.viewDistanceBack) + (unicycle.right * constants.viewDistanceRight)
 		self.position += array([0,constants.viewDistanceUp,0])
 		self.orientation = array([0,misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 90,0])
 		self.lookDownAngle = misc.radToDeg(math.atan2(constants.viewDistanceUp, constants.viewDistanceBack)) + constants.lookAngleAdjust

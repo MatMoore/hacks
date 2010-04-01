@@ -53,7 +53,6 @@ class Racer:
 		#     :--\
 		#     :   O
 		theta = angleBetween(stickVector, y)
-
 		rotated = dot(y, rotationMatrix(self.unicycle.right, theta))
 		if (theta != 0) and angleBetween(rotated, stickVector) < 0.01:
 			# Rotating y forward gets to projection
@@ -66,8 +65,8 @@ class Racer:
 		# L alpha = g sin theta - M/m a cos theta
 		# L alpha = g sin theta - CONST a cost theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
-		alpha = g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
-
+		alpha = 0 *g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
+		alpha -= 1
 		# integrate to get new angle
 		print "angularvel = %s" % self.unicycle.angularVel
 		newTheta, newAngularVel = integrate(theta,self.unicycle.angularVel,alpha)
@@ -168,7 +167,6 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 		# Rotate to new angle
 		self._orientation = dot(self.orientation, rotationMatrix(self.left, value))
-		print 'end setter'
 
 
 class Rider(WibblyWobbly):
