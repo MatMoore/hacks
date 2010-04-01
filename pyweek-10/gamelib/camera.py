@@ -40,7 +40,7 @@ class Camera:
 
 	def follow(self, racer):
 		unicycle = racer.unicycle
-		self.following = unicycle
+		self.following = racer
 		self.position = unicycle.position - (unicycle.forward * constants.viewDistanceBack) + (unicycle.right * constants.viewDistanceRight)
 		self.position += array([0,constants.viewDistanceUp,0])
 		self.orientation = array([0,misc.radToDeg(atan2(unicycle.forward[0],unicycle.forward[2])) + 90,0])
@@ -82,7 +82,7 @@ class Camera:
 
 	def rotateForCameraRotation(self):
 		glRotatef(270-self.orientation[1], 0, 1, 0)
-		glRotatef(self.lookDownAngle, self.following.right[0], self.following.right[1], self.following.right[2])
+		glRotatef(self.lookDownAngle, self.following.unicycle.right[0], self.following.unicycle.right[1], self.following.unicycle.right[2])
 
 
 	def drawGround(self):

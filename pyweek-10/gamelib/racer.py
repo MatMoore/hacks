@@ -11,7 +11,7 @@ class Racer:
 		self.unicycle = Unicycle(position, facing)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 		self.unicycle.thetaFB = 0
-		self.rider.thetaFB = 0.1
+		self.rider.thetaFB = 0
 
 	def update(self):
 		#         ahhh!
@@ -27,13 +27,6 @@ class Racer:
 		# Base class update stuff
 		GameObject.update(self.unicycle)
 		GameObject.update(self.rider)
-
-# TODO move this to input code (need to draw a rider first!)
-		# Map mouse movement to rider (not uncycle) tilt
-		#dthetaLR, dthetaFB = map((lambda x: max(pi / 2, x * TILT_ANGLE_PER_PIXEL_PER_SEC * TIMESTEP)), pygame.mouse.get_rel())
-
-		# Update rider orientation
-		#self.rider.lean(dthetaLR, dthetaFB)
 
 		# Ok, our rider is now a perfect sphere sitting on a massless stick. DO NOT QUESTION THIS.
 		#     o   <-- rider's mass
@@ -68,7 +61,8 @@ class Racer:
 		# L alpha = g sin theta - CONST a cost theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
 		alpha = 0.3*g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
-		print alpha
+		#print alpha
+
 		# integrate to get new angle
 		#print "angularvel = %s" % self.unicycle.angularVel
 		newTheta, newAngularVel = integrate(theta,self.unicycle.angularVel,alpha)
@@ -141,8 +135,6 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def thetaLR(self):
 		projection = self.rightYProjection(self.orientation)
 		angle = angleBetween(projection, y)
-		print 'thetaLR:'
-		print angle
 		if (angle != 0) and angleBetween(dot(y, rotationMatrix(self.forward, angle)), projection) < 0.01:
 			# Rotating y right gets to projection
 			return angle
@@ -166,9 +158,9 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		angle = angleBetween(projection, y)
 		if (angle != 0) and angleBetween(dot(y, rotationMatrix(self.right, angle)), projection) < 0.01:
 			# Rotating y forward gets to projection
-			return -angle
-		else:
 			return angle
+		else:
+			return -angle
 
 	@thetaFB.setter
 	def thetaFB(self, value):
@@ -188,7 +180,7 @@ class Rider(WibblyWobbly):
 		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
 		GameObject.__init__(self, position,orientation,facing)
 
-	def lean(dThetaLR, dThetaFB):
+	def lean(self,dThetaLR, dThetaFB):
 		self.thetaLR += dThetaLR
 		self.thetaFB += dThetaFB
 
