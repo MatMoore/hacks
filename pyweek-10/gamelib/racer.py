@@ -54,6 +54,11 @@ class Racer:
 		#     :   O
 		theta = angleBetween(stickVector, y)
 
+		rotated = dot(y, rotationMatrix(self.unicycle.right, theta))
+		if (theta != 0) and angleBetween(rotated, stickVector) < 0.01:
+			# Rotating y forward gets to projection
+			theta *= 1
+
 		# Now we will attempt to calculate the new angle of the system. Assuming that the unicycle will rotate due to a) acceleration of the wheel and b) torque due to the riders COM
 
 		# Equation of motion (THIS IS PROBABLY WRONG):
@@ -149,7 +154,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 	def thetaFB(self):
 		projection = self.forwardYProjection(self.orientation)
 		angle = angleBetween(projection, y)
-		if angleBetween(dot(y, rotationMatrix(self.right, angle)), projection) < 0.01:
+		if (angle != 0) and angleBetween(dot(y, rotationMatrix(self.right, angle)), projection) < 0.01:
 			# Rotating y forward gets to projection
 			return -angle
 		else:
