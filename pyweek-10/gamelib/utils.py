@@ -21,14 +21,14 @@ def angleBetween(vec1, vec2):
 	#print vec1
 	#print vec2
 	d = dot(vec1,vec2)
-	if d > 1: d = 1
-	elif d<-1: d = -1
 	ab = linalg.norm(vec1) * linalg.norm(vec2)
 	if ab == 0:
 		print 'fuck'
 		return 0
 	# WTF why does this return math domain errors
 	bla = d/ab
+	if bla > 1: bla = 1
+	elif bla <-1: bla = -1
 	try:
 		bla2 = acos(bla)
 	except:
