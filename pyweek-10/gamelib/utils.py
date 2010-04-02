@@ -42,6 +42,11 @@ def angleBetween(vec1, vec2):
 def integrate(x, v, a):
 	return (x+v*TIMESTEP, v+a*TIMESTEP)
 
+def leapfrog(x0, v0, a0, a1):
+	x1 = x0 + v0 * TIMESTEP + a0 * (TIMESTEP)**2 / 2.0
+	v1 = v0 + (a0 + a1) / 2.0 * TIMESTEP
+	return (x1, v1)
+
 x = array([1,0,0])
 y = array([0,1,0])
 z = array([0,0,1])
