@@ -117,13 +117,13 @@ class Track:
 		else:
 			return False
 
-	def getTerrain(self, position):				#position is just a 2d coordinate x, y, to determine if a point is on the track or off the track(this can be extended to different types of track terrain)
+	def getFriction(self, position):				#position is just a 2d coordinate x, y, to determine if a point is on the track or off the track(this can be extended to different types of track terrain)
 		#it needs to be inside the outer track and outside the inside track
-		if (self.isInsidePoly(position, self.outsideTrack) and not self.isInsidePoly(position, self.track)):
+		if (self.isInsidePoly((position[0], position[2]), self.outsideTrack) and not self.isInsidePoly((position[0], position[2]), self.track)):
 			#it is on the track
-			return True
+			return constants.TRACKFRICTION
 		else:
-			return False	#TODO: make a bunch of constants for terrain types
+			return constants.GRASSFRICTION	#TODO: make a bunch of constants for terrain types
 
 
 if __name__ == "__main__":

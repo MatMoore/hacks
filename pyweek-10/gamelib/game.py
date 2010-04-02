@@ -17,7 +17,7 @@ class Game:
 		#self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
 		self.unicycles = []
-		self.unicycles.append(racer.Racer(array([2,0.3,2]), 0))
+		self.unicycles.append(racer.Racer(array([2,0.3,2]), 0,75,1,self.track))
 		tilted = racer.Racer(array([-2,0.3,2]), 0)
 		tilted.orientation = array([1, 1, 0])
 		self.unicycles.append(tilted)
@@ -63,6 +63,9 @@ class Game:
 		if keys[pygame.K_z]:
 			self.camera.position = (self.camera.position[0], self.camera.position[1] - 0.4, self.camera.position[2])
 		
+		if keys[pygame.K_r]:
+			self.unicycles[0].reset()
+		
 		if keys[pygame.K_w]:
 			self.unicycles[0].unicycle.acceleration = 4.0
 		elif keys[pygame.K_s]:
@@ -82,7 +85,17 @@ class Game:
 
 		# Update rider orientation
 		#rider.lean(dthetaLR, dthetaFB)
-		rider.thetaFB = thetaFB
+		if linalg.norm(rider.velocity) == 0:
+			rider.thetaFB = thetaFB
+
+		thetaLR = -(x - WIDTH/2) * TILT_ANGLE_PER_PIXEL
+		if thetaLR > pi/2:
+			thetaLR = pi/2
+		elif thetaLR < -(pi/2):
+			thetaLR = -pi/2
+			
+		if linalg.norm(rider.velocity) == 0:
+			rider.thetaLR = thetaLR
 
 
 	def update(self):

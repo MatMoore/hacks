@@ -132,14 +132,20 @@ class Camera:
 		glDisable(GL_TEXTURE_2D)
 		self.rotateForCameraRotation()
 		self.translateForCameraCoords(rider.position)
-
+		
 		vec = rider.orientation * rider.height
 		glColor3f(1,1,1)
 		glBegin(GL_LINES)
 		glVertex3f(0,0,0)
 		glVertex3f(vec[0], vec[1], vec[2])
 		glEnd()
+		normal = cross(vec, y)
+		normAng = -misc.radToDeg(angleBetween(vec, y))
+		glRotatef(normAng, normal[0], normal[1], normal[2])
+		riderAngle = misc.radToDeg(atan2(rider.forward[0],rider.forward[2])) + 90
+		glRotatef(riderAngle,0,1,0)
 		glCallList(self.objects['rider'].gl_list)
+		
 		self.resetForNextObject()
 
 	def drawUnicycle(self, racer):
