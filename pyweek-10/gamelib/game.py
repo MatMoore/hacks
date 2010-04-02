@@ -17,7 +17,7 @@ class Game:
 		#self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
 		self.unicycles = []
-		self.unicycles.append(racer.Racer(array([2,0.3,2]), 0))
+		self.unicycles.append(racer.Racer(array([2,0.3,2]), 0,75,1,self.track))
 		tilted = racer.Racer(array([-2,0.3,2]), 0)
 		tilted.orientation = array([1, 1, 0])
 		self.unicycles.append(tilted)

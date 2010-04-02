@@ -6,9 +6,9 @@ from utils import *
 import pygame
 
 class Racer:
-	def __init__(self,position,facing,mass=75,height=1.0):
+	def __init__(self,position,facing,mass=75,height=1.0, track=None):
 		self.height = height
-		self.unicycle = Unicycle(position, facing)
+		self.unicycle = Unicycle(position, facing, track)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 		self.unicycle.thetaFB = 0
 		self.rider.thetaFB = 0
@@ -20,7 +20,7 @@ class Racer:
 		self.rider.thetaFB = 0
 		self.rider.thetaLR = 0
 		self.unicycle.isFallen = False
-		self.unicycle.speed = 0
+		self.unicycle.velocity = array([0,0,0])
 		self.unicycle.angularVel = 0
 		self.unicycle.angularAcc = 0
 		self.rider.velocity = array([0,0,0])
@@ -42,7 +42,7 @@ class Racer:
 
 
 		if self.unicycle.isFallenOver():
-			self.rider.velocity = self.unicycle.forward * self.unicycle.speed
+			self.rider.velocity = self.unicycle.velocity.copy()
 			self.timeFallen = pygame.time.get_ticks()
 			return
 			
@@ -104,10 +104,12 @@ class Racer:
 		# Ok lets work out what the actual unicycle angle would be to make this sphereonstick angle. Btw I am assuming rider is not wibbly wobbly indepent of the uni.
 		
 		# update unicycle orientation
-		self.unicycle.angularVel = newAngularVel
-		self.unicycle.thetaFB += dtheta
+		#self.unicycle.angularVel = newAngularVel
+		#self.unicycle.thetaFB += dtheta
 		#print 'unicycle angular vel is now %s, thetaFB is %s' % (self.unicycle.angularVel, self.unicycle.thetaFB)
 		#print 'orientation='+str(self.unicycle.orientation)
+
+
 
 		# update unicycle position using wheel accn
 		self.unicycle.move()
@@ -243,19 +245,28 @@ class Rider(WibblyWobbly):
 		self.velocity = newVel * array([1,0,1])
 
 class Unicycle(WibblyWobbly):
-	def __init__(self,position, facing=0):
-		self.speed = 0 # wheel speed
+	def __init__(self,position, facing=0, track=None):
+		self.velocity = array([0,0,0]) # wheel speed
 		self.acceleration = 0 # wheel acceleration
 		self.angularVel = 0 # angular velocity of frame
 		self.angularAcc = 0
+		self.track = track
 		WibblyWobbly.__init__(self,position,facing)
 
 	def move(self):
 		'''Apply the wheel acceleration'''
-		newPos, newVel = integrate(self.position, self.speed * self.forward, self.acceleration)
-		newSpeed = dot(newVel,transpose(self.forward))
+		friction = 0
+		if self.track != None:
+			friction = -self.velocity * self.track.getFriction(self._position)
+			angle = angleBetween(self.forward, self.velocity)
+			friction = friction * (angle+1) * (angle+1)
+			print friction
+		
+
+		
+		newPos, newVel = integrate(self.position, self.velocity, self.forward*self.acceleration + friction)
 		self._position = newPos
-		self.speed = newSpeed
+		self.velocity = newVel
 
 if __name__ == "__main__":
 	unicycle = Unicycle(array([0,0,0]), 0)
