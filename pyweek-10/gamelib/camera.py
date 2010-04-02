@@ -50,6 +50,7 @@ class Camera:
 		self.objects = {}
 		self.objects['wheel'] = objloader.OBJ("wheel.obj")
 		self.objects['frame'] = objloader.OBJ("frame.obj")
+		self.objects['rider'] = objloader.OBJ("rider.obj")
 		
 	def loadTexture(self, filename, name):
 		texturefile = data.filepath(filename)
@@ -138,6 +139,7 @@ class Camera:
 		glVertex3f(0,0,0)
 		glVertex3f(vec[0], vec[1], vec[2])
 		glEnd()
+		glCallList(self.objects['rider'].gl_list)
 		self.resetForNextObject()
 
 	def drawUnicycle(self, racer):
