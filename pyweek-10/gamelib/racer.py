@@ -13,6 +13,17 @@ class Racer:
 		self.unicycle.thetaFB = 0
 		self.rider.thetaFB = 0
 
+	def reset(self):
+		self.rider._position = self.unicycle._position + array([0,UNICYCLE_HEIGHT,0])
+		self.unicycle.thetaFB = 0
+		self.unicycle.thetaLR = 0
+		self.rider.thetaFB = 0
+		self.rider.thetaLR = 0
+		self.unicycle.isFallen = False
+		self.unicycle.speed = 0
+		self.unicycle.angularVel = 0
+		self.unicycle.angularAcc = 0
+		self.rider.velocity = array([0,0,0])
 	def update(self):
 		#         ahhh!
 		#     o_   /
@@ -23,6 +34,18 @@ class Racer:
 		#      /
 		#  ___O_____
 		#
+		if self.unicycle.isFallen:
+			self.rider.move()
+			if pygame.time.get_ticks() - self.timeFallen > 1000:
+				self.reset()
+			return
+
+
+		if self.unicycle.isFallenOver():
+			self.rider.velocity = self.unicycle.forward * self.unicycle.speed
+			self.timeFallen = pygame.time.get_ticks()
+			return
+			
 
 		# Base class update stuff
 		GameObject.update(self.unicycle)
@@ -38,6 +61,8 @@ class Racer:
 		# Calculate vector from wheel to rider
 		stickVector = self.unicycle.orientation * UNICYCLE_HEIGHT + 0.5 * self.rider.height * self.rider.orientation
 
+		stickVectorRight = self.unicycle.rightYProjection(stickVector)
+		
 		# Project that into the forward-y plane
 		stickVector = self.unicycle.forwardYProjection(stickVector)
 
@@ -48,12 +73,18 @@ class Racer:
 		#     :--\
 		#     :   O
 		theta = angleBetween(stickVector, y)
+		theta2 = angleBetween(stickVectorRight, y)
 		rotated = dot(y, rotationMatrix(self.unicycle.right, theta))
 		if (theta != 0) and not angleBetween(rotated, stickVector) < 0.01:
 			# Rotating y forward gets to projection
 			theta *= -1
-
+		rotated = dot(y, rotationMatrix(self.unicycle.forward, theta2))
+		if (theta2 != 0) and not angleBetween(rotated, stickVectorRight) < 0.01:
+			# Rotating y forward gets to projection
+			theta2 *= -1
 		# Now we will attempt to calculate the new angle of the system. Assuming that the unicycle will rotate due to a) acceleration of the wheel and b) torque due to the riders COM
+		self.unicycle.turnLeft(theta2*0.05)
+		self.rider.turnLeft(theta2*0.05)		
 
 		# Equation of motion (THIS IS PROBABLY WRONG):
 		# mL^2 alpha = m L sin theta - M a L cos theta
@@ -61,7 +92,7 @@ class Racer:
 		# L alpha = g sin theta - CONST a cost theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
 		alphaOld = self.unicycle.angularAcc
-		self.unicycle.angularAcc = 0.3*g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
+		self.unicycle.angularAcc = 0.5*g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
 		#print alpha
 
 		# integrate to get new angle
@@ -99,6 +130,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		# Work out the direction we're moving in
 		# The unicycle starts vertical, so the "facing" angle is the angle from the x axis.
 		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
+		self.isFallen = False
 		GameObject.__init__(self, position,orientation,facing)
 
 	@property
@@ -115,7 +147,7 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 
 	def turnRight(self, angle):
 		self.forward = dot(self.forward, rotationMatrix(y, angle))
-		self.orientation = dot(self.orientation, rotationMatrix(y,angle))
+		self._orientation = dot(self.orientation, rotationMatrix(y,angle))
 
 	def turnLeft(self, angle):
 		self.turnRight(-angle)
@@ -172,6 +204,23 @@ thetaLR is the angle from vertical the forward-up plane is rotated
 		# Rotate to new angle
 		self._orientation = dot(self.orientation, rotationMatrix(self.right, value))
 
+	def isFallenOver(self):
+		flag = False
+		if self.thetaFB > pi/2:
+			self.thetaFB = pi/2
+			flag = True
+		elif self.thetaFB < -pi/2:
+			self.thetaFB = -pi/2
+			flag = True
+		if self.thetaLR > pi/2:
+			self.thetaLR = pi/2
+			flag = True
+		elif self.thetaLR < -pi/2:
+			self.thetaLR = -pi/2
+			flag = True
+		if flag == True:
+			self.isFallen = True
+		return flag
 
 class Rider(WibblyWobbly):
 	def __init__(self, position, facing, mass, height):
@@ -179,11 +228,19 @@ class Rider(WibblyWobbly):
 		self.height = height
 		orientation = array([0, 1, 0]) # Start upright
 		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
+		self.velocity = array([0,0,0])
 		GameObject.__init__(self, position,orientation,facing)
 
 	def lean(self,dThetaLR, dThetaFB):
-		self.thetaLR += dThetaLR
-		self.thetaFB += dThetaFB
+		if linalg.norm(self.velocity) == 0:		
+			self.thetaLR += dThetaLR
+			self.thetaFB += dThetaFB
+
+	def move(self):
+		self.velocity *= array([1,0,1])
+		newPos, newVel = integrate(self.position, self.velocity, -self.velocity)
+		self._position = newPos
+		self.velocity = newVel * array([1,0,1])
 
 class Unicycle(WibblyWobbly):
 	def __init__(self,position, facing=0):

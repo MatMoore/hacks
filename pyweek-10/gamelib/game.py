@@ -63,6 +63,9 @@ class Game:
 		if keys[pygame.K_z]:
 			self.camera.position = (self.camera.position[0], self.camera.position[1] - 0.4, self.camera.position[2])
 		
+		if keys[pygame.K_r]:
+			self.unicycles[0].reset()
+		
 		if keys[pygame.K_w]:
 			self.unicycles[0].unicycle.acceleration = 4.0
 		elif keys[pygame.K_s]:
@@ -82,7 +85,17 @@ class Game:
 
 		# Update rider orientation
 		#rider.lean(dthetaLR, dthetaFB)
-		rider.thetaFB = thetaFB
+		if linalg.norm(rider.velocity) == 0:
+			rider.thetaFB = thetaFB
+
+		thetaLR = -(x - WIDTH/2) * TILT_ANGLE_PER_PIXEL
+		if thetaLR > pi/2:
+			thetaLR = pi/2
+		elif thetaLR < -(pi/2):
+			thetaLR = -pi/2
+			
+		if linalg.norm(rider.velocity) == 0:
+			rider.thetaLR = thetaLR
 
 
 	def update(self):
