@@ -104,8 +104,8 @@ class Racer:
 		# Ok lets work out what the actual unicycle angle would be to make this sphereonstick angle. Btw I am assuming rider is not wibbly wobbly indepent of the uni.
 		
 		# update unicycle orientation
-		#self.unicycle.angularVel = newAngularVel
-		#self.unicycle.thetaFB += dtheta
+		self.unicycle.angularVel = newAngularVel
+		self.unicycle.thetaFB += dtheta
 		#print 'unicycle angular vel is now %s, thetaFB is %s' % (self.unicycle.angularVel, self.unicycle.thetaFB)
 		#print 'orientation='+str(self.unicycle.orientation)
 
