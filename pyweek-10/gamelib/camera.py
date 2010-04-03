@@ -62,14 +62,15 @@ class Camera:
 		glBindTexture(GL_TEXTURE_2D, self.textures[name])
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, textureSurface.get_width(), textureSurface.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData );
 #		glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );		
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
 	def loadTextures(self):
 		self.textures = {}
 		self.textureNum = 0
 		self.loadTexture('grass.png', 'grass')
 		self.loadTexture('sky.jpg', 'sky')
+		self.loadTexture('tarmac.jpg', 'tarmac')
 
 	def resetForNextObject(self):
 		glLoadIdentity()
@@ -126,13 +127,37 @@ class Camera:
 		self.resetForNextObject()
 
 	def drawTrack(self, track):
+		glEnable(GL_TEXTURE_2D);
 		self.rotateForCameraRotation()	
 		self.translateForCameraCoords((0,0,0))		#center of track is at 0,0,0
 		self.rotateForObjectRotation((0,0,0))		#track doesnt need rotating
-		glColor3f(0.4,0.4,0.4)						#make it grey
+		glColor3f(0.6,0.6,0.6)						#make it grey
+		glBindTexture(GL_TEXTURE_2D, self.textures['tarmac'])
 		glBegin(GL_QUAD_STRIP)
-		for point in track.quadPoints:
-			glVertex3f(point[0], 0, point[1])
+		texX = 0
+		texY = 1
+		for i in range(0, len(track.quadPoints)-2, 2):
+			p1 = track.quadPoints[i]
+			p2 = track.quadPoints[i+1]
+			p3 = track.quadPoints[i+2]
+			p4 = track.quadPoints[i+3]
+			glTexCoord2f(0, 0)
+			glVertex3f(p1[0], 0, p1[1])
+			glTexCoord2f(0, 1)
+			glVertex3f(p2[0], 0, p2[1])
+			glTexCoord2f(1, 1)
+			glVertex3f(p3[0], 0, p3[1])
+			glTexCoord2f(1, 0)
+			glVertex3f(p4[0], 0, p4[1])
+			if texY == 1:
+				texY = 0
+			else:
+				texY = 1
+				if texX == 0:
+					texX = 1
+				else:
+					texX = 0
+				
 		glEnd()
 		self.resetForNextObject()
 

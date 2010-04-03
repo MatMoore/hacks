@@ -8,16 +8,18 @@ import racer
 import gameobject
 from utils import *
 from numpy import *
+import sound
 
 class Game:
 	def __init__(self):
 		self.camera = camera.Camera()
 		self.track = track.Track()
 		self.track.generateTrack(20,50)
+		self.sound = sound.Sound()
 		#self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
 		self.unicycles = []
-		self.unicycles.append(racer.Racer(array([self.track.startingPoint[0],0.3,self.track.startingPoint[1]]), self.track.startingRot,75,4,self.track))
+		self.unicycles.append(racer.Racer(array([self.track.startingPoint[0],0.3,self.track.startingPoint[1]]), self.track.startingRot,75,4,self.track, self.sound))
 		tilted = racer.Racer(array([-2,0.3,2]), 0)
 		tilted.orientation = array([1, 1, 0])
 		self.unicycles.append(tilted)
@@ -94,8 +96,8 @@ class Game:
 		elif thetaLR < -(pi/2):
 			thetaLR = -pi/2
 			
-		#if linalg.norm(rider.velocity) == 0:
-#			rider.thetaLR = thetaLR
+		if linalg.norm(rider.velocity) == 0:
+			rider.thetaLR = thetaLR
 
 
 	def update(self):

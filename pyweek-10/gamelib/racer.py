@@ -6,12 +6,13 @@ from utils import *
 import pygame
 
 class Racer:
-	def __init__(self,position,facing,mass=75,height=1.0, track=None):
+	def __init__(self,position,facing,mass=75,height=1.0, track=None, sound=None):
 #		self.height = height
 		self.unicycle = Unicycle(position, facing, track)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 		self.unicycle.thetaFB = 0
 		self.rider.thetaFB = 0
+		self.sound = sound
 
 	def reset(self):
 		self.rider._position = self.unicycle._position + array([0,UNICYCLE_HEIGHT,0])
@@ -47,6 +48,8 @@ class Racer:
 		if self.unicycle.isFallenOver():
 			self.rider.velocity = self.unicycle.velocity.copy()
 			self.timeFallen = pygame.time.get_ticks()
+			if self.sound:
+				self.sound.grunt()
 			return
 			
 
@@ -286,7 +289,7 @@ class Unicycle(WibblyWobbly):
 			friction = friction * (angle+1) * (angle+1)
 			#print friction
 
-		print self.autoBalanceAcc
+		#print self.autoBalanceAcc
 		return self.forward*(self._acceleration - self.autoBalanceAcc) + friction
 
 	def forwardAcceleration(self):
