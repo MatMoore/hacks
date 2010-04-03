@@ -72,7 +72,9 @@ class Track:
 		#these last two just join it back up to the beginning
 		self.quadPoints.append(self.track[0])
 		self.quadPoints.append(self.outsideTrack[0])
-
+		self.startingPoint = ((self.track[0][0] + self.outsideTrack[0][0])/2, (self.track[0][1] + self.outsideTrack[0][1])/2)
+		self.startingVect = (self.track[1][0] - self.track[0][0], self.track[1][1] - self.track[0][1])
+		self.startingRot = math.atan2(self.startingVect[1], self.startingVect[0])
 
 	def generateTrack(self, complexity = 10, size = 50):		#complexity defines the number of points for the track, size = the average distance from the center of the map.
 		points = []
@@ -82,8 +84,6 @@ class Track:
 			distance = random.normal(size, size/5)	#get a random distance based around a normal distribution
 			point = array([distance*math.sin(angle), distance*math.cos(angle)])
 			points.append(point)
-			if (i==0):
-				self.startingPoint = (point[0]+constants.roadWidth/2, point[1]+constants.roadWidth/2)
 		self.track = points
 		self.makeOutsideTrack()
 
