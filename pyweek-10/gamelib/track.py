@@ -31,6 +31,14 @@ class Track:
 
 		return array([x,y])
 
+	def makeCheckpoint(self, i1, i2):
+		p1 = ((self.track[i1][0] + self.outsideTrack[i1][0])/2, (self.track[i1][1] + self.outsideTrack[i1][1])/2)
+		p2 = ((self.track[i2][0] + self.outsideTrack[i2][0])/2, (self.track[i2][1] + self.outsideTrack[i2][1])/2)
+		vect = (p2[0] - p1[0], p2[1] - p1[1])
+		rot = math.atan2(vect[1], vect[0])
+		pos = ((p2[0] + p1[0])/2, (p2[1] + p1[1])/2)
+		self.checkpoints.append((pos, rot))
+
 	def makeOutsideTrack(self):
 		self.quadPoints = []			#this is an openGl specific thing for how to draw the but i think it's better to store here than in the camera and def. better than generating it each frame
 		self.outsideTrack = []
@@ -75,7 +83,12 @@ class Track:
 		self.startingPoint = ((self.track[0][0] + self.outsideTrack[0][0])/2, (self.track[0][1] + self.outsideTrack[0][1])/2)
 		self.startingVect = (self.track[1][0] - self.track[0][0], self.track[1][1] - self.track[0][1])
 		self.startingRot = math.atan2(self.startingVect[1], self.startingVect[0])
-
+		#just quickly hack some numbers 0-1, 3-4, 7-8 
+		self.checkpoints = []
+		self.makeCheckpoint(1,2)
+		self.makeCheckpoint(6,7)
+		self.makeCheckpoint(11,12)
+		self.makeCheckpoint(16,17)
 	def generateTrack(self, complexity = 10, size = 50):		#complexity defines the number of points for the track, size = the average distance from the center of the map.
 		points = []
 		inside = []

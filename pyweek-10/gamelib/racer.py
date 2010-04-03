@@ -279,7 +279,7 @@ class Unicycle(WibblyWobbly):
 			friction = -self.velocity * self.track.getFriction(self._position)
 			angle = angleBetween(self.forward, self.velocity)
 			friction = friction * (angle+1) * (angle+1)
-			print friction
+			#print friction
 		
 
 		

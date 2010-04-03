@@ -51,6 +51,7 @@ class Camera:
 		self.objects['wheel'] = objloader.OBJ("wheel.obj")
 		self.objects['frame'] = objloader.OBJ("frame.obj")
 		self.objects['rider'] = objloader.OBJ("rider.obj")
+		self.objects['cp'] = objloader.OBJ("cp.obj")
 		
 	def loadTexture(self, filename, name):
 		texturefile = data.filepath(filename)
@@ -85,6 +86,13 @@ class Camera:
 		glRotatef(270-self.orientation[1], 0, 1, 0)
 		glRotatef(self.lookDownAngle, self.following.unicycle.right[0], self.following.unicycle.right[1], self.following.unicycle.right[2])
 
+	def drawCheckpoints(self, track):
+		for pos, rot in track.checkpoints:
+			self.rotateForCameraRotation()	
+			self.translateForCameraCoords((pos[0],0,pos[1]))
+			glRotatef(90-misc.radToDeg(rot),0,1,0)
+			glCallList(self.objects['cp'].gl_list)
+			self.resetForNextObject()
 
 	def drawGround(self):
 		glEnable(GL_TEXTURE_2D);

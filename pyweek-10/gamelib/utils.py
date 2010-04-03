@@ -23,7 +23,7 @@ def angleBetween(vec1, vec2):
 	d = dot(vec1,vec2)
 	ab = linalg.norm(vec1) * linalg.norm(vec2)
 	if ab == 0:
-		print 'fuck'
+		#print 'fuck'
 		return 0
 	# WTF why does this return math domain errors
 	bla = d/ab

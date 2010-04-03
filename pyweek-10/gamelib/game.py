@@ -17,7 +17,7 @@ class Game:
 		#self.camera.position = (self.track.startingPoint[0], 1, self.track.startingPoint[1])
 		self.rotation = 0
 		self.unicycles = []
-		self.unicycles.append(racer.Racer(array([self.track.startingPoint[0],0.3,self.track.startingPoint[1]]), self.track.startingRot,75,1,self.track))
+		self.unicycles.append(racer.Racer(array([self.track.startingPoint[0],0.3,self.track.startingPoint[1]]), self.track.startingRot,75,4,self.track))
 		tilted = racer.Racer(array([-2,0.3,2]), 0)
 		tilted.orientation = array([1, 1, 0])
 		self.unicycles.append(tilted)
@@ -112,6 +112,7 @@ class Game:
 		self.camera.drawSky()
 		self.camera.drawGround()
 		self.camera.drawTrack(self.track)
+		self.camera.drawCheckpoints(self.track)
 		self.rotation += 3
 		self.tilt = 20 * math.sin(self.rotation/100.0)
 		for unicycle in self.unicycles:
@@ -123,15 +124,14 @@ class Game:
 		newTime = pygame.time.get_ticks()
 		dt = (newTime - self.currentTime)/1000.0
 		self.currentTime = newTime
-		#pygame.time.wait(10)
+		pygame.time.wait(10)
 		self.accumulator += dt
 		while self.accumulator >= constants.TIMESTEP:
+			gameobject.GameObject.timeSinceUpdate = 0
+			self.render()
 			self.processInput()
 			self.update()
 			self.accumulator -= constants.TIMESTEP
-
-		gameobject.GameObject.timeSinceUpdate = self.accumulator	#set the timeSinceLastUpdate so that the interpolation on the objects will work
-		self.render()
 
 
 		#handles closing the window (not done in input because we want to return gsQuit, it's clearer this way)
