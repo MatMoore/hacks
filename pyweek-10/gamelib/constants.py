@@ -15,3 +15,6 @@ viewDistanceRight = 0.7
 lookAngleAdjust = -10
 WIDTH = 800
 HEIGHT = 600
+FALL_FORWARDS = True
+AUTOBALANCE_ENABLED = True
+AUTOBALANCE_AMOUNT = 2.5

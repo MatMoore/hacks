@@ -7,11 +7,12 @@ import pygame
 
 class Racer:
 	def __init__(self,position,facing,mass=75,height=1.0, track=None):
-		self.height = height
+#		self.height = height
 		self.unicycle = Unicycle(position, facing, track)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 		self.unicycle.thetaFB = 0
 		self.rider.thetaFB = 0
+		self.autoBalanceAcc = 0
 
 	def reset(self):
 		self.rider._position = self.unicycle._position + array([0,UNICYCLE_HEIGHT,0])
@@ -24,6 +25,7 @@ class Racer:
 		self.unicycle.angularVel = 0
 		self.unicycle.angularAcc = 0
 		self.rider.velocity = array([0,0,0])
+
 	def update(self):
 		#         ahhh!
 		#     o_   /
@@ -50,6 +52,25 @@ class Racer:
 		# Base class update stuff
 		GameObject.update(self.unicycle)
 		GameObject.update(self.rider)
+
+		self.wobble()
+
+		# Adjust the acceleration to match the angle
+		self.autoBalance()
+
+		# update unicycle position using wheel accn
+		self.unicycle.move()
+
+		# update rider position by sticking him back on the top of the unicycle
+		self.rider._position = self.unicycle.position + self.unicycle.orientation / linalg.norm(self.unicycle.orientation) * UNICYCLE_HEIGHT
+
+	@property
+	def height(self):
+		return UNICYCLE_HEIGHT + 0.5 * self.rider.height
+
+	def wobble(self):
+		if not FALL_FORWARDS:
+			return
 
 		# Ok, our rider is now a perfect sphere sitting on a massless stick. DO NOT QUESTION THIS.
 		#     o   <-- rider's mass
@@ -104,19 +125,17 @@ class Racer:
 		# Ok lets work out what the actual unicycle angle would be to make this sphereonstick angle. Btw I am assuming rider is not wibbly wobbly indepent of the uni.
 		
 		# update unicycle orientation
-		#self.unicycle.angularVel = newAngularVel
-		#self.unicycle.thetaFB += dtheta
+		self.unicycle.angularVel = newAngularVel
+		self.unicycle.thetaFB += dtheta
+
 		#print 'unicycle angular vel is now %s, thetaFB is %s' % (self.unicycle.angularVel, self.unicycle.thetaFB)
 		#print 'orientation='+str(self.unicycle.orientation)
 
+	def autoBalance(self):
+		if not AUTOBALANCE_ENABLED:
+			return
 
-
-		# update unicycle position using wheel accn
-		self.unicycle.move()
-
-		# update rider position by sticking him back on the top of the unicycle
-		self.rider._position = self.unicycle.position + self.unicycle.orientation / linalg.norm(self.unicycle.orientation) * UNICYCLE_HEIGHT
-
+		self.autoBalanceAcc = AUTOBALANCE_AMOUNT * -1 * self.unicycle.angularVel / self.height
 
 class WibblyWobbly(GameObject):
 	'''Directions/angles:
