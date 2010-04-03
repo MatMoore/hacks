@@ -94,8 +94,8 @@ class Game:
 		elif thetaLR < -(pi/2):
 			thetaLR = -pi/2
 			
-		if linalg.norm(rider.velocity) == 0:
-			rider.thetaLR = thetaLR
+		#if linalg.norm(rider.velocity) == 0:
+#			rider.thetaLR = thetaLR
 
 
 	def update(self):

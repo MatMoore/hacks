@@ -24,6 +24,8 @@ class Racer:
 		self.unicycle.angularVel = 0
 		self.unicycle.angularAcc = 0
 		self.rider.velocity = array([0,0,0])
+		self.unicycle._acceleration = 0
+		self.unicycle.autoBalanceAcc = 0
 
 	def update(self):
 		#         ahhh!
@@ -134,7 +136,7 @@ class Racer:
 		if not AUTOBALANCE_ENABLED:
 			return
 
-		self.unicycle.autoBalanceAcc = AUTOBALANCE_AMOUNT * -1 * self.unicycle.angularVel / self.height
+		self.unicycle.autoBalanceAcc = AUTOBALANCE_AMOUNT * -1 * self.unicycle.thetaFB / self.height
 
 class WibblyWobbly(GameObject):
 	'''Directions/angles:
@@ -292,7 +294,7 @@ class Unicycle(WibblyWobbly):
 		fa = self.forwardYProjection(self.acceleration)
 		scalar = linalg.norm(fa)
 		# get angle between forward and accn to work out the sign of scalar
-		if abs(atan2(self.forward[0],self.forward[2]) - atan2(fa[0],fa[2])) > pi:
+		if abs(atan2(self.forward[2],self.forward[0]) - atan2(fa[2],fa[0])) > pi/2:
 			scalar *= -1
 		return scalar
 
