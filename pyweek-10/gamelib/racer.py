@@ -12,7 +12,6 @@ class Racer:
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 		self.unicycle.thetaFB = 0
 		self.rider.thetaFB = 0
-		self.autoBalanceAcc = 0
 
 	def reset(self):
 		self.rider._position = self.unicycle._position + array([0,UNICYCLE_HEIGHT,0])
@@ -135,7 +134,7 @@ class Racer:
 		if not AUTOBALANCE_ENABLED:
 			return
 
-		self.autoBalanceAcc = AUTOBALANCE_AMOUNT * -1 * self.unicycle.angularVel / self.height
+		self.unicycle.autoBalanceAcc = AUTOBALANCE_AMOUNT * -1 * self.unicycle.angularVel / self.height
 
 class WibblyWobbly(GameObject):
 	'''Directions/angles:
@@ -259,7 +258,7 @@ class Rider(WibblyWobbly):
 
 	def move(self):
 		self.velocity *= array([1,0,1])
-		newPos, newVel = integrate(self.position, self.velocity, -self.velocity)
+		newPos, newVel = integrate(self.position, self.velocity, -self.velocity*2)
 		self._position = newPos
 		self.velocity = newVel * array([1,0,1])
 
@@ -271,6 +270,7 @@ class Unicycle(WibblyWobbly):
 		self.angularAcc = 0
 		self.track = track
 		WibblyWobbly.__init__(self,position,facing)
+		self.autoBalanceAcc = 0
 
 	def move(self):
 		'''Apply the wheel acceleration'''
@@ -278,12 +278,14 @@ class Unicycle(WibblyWobbly):
 		if self.track != None:
 			friction = -self.velocity * self.track.getFriction(self._position)
 			angle = angleBetween(self.forward, self.velocity)
+			if angle > pi/2:
+				angle = (pi/2)-angle	#this makes it possible to go backwards without insane friction
 			friction = friction * (angle+1) * (angle+1)
 			#print friction
 		
 
-		
-		newPos, newVel = integrate(self.position, self.velocity, self.forward*self.acceleration + friction)
+		print self.autoBalanceAcc
+		newPos, newVel = integrate(self.position, self.velocity, self.forward*(self.acceleration - self.autoBalanceAcc) + friction)
 		self._position = newPos
 		self.velocity = newVel
 
