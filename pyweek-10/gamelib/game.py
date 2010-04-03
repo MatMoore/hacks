@@ -67,11 +67,11 @@ class Game:
 			self.unicycles[0].reset()
 		
 		if keys[pygame.K_w]:
-			self.unicycles[0].unicycle.acceleration = 4.0
+			self.unicycles[0].unicycle._acceleration = 4.0
 		elif keys[pygame.K_s]:
-			self.unicycles[0].unicycle.acceleration = -4.0
+			self.unicycles[0].unicycle._acceleration = -4.0
 		else:
-			self.unicycles[0].unicycle.acceleration = 0
+			self.unicycles[0].unicycle._acceleration = 0
 		#self.unicycles[0].update()
 
 		rider = self.camera.following.rider

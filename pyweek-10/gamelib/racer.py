@@ -112,7 +112,7 @@ class Racer:
 		# L alpha = g sin theta - CONST a cost theta
 		# where alpha is angular acceleration of stickvector, theta is angle of stickvector relative to the vertical, L is the length of the stick vector, g is graviation acceleration and a is wheel acceleration
 		alphaOld = self.unicycle.angularAcc
-		self.unicycle.angularAcc = 0.5*g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.acceleration * cos(theta)
+		self.unicycle.angularAcc = 0.5*g * sin(theta) - UNICYCLE_MASS / self.rider.mass *self.unicycle.forwardAcceleration() * cos(theta)
 		#print alpha
 
 		# integrate to get new angle
@@ -265,15 +265,16 @@ class Rider(WibblyWobbly):
 class Unicycle(WibblyWobbly):
 	def __init__(self,position, facing=0, track=None):
 		self.velocity = array([0,0,0]) # wheel speed
-		self.acceleration = 0 # wheel acceleration
+		self._acceleration = 0 # wheel acceleration
 		self.angularVel = 0 # angular velocity of frame
 		self.angularAcc = 0
 		self.track = track
 		WibblyWobbly.__init__(self,position,facing)
 		self.autoBalanceAcc = 0
 
-	def move(self):
-		'''Apply the wheel acceleration'''
+	@property
+	def acceleration(self):
+		'''This is now a vector'''
 		friction = 0
 		if self.track != None:
 			friction = -self.velocity * self.track.getFriction(self._position)
@@ -282,10 +283,22 @@ class Unicycle(WibblyWobbly):
 				angle = (pi/2)-angle	#this makes it possible to go backwards without insane friction
 			friction = friction * (angle+1) * (angle+1)
 			#print friction
-		
 
 		print self.autoBalanceAcc
-		newPos, newVel = integrate(self.position, self.velocity, self.forward*(self.acceleration - self.autoBalanceAcc) + friction)
+		return self.forward*(self._acceleration - self.autoBalanceAcc) + friction
+
+	def forwardAcceleration(self):
+		'''This is a scalar'''
+		fa = self.forwardYProjection(self.acceleration)
+		scalar = linalg.norm(fa)
+		# get angle between forward and accn to work out the sign of scalar
+		if abs(atan2(self.forward[0],self.forward[2]) - atan2(fa[0],fa[2])) > pi:
+			scalar *= -1
+		return scalar
+
+	def move(self):
+		'''Apply the wheel acceleration'''
+		newPos, newVel = integrate(self.position, self.velocity, self.acceleration)
 		self._position = newPos
 		self.velocity = newVel
 
