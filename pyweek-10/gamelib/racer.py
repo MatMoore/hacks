@@ -136,7 +136,7 @@ class Racer:
 		if not AUTOBALANCE_ENABLED:
 			return
 
-		self.unicycle.autoBalanceAcc = AUTOBALANCE_AMOUNT * -1 * self.unicycle.thetaFB / self.height
+		self.rider.autoBalanceTilt = AUTOBALANCE_AMOUNT * -1 * self.unicycle.thetaFB / self.height
 
 class WibblyWobbly(GameObject):
 	'''Directions/angles:
@@ -252,11 +252,16 @@ class Rider(WibblyWobbly):
 		self.forward = dot(array([1,0,0]), rotationMatrix(array([0,1,0]), facing))
 		self.velocity = array([0,0,0])
 		GameObject.__init__(self, position,orientation,facing)
+		self.autoBalanceTilt = 0
 
 	def lean(self,dThetaLR, dThetaFB):
 		if linalg.norm(self.velocity) == 0:		
 			self.thetaLR += dThetaLR
 			self.thetaFB += dThetaFB
+
+	@property
+	def thetaFB(self):
+		return WibblyWobbly.thetaFB(self) + self.autoBalanceTilt
 
 	def move(self):
 		self.velocity *= array([1,0,1])
@@ -272,7 +277,6 @@ class Unicycle(WibblyWobbly):
 		self.angularAcc = 0
 		self.track = track
 		WibblyWobbly.__init__(self,position,facing)
-		self.autoBalanceAcc = 0
 
 	@property
 	def acceleration(self):
@@ -286,8 +290,7 @@ class Unicycle(WibblyWobbly):
 			friction = friction * (angle+1) * (angle+1)
 			#print friction
 
-		print self.autoBalanceAcc
-		return self.forward*(self._acceleration - self.autoBalanceAcc) + friction
+		return self.forward*self._acceleration + friction
 
 	def forwardAcceleration(self):
 		'''This is a scalar'''
