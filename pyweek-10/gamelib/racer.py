@@ -318,6 +318,13 @@ class Unicycle(WibblyWobbly):
 		'''Apply the wheel acceleration'''
 		newPos, newVel = integrate(self.position, self.velocity, self.acceleration)
 		self._position = newPos
+
+		# Cap the value
+		speed = linalg.norm(newVel)
+		if speed > MAX_SPEED:
+			newVel /= speed
+			newVel *= MAX_SPEED
+
 		self.velocity = newVel
 
 if __name__ == "__main__":
