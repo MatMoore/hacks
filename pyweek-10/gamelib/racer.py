@@ -11,6 +11,7 @@ class Racer:
 		self.unicycle = Unicycle(position, facing, track)
 		self.rider = Rider(position + array([0,UNICYCLE_HEIGHT,0]), facing, mass, height)
 		self.unicycle.thetaFB = 0
+		self.unicycle._thetaFB_old = 0
 		self.rider.thetaFB = 0
 		self.sound = sound
 
@@ -38,6 +39,10 @@ class Racer:
 		#      /
 		#  ___O_____
 		#
+
+		# Keep the old value for the autoBalance function to use
+		self.unicycle._thetaFB_old = self.unicycle.thetaFB
+
 		if self.unicycle.isFallen:
 			self.rider.move()
 			if pygame.time.get_ticks() - self.timeFallen > 1000:
@@ -139,7 +144,15 @@ class Racer:
 		if not AUTOBALANCE_ENABLED:
 			return
 
-		self.unicycle.autoBalanceAcc = AUTOBALANCE_AMOUNT * -1 * self.unicycle.thetaFB / self.height
+		intTerm = AUTOBALANCE_AMOUNT3 * self.unicycle._thetaFB_old + self.unicycle.thetaFB * TIMESTEP
+		derTerm = AUTOBALANCE_AMOUNT2 * self.unicycle.angularVel
+		posTerm = AUTOBALANCE_AMOUNT * self.unicycle.thetaFB
+
+		self.unicycle.autoBalanceAcc = posTerm + derTerm + intTerm
+
+		# Cap the value
+		if abs(self.unicycle.autoBalanceAcc) > MAX_AUTOBALANCE:
+			self.unicycle.autoBalanceAcc = copysign(MAX_AUTOBALANCE, self.unicycle.autoBalanceAcc)
 
 class WibblyWobbly(GameObject):
 	'''Directions/angles:
@@ -290,7 +303,7 @@ class Unicycle(WibblyWobbly):
 			#print friction
 
 		#print self.autoBalanceAcc
-		return self.forward*(self._acceleration - self.autoBalanceAcc) + friction
+		return self.forward*(self._acceleration + self.autoBalanceAcc) + friction
 
 	def forwardAcceleration(self):
 		'''This is a scalar'''
