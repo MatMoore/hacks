@@ -235,10 +235,10 @@ class Console:
 		words = command.split()
 		if not words:
 			return
-		if words[0] == 'help':
+
+		if words[0].lower() == 'help':
 			self.output = 'No help is available'
-		elif words[0] == 'move':
-			self.mode = 'move'
+		if words[0].lower() == 'look':
 		pass
 
 def show(screen):
