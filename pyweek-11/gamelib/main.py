@@ -12,6 +12,11 @@ import curses
 import random
 from curses import textpad
 
+MAP_HEIGHT = 20
+MAP_WIDTH = 80
+PAD_HEIGHT = 18
+PAD_WIDTH = 78
+
 class Map:
 	def __init__(self,size):
 		self.map = {}
@@ -97,7 +102,7 @@ class Map:
 	def placeItem(self,item):
 		if self.emptySpaces:
 			point = self.emptySpaces.pop()
-			self.items[point] = item['gfx']
+			self.items[point] = item
 
 class Game:
 	def __init__(self,name='Player 2'):
@@ -116,7 +121,7 @@ class Game:
 		self.interactions = {}
 		for i in items['items']:
 			if i['available']:
-				self.items[i['name']] = i
+				self.items[i['name'].lower()] = i
 				self.map.placeItem(i)
 	
 		for i in items['combinations']:
@@ -125,30 +130,45 @@ class Game:
 		for i in items['interactions']:
 			self.interactions[frozenset(i['items'])] = i['message']
 
-	def look():
+	def look(self,item=None):
+		items = []
+		if self.playerLocation in self.map.items:
+			items.append(self.map.items[self.playerLocation]['name'])
+		for point in self.map.neighbours(self.playerLocation):
+			if point in self.map.items:
+				items.append(self.map.items[point]['name'])
+		if item is not None:
+			if item in items:
+				return self.items[item]['description']
+			else:
+				return None
+		s = 'You are trapped inside a half finished pyweek entry.'
+		if items:
+			s += ' Nearby you can see: '+', '.join(items)
+		return s
+
+	def pickup(self,item):
 		pass
 
-	def pickup(item=None):
-		pass
-
-	def drop(item):
+	def drop(self,item):
 		pass
 
 class Console:
 	def __init__(self,screen):
-		self.mode = 'insert'
+		self.mode = 'move'
 		self.screen = screen
 		self.textwin = curses.newwin(1,78,21,1)
-		self.outputwin = curses.newwin(3,80,23,0)
+#		self.outputwin = curses.newwin(3,80,23,0)
 		textpad.rectangle(self.screen,0,0,20,80)
 		textpad.rectangle(self.screen,20,0,22,80)
 		self.pad = curses.newpad(20,80)
 		self.textpad = textpad.Textbox(self.textwin)
 		self.game = Game()
-		self.output = 'bla'
+		self.output = ''
 		self.redraw()
 	
 	def redraw(self):
+		self.screen.redrawln(23,10)
 		if self.mode == 'insert':
 			curses.curs_set(1)
 		else:
@@ -157,7 +177,7 @@ class Console:
 			y,x = k
 
 			if k in self.game.map.items:
-				v = self.game.map.items[k]
+				v = self.game.map.items[k]['gfx']
 
 			v1 = v[0]
 			v2 = ' '
@@ -194,10 +214,14 @@ class Console:
 			pass
 
 		# Show the area around the player
-		self.outputwin.clear()
+		self.screen.addstr(23,0,' '*300)
 		self.screen.addstr(23,0,self.output)
-		self.screen.addstr(23,len(self.output),' '*(80-len(self.output))) #hack because I don't know what im doing
-		self.pad.refresh(0,0, 1,1,18,78)
+		#if len(self.output) <80:
+			#			self.screen.addstr(23,len(self.output),' '*(80-len(self.output))) #hack because I don't know what im doing
+		cameray,camerax = self.game.playerLocation
+		cameray = min(max(0,cameray - PAD_HEIGHT/2),MAP_HEIGHT-PAD_HEIGHT)
+		camerax = min(max(0,camerax - PAD_WIDTH/2),MAP_WIDTH-PAD_WIDTH)
+		self.pad.refresh(cameray,camerax, 1,1,PAD_HEIGHT,PAD_WIDTH)
 		self.screen.refresh()
 
 	def run(self):
@@ -239,7 +263,14 @@ class Console:
 		if words[0].lower() == 'help':
 			self.output = 'No help is available'
 		if words[0].lower() == 'look':
-		pass
+			if len(words[1:]):
+				desc = self.game.look(" ".join(words[1:]).lower())
+				if desc is not None:
+					self.output = desc
+				else:
+					self.output = 'I don\'t see any '+" ".join(words[1:])
+			else:
+				self.output = self.game.look()
 
 def show(screen):
 	c = Console(screen)
