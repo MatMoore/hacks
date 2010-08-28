@@ -10,10 +10,12 @@ import data
 import json
 import curses
 import random
+from curses import textpad
 
 class Map:
 	def __init__(self,size):
 		self.map = {}
+		self.items = {}
 		self.width,self.height = size
 		for i in range(self.height):
 			for j in range(self.width):
@@ -22,7 +24,15 @@ class Map:
 		self.generateRoom((self.height/2,0)) # generate a room where the player starts
 		for i in range(15):
 			self.generateRoom((random.randint(0,self.height),random.randint(0,self.width)))
-		self.map[(self.height/2,0)] = ']-' # the door
+		self.map[(self.height/2-1,0)] = '| ' # the door
+		self.map[(self.height/2,0)] = '| ' # the door
+
+		self.emptySpaces = []
+		startPoint = (self.height/2,0)
+		for point,value in self.map.iteritems():
+			if point != startPoint and value == '  ':
+				self.emptySpaces.append(point)
+		random.shuffle(self.emptySpaces)
 
 	def __iter__(self):
 		return self.map.iteritems()
@@ -62,14 +72,8 @@ class Map:
 		return ((top,left),(bottom,right))
 
 	def generate(self):
-		'''Generate a dungeon'''
+		'''Generate a maze'''
 		start = (self.height/2,0) # this is where the door will be
-#		tl,br = self.generateRoom(start)
-#		edge = self.randomEdge(tl,br)
-#		if not edge:
-#			return
-
-		# make a maze
 		passages = [start]
 
 		while passages:
@@ -90,14 +94,16 @@ class Map:
 				if self.map[wall] != '  ' and wall not in passages:
 					passages.append(wall) # branch out from this passage
 
-	def spawnItems(items):
-		pass
+	def placeItem(self,item):
+		if self.emptySpaces:
+			point = self.emptySpaces.pop()
+			self.items[point] = item['gfx']
 
 class Game:
 	def __init__(self,name='Player 2'):
 		self.name = name
 		self.map = Map((40,20))
-		self.playerLocation = (self.map.width/2, self.map.height/2)
+		self.playerLocation = (self.map.height/2,1)
 		self.inventory = []
 		self.lastMove = 'n'
 		self.loadItems()
@@ -105,9 +111,14 @@ class Game:
 	def loadItems(self):
 		f = data.load('items2.json')
 		items = json.load(f)
-		self.items = items['items']
+		self.items = {}
 		self.combinations = {}
 		self.interactions = {}
+		for i in items['items']:
+			if i['available']:
+				self.items[i['name']] = i
+				self.map.placeItem(i)
+	
 		for i in items['combinations']:
 			self.combinations[frozenset(i['items'])] = i['product']
 
@@ -123,81 +134,131 @@ class Game:
 	def drop(item):
 		pass
 
-	def theOtherWay(self,direction):
-		if direction.lower() in ('n','north','up','that way'):
-			return 's'
-		elif direction.lower() in ('s','south','down','this way'):
-			return 'n'
-		elif direction.lower() in ('e','right','east'):
-			return 'w'
-		elif direction.lower() in ('w','left','west'):
-			return 'e'
-
-	def move(direction):
-		if direction == 'forward':
-			direction = self.lastMove
-		elif direction == 'backward':
-			direction = self.theOtherWay(self.lastMove)
-		if direction.lower() in ('n','north','up','that way'):
-			pass
-		elif direction.lower() in ('s','south','down','this way'):
-			pass
-		elif direction.lower() in ('e','right','east'):
-			pass
-		elif direction.lower() in ('w','left','west'):
-			pass
-
-class Item():
-	def __init__(self,definition):
-		self.name = definition['name']
-		self.description = definition['description']
-		self.gfx = definition['gfx']
-
 class Console:
 	def __init__(self,screen):
+		self.mode = 'insert'
 		self.screen = screen
-		self.pad = curses.newpad(100,100)
+		self.textwin = curses.newwin(1,78,21,1)
+		self.outputwin = curses.newwin(3,80,23,0)
+		textpad.rectangle(self.screen,0,0,20,80)
+		textpad.rectangle(self.screen,20,0,22,80)
+		self.pad = curses.newpad(20,80)
+		self.textpad = textpad.Textbox(self.textwin)
+		self.game = Game()
+		self.output = 'bla'
 		self.redraw()
 	
 	def redraw(self):
-		# Draw the map
-		for y in range(0,100):
-			for x in range(0,100):
-				try:
-					self.pad.addch(y,x, ord('a')+(x*x+y*y)%26)
-				except:
-					pass
+		if self.mode == 'insert':
+			curses.curs_set(1)
+		else:
+			curses.curs_set(0)
+		for k,v in self.game.map:
+			y,x = k
+
+			if k in self.game.map.items:
+				v = self.game.map.items[k]
+
+			v1 = v[0]
+			v2 = ' '
+			if len(v)>1:
+				v2 = v[1]
+			try:
+				self.pad.addch(y,x*2, ord(v1))
+			except: pass
+			try:
+				self.pad.addch(y,x*2+1, ord(v2))
+			except: pass
+
+		# draw player over the top of everything else
+		y,x = self.game.playerLocation
+		try:
+			self.pad.addch(y,x*2,   ord('/'))
+		except:
+			pass
+		try:
+			self.pad.addch(y,x*2+1,   ord('\\'))
+		except:
+			pass
+		try:
+			self.pad.addch(y-1,x*2,   ord('o'))
+		except:
+			pass
+		try:
+			self.pad.addch(y-1,x*2+1,   ord('_'))
+		except:
+			pass
+		try:
+			self.pad.addch(y-1,x*2-1,   ord('_'))
+		except:
+			pass
 
 		# Show the area around the player
-		self.pad.refresh(0,0, 5,5,20,75)
+		self.outputwin.clear()
+		self.screen.addstr(23,0,self.output)
+		self.screen.addstr(23,len(self.output),' '*(80-len(self.output))) #hack because I don't know what im doing
+		self.pad.refresh(0,0, 1,1,18,78)
 		self.screen.refresh()
 
 	def run(self):
 		self.redraw()
 		while True:
-			c = self.screen.getch()
-			if c == ord('q'): break
+			if self.mode == 'insert':
+				command = self.textpad.edit()
+				self.doCommand(command)
+				self.mode = 'move'
+			else:
+				c = self.screen.getch()
+				if c == ord('q'): break
+				elif c == curses.KEY_LEFT:
+					left = (self.game.playerLocation[0],self.game.playerLocation[1]-1)
+					if left[1] >= 0 and self.game.map.map[left] == '  ':
+						self.game.playerLocation = left
+				elif c == curses.KEY_RIGHT:
+					right = (self.game.playerLocation[0],self.game.playerLocation[1]+1)
+					if right[1] < self.game.map.width and self.game.map.map[right] == '  ':
+						self.game.playerLocation = right
+				elif c == curses.KEY_UP:
+					up = (self.game.playerLocation[0]-1,self.game.playerLocation[1])
+					if up[0] >= 0 and self.game.map.map[up] == '  ':
+						self.game.playerLocation = up
+				elif c == curses.KEY_DOWN:
+					down = (self.game.playerLocation[0]+1,self.game.playerLocation[1])
+					if down[0] < self.game.map.height and self.game.map.map[down] == '  ':
+						self.game.playerLocation = down
+				elif c == ord('i') or c == ord('I'):
+					self.mode = 'insert'
 			self.redraw()
+
+	def doCommand(self,command):
+		self.output = ''
+		words = command.split()
+		if not words:
+			return
+		if words[0] == 'help':
+			self.output = 'No help is available'
+		elif words[0] == 'move':
+			self.mode = 'move'
+		pass
 
 def show(screen):
 	c = Console(screen)
 	c.run()
 
 def main():
-	print "Hello from your game's main()"
 
 	game = Game()
-	print str(game.map)
-	print '\nItems:'
-	for i in game.items:
-		print str(i)
+	#	print str(game.map)
+	#	print '\nItems:'
+	#	for i in game.items:
+	#		print str(i)
+	#
+	#	print '\nCombinations'
+	#	for i,j in game.combinations.iteritems():
+	#		print str(i) + ' -> ' + str(j)
+	#
+	#	print '\nInteractions'
+	#	for i,j in game.interactions.iteritems():
+	#		print str(i) + ' -> ' + str(j)
 
-	print '\nCombinations'
-	for i,j in game.combinations.iteritems():
-		print str(i) + ' -> ' + str(j)
-
-	print '\nInteractions'
-	for i,j in game.interactions.iteritems():
-		print str(i) + ' -> ' + str(j)
-
-	#curses.wrapper(show)
+	curses.wrapper(show)
