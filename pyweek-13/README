@@ -1,0 +1,26 @@
+ENTRY NAME
+=======================
+
+Entry in PyWeek ###  <http://www.pyweek.org/##/>
+URL: http://pyweek.org/e/SHORTNAME
+Team:
+Members:
+License:
+
+
+Running the Game
+----------------
+
+On Windows or Mac OS X, locate the "run_game.py" file and double-click it.
+
+Othewise open a terminal / console and "cd" to the game directory and run:
+
+	python run_game.py
+
+
+How to Play the Game
+--------------------
+
+Move the cursor around the screen with the mouse.
+
+Press the left mouse button to fire the ducks.
