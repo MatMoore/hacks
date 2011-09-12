@@ -3,6 +3,7 @@ import sys
 import event
 import scene
 import key
+import level
 from logging import info,debug,error
 config.setupLogging()
 
@@ -20,7 +21,6 @@ def pygame_init():
 	pygame.init()
 	pygame.font.init()
 	pygame.display.set_caption(config.get('Project','name'))
-	pygame.display.set_mode((config.getint('Graphics','width'), config.getint('Graphics', 'height')))
 
 def main():
 	'''Start the game'''
@@ -33,10 +33,8 @@ def main():
 	controller = key.SimpleInput(events) # Map keys to meaningful input
 
 	# Pass events through to the active scene
-	scene.Director.mediate('input_changed')
-	scene.Director.mediate('tick')
-	scene.Director.mediate('draw')
-	director = scene.Director()
+	director = scene.Director(clock, controller)
+	director.current = level.Level('test.tmx', config.getint('Graphics','width'), config.getint('Graphics', 'height'))
 
 	# Run
 	try:
