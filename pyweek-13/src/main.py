@@ -1,11 +1,11 @@
 import config
+config.setupLogging()
 import sys
 import event
 import scene
 import key
 import level
 from logging import info,debug,error
-config.setupLogging()
 
 try:
 	import pygame

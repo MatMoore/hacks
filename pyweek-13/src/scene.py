@@ -1,5 +1,6 @@
 import config
 import pygame
+from logging import info,debug,error
 
 class Director(object):
 	'''Control the currently visible scene'''
@@ -21,10 +22,11 @@ class Director(object):
 	def input_changed(self, *args, **kwargs):
 		self.direct('input_changed', *args, **kwargs)
 
-	def direct(self, f, *args, **kwargs):
+	def direct(self, f_name, *args, **kwargs):
 		'''Do stuff with the current scene'''
 		if self.current:
 			try:
-				getattr(self.current, f)(*args, **kwargs)
+				f = getattr(self.current, f_name)
 			except AttributeError:
-				pass
+				return
+			f(*args, **kwargs)
