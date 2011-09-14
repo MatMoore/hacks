@@ -4,6 +4,7 @@ import resource
 import os
 import pygame
 from logging import info,debug,error
+from util import debug1
 
 def level_path(filename):
 	return os.path.join(resource.data_path(), 'levels', filename)
@@ -28,20 +29,37 @@ class Level(object):
 		resources.load(world_map)
 		self.renderer = RendererPygame(resources)
 		self.renderer.set_camera_position_and_size(0, 0, screen_width, screen_height)
+		self.renderer.set_camera_margin(0, 0, 0, 0)
 		self.screen_width = screen_width
 		self.screen_height = screen_height
 
 	def tick(self, ms):
-		self.camera.left = self.player.rect.left
-		self.camera.top = self.player.rect.top
+		self.camera.center = self.player.rect.center
 
 		# Constrain camera to the level
 		self.camera.right = min(self.camera.right, self.screen_width)
 		self.camera.bottom = min(self.camera.right, self.screen_height)
 		self.camera.left = max(self.camera.left, 0)
 		self.camera.top = max(self.camera.top, 0)
-
 		self.renderer.set_camera_position(self.camera.centerx, self.camera.centery)
+		self.renderer.set_camera_margin(0, 0, 0, 0) # something is resetting the margin to 16px each frame... grrr
+
+	def debug(self):
+		debug('camera %s %s', self.camera.topleft,self.camera.bottomright)
+		sprite_layers = self.renderer.get_layers_from_map()
+		for sprite_layer in sprite_layers:
+			debug('layer %s: margin %s, cam rect %s, render cam rect %s, paralax factor %s,%s',
+					id(sprite_layer),
+					self.renderer._margin,
+					self.renderer._cam_rect,
+					self.renderer._render_cam_rect,
+					sprite_layer.paralax_factor_x,
+					sprite_layer.paralax_factor_y)
+
+	def screen_coordinates(self, pos):
+		'''Convert world coordinates into screen coordinates'''
+		x,y = pos
+		return (x-self.camera.left, y-self.camera.top)
 
 	def draw(self, screen):
 		screen.fill((255,255,255))
@@ -52,7 +70,10 @@ class Level(object):
 			else:
 				self.renderer.render_layer(screen, sprite_layer)
 
-		screen.blit(self.player.image, (self.player.rect.left - self.camera.left, self.player.rect.top - self.camera.top))
+		player_pos = self.screen_coordinates(self.player.rect.topleft)
+		debug1('playerpos=%s', player_pos)
+
+		screen.blit(self.player.image, player_pos)
 
 		pygame.display.flip()
 

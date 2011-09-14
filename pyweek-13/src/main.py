@@ -30,16 +30,21 @@ def main():
 	clock = Clock() # Clock events drive everything
 	events = event.PygameEvent(clock) # Poll pygame event queue
 	events.subscribe(check_game_quit) # Listen for game quit
+	#events.subscribe(log_mouse_pos)
 	controller = key.SimpleInput(events) # Map keys to meaningful input
 
 	# Pass events through to the active scene
 	director = scene.Director(clock, controller)
 	director.current = level.Level('test.tmx', config.getint('Graphics','width'), config.getint('Graphics', 'height'))
 
+	pauseScreen = PauseScreen(director)
+	events.subscribe(pauseScreen.pause)
+
 	# Run
 	try:
 		while True:
 			clock.run()
+			#while True:pass
 	except GameQuit:
 		info('Goodbye')
 
@@ -52,3 +57,30 @@ class Clock(event.Publisher):
 def check_game_quit(event_type, *args, **kwargs):
 	'''Throw an exception on game quit'''
 	if event_type == pygame.QUIT: raise GameQuit()
+
+def log_mouse_pos(event_type, event, *args, **kwargs):
+	'''Log mouse position'''
+	if event_type == pygame.MOUSEMOTION:
+		debug(event.pos)
+
+class PauseScreen(object):
+	def __init__(self, director):
+		self.paused = False
+		self.prev = None
+		self.director = director
+	
+	def pause(self, event_type, event, *args, **kwargs):
+		'''Pause game'''
+		if event_type == pygame.MOUSEBUTTONDOWN:
+			if self.paused:
+				info('Unpaused')
+				self.director.current = self.prev
+			else:
+				info('Paused')
+				self.prev = self.director.current
+				self.director.current = self
+				try:
+					self.prev.debug()
+				except: pass
+			self.paused = not self.paused
+
