@@ -10,6 +10,17 @@ def level_path(filename):
 	return os.path.join(resource.data_path(), 'levels', filename)
 
 class Player(pygame.sprite.Sprite):
+	'''
+	Player is max 32x32 px whereas tiles are 16px
+	For collision, check these points
+	x--x--x
+	|     |
+	x     x
+	|     |
+	x--x--x
+	Need to ensure that the player cannot move more than 16px per frame
+	to avoid tunnelling
+	'''
 	def __init__(self, pos):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = resource.load_image('player000.png')
@@ -18,6 +29,32 @@ class Player(pygame.sprite.Sprite):
 
 		# Position within the level
 		self.rect = pygame.Rect(pos, self.image.get_size())
+
+		# todo: shrink rect to fit
+
+	@property
+	def bottom_collide_pts(self):
+		y = self.rect.bottom
+		for x in range(self.rect.left, self.rect.right+1, 16):
+			yield (x,y)
+
+	@property
+	def top_collide_pts(self):
+		y = self.rect.top
+		for x in range(self.rect.left, self.rect.right+1, 16):
+			yield (x,y)
+
+	@property
+	def left_collide_pts(self):
+		x = self.rect.left
+		for y in range(self.rect.top, self.rect.bottom+1, 16):
+			yield (x,y)
+
+	@property
+	def right_collide_pts(self):
+		x = self.rect.right
+		for y in range(self.rect.top, self.rect.bottom+1, 16):
+			yield (x,y)
 
 	def set_direction(self, x, y):
 		x*= self.speed
@@ -44,11 +81,11 @@ class Level(object):
 	def __init__(self, filename, screen_width, screen_height):
 		object.__init__(self)
 		filename = level_path(filename)
-		self.player = Player((0, 0))
-		self.camera = pygame.Rect((0,0), (screen_width, screen_height))
-		world_map = tiledtmxloader.TileMapParser().parse_decode(filename)
+		self.player = Player((50, 50))
+		self.camera = pygame.Rect((50,50), (screen_width, screen_height))
+		self.world_map = tiledtmxloader.TileMapParser().parse_decode(filename)
 		resources = ResourceLoaderPygame()
-		resources.load(world_map)
+		resources.load(self.world_map)
 		self.renderer = RendererPygame(resources)
 		self.renderer.set_camera_position_and_size(0, 0, screen_width, screen_height)
 		self.renderer.set_camera_margin(0, 0, 0, 0)
@@ -61,6 +98,14 @@ class Level(object):
 		# check each for stuff
 		for tile in tiles:
 			sprites=pick_layers_sprites()
+	
+	def get_tile(self, pos, layer):
+		x,y = pos
+		x /= 16
+		y /= 16
+		tile = layer.decoded_content[x + y*layer.width]
+		debug('tile=%d', tile)
+		return tile
 
 	def input_changed(self, action, state):
 		x = 0
@@ -77,6 +122,18 @@ class Level(object):
 
 	def tick(self, ms):
 		self.player.move(ms)
+
+		# Collisions
+		for layer in self.world_map.layers:
+			for pos in self.player.bottom_collide_pts:
+				debug('testing %s',pos)
+				if self.get_tile(pos, layer):
+					# Move above this tile.
+					# This assumes we are not completely overlapping a tile.
+					# This should never happen if we limit movement to < 16px per frame
+					self.player.rect.bottom -= self.player.rect.bottom % 16
+
+		# center camera on player
 		self.camera.center = self.player.rect.center
 
 		# Constrain camera to the level
