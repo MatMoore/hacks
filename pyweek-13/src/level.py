@@ -43,19 +43,19 @@ class Player(pygame.sprite.Sprite):
 	@property
 	def top_collide_pts(self):
 		y = self.rect.top
-		for x in range(self.rect.left, self.rect.right+1, 16):
+		for x in range(self.rect.left+16, self.rect.right, 16):
 			yield (x,y)
 
 	@property
 	def left_collide_pts(self):
 		x = self.rect.left
-		for y in range(self.rect.top, self.rect.bottom+1, 16):
+		for y in range(self.rect.top+16, self.rect.bottom, 16):
 			yield (x,y)
 
 	@property
 	def right_collide_pts(self):
 		x = self.rect.right
-		for y in range(self.rect.top, self.rect.bottom+1, 16):
+		for y in range(self.rect.top+16, self.rect.bottom, 16):
 			yield (x,y)
 
 	def set_direction(self, x):
@@ -144,10 +144,7 @@ class Level(object):
 				else:
 					grounded = False
 
-			if grounded:
-				top_points = [self.player.rect.midtop]
-			else:
-				top_points = self.player.top_collide_pts
+			top_points = self.player.top_collide_pts
 			for pos in top_points:
 				if self.get_tile(pos, layer):
 					debug('collide top %s', pos)
@@ -155,10 +152,7 @@ class Level(object):
 					self.player.rect.top -= self.player.rect.top % 16 # move to the top of the tile
 					break
 
-			if grounded:
-				left_points = [self.player.rect.midleft]
-			else:
-				left_points = self.player.left_collide_pts
+			left_points = self.player.left_collide_pts
 			for pos in left_points:
 				if self.get_tile(pos, layer):
 					debug('collide left %s', pos)
@@ -166,10 +160,7 @@ class Level(object):
 					self.player.rect.left -= self.player.rect.left % 16
 					break
 
-			if grounded:
-				right_points = [self.player.rect.midright]
-			else:
-				right_points = self.player.right_collide_pts
+			right_points = self.player.right_collide_pts
 			for pos in right_points:
 				if self.get_tile(pos, layer):
 					debug('collide right %s', pos)
