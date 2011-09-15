@@ -2,6 +2,7 @@ from event import Publisher
 import pygame
 import config
 from copy import copy
+from logging import info,debug,error
 
 class SimpleInput(Publisher):
 	'''Simple input device using keyboard.'''
@@ -20,7 +21,8 @@ class SimpleInput(Publisher):
 
 		self.keys = {}
 		for key in ('up','down','left','right','action1','action2'):
-			self.keys[key] = config.get('Keys', key)
+			self.keys[config.getint('Keys', key)] = key
+		debug('key mapping = %s', self.keys)
 
 	def process_pygame(self, event_type, event, *args, **kwargs):
 		try:

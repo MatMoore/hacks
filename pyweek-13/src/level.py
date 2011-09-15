@@ -4,7 +4,7 @@ import resource
 import os
 import pygame
 from logging import info,debug,error
-from util import debug1
+from util import debug1,throttle
 
 def level_path(filename):
 	return os.path.join(resource.data_path(), 'levels', filename)
@@ -13,9 +13,31 @@ class Player(pygame.sprite.Sprite):
 	def __init__(self, pos):
 		pygame.sprite.Sprite.__init__(self)
 		self.image = resource.load_image('player000.png')
+		self.speed = 100.0
+		self.velocity = (0,0)
 
 		# Position within the level
 		self.rect = pygame.Rect(pos, self.image.get_size())
+
+	def set_direction(self, x, y):
+		x*= self.speed
+		y*= self.speed
+		self.velocity = (x,y)
+
+	def move(self, ms):
+		s = ms/1000.0
+		dx, dy = self.velocity
+		dx *= s
+		dy *= s
+		self.rect.left += dx
+		self.rect.top += dy
+		self.debug()
+
+	@throttle(50)
+	def debug(self):
+		debug('position = %s', self.rect)
+		debug('velocity = %s', self.velocity)
+
 
 class Level(object):
 	'''This object is responsible for drawing the level and everything in it'''
@@ -33,7 +55,28 @@ class Level(object):
 		self.screen_width = screen_width
 		self.screen_height = screen_height
 
+	def collide_wall(self):
+		# get player collision rect
+		# divide up into tiles
+		# check each for stuff
+		for tile in tiles:
+			sprites=pick_layers_sprites()
+
+	def input_changed(self, action, state):
+		x = 0
+		y = 0
+		if state['up']:
+			y = -1
+		elif state['down']:
+			y = 1
+		if state['left']:
+			x = -1
+		elif state['right']:
+			x = 1
+		self.player.set_direction(x,y)
+
 	def tick(self, ms):
+		self.player.move(ms)
 		self.camera.center = self.player.rect.center
 
 		# Constrain camera to the level

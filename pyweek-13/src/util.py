@@ -1,4 +1,5 @@
 from logging import debug
+from itertools import cycle
 import traceback
 
 def memoize(f):
@@ -26,5 +27,16 @@ def run_once(f):
 			f(*args, **kwargs)
 			run.add(stack)
 	return new
+
+def throttle(n):
+	'''Only allow 1 in every n function calls'''
+	def wrap(f):
+		allowed = cycle((i == 0 for i in xrange(n)))
+		def new(*args, **kwargs):
+			if allowed.next():
+				f(*args, **kwargs)
+		return new
+	return wrap
+
 
 debug1 = run_once(debug)

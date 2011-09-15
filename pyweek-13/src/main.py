@@ -6,6 +6,7 @@ import scene
 import key
 import level
 from logging import info,debug,error
+from util import throttle
 
 try:
 	import pygame
@@ -50,9 +51,20 @@ def main():
 
 class Clock(event.Publisher):
 	'''Send the time since the last update to all subscribers'''
+	def __init__(self):
+		event.Publisher.__init__(self)
+		self.source = pygame.time.Clock()
+
 	def run(self):
-		ms = pygame.time.get_ticks()
+		ms = self.source.tick()
 		self.publish(ms)
+		self.log_fps()
+
+	@throttle(50)
+	def log_fps(self):
+		fps = self.source.get_fps()
+		if fps < 100:
+			debug('fps: %s', fps)
 
 def check_game_quit(event_type, *args, **kwargs):
 	'''Throw an exception on game quit'''
