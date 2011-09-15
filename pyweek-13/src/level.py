@@ -118,7 +118,6 @@ class Level(object):
 		x /= 16
 		y /= 16
 		tile = layer.decoded_content[x + y*layer.width]
-		debug('tile=%d', tile)
 		return tile
 
 	def input_changed(self, action, state):
@@ -135,12 +134,47 @@ class Level(object):
 		# Collisions
 		for layer in self.world_map.layers:
 			for pos in self.player.bottom_collide_pts:
-				debug('testing %s',pos)
 				if self.get_tile(pos, layer):
 					# Move above this tile.
 					# This assumes we are not completely overlapping a tile.
 					# This should never happen if we limit movement to < 16px per frame
-					self.player.rect.bottom -= self.player.rect.bottom % 16
+					self.player.rect.bottom -= (self.player.rect.bottom+1) % 16
+					grounded = True
+					break
+				else:
+					grounded = False
+
+			if grounded:
+				top_points = [self.player.rect.midtop]
+			else:
+				top_points = self.player.top_collide_pts
+			for pos in top_points:
+				if self.get_tile(pos, layer):
+					debug('collide top %s', pos)
+					self.player.rect.top += 16 # move one tile down
+					self.player.rect.top -= self.player.rect.top % 16 # move to the top of the tile
+					break
+
+			if grounded:
+				left_points = [self.player.rect.midleft]
+			else:
+				left_points = self.player.left_collide_pts
+			for pos in left_points:
+				if self.get_tile(pos, layer):
+					debug('collide left %s', pos)
+					self.player.rect.left += 16
+					self.player.rect.left -= self.player.rect.left % 16
+					break
+
+			if grounded:
+				right_points = [self.player.rect.midright]
+			else:
+				right_points = self.player.right_collide_pts
+			for pos in right_points:
+				if self.get_tile(pos, layer):
+					debug('collide right %s', pos)
+					self.player.rect.right -= (self.player.rect.right +1) % 16
+					break
 
 		# center camera on player
 		self.camera.center = self.player.rect.center
