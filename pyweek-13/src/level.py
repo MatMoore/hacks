@@ -5,6 +5,8 @@ import os
 import pygame
 from logging import info,debug,error
 from util import debug1,throttle
+import config
+from math import floor
 
 def level_path(filename):
 	return os.path.join(resource.data_path(), 'levels', filename)
@@ -56,16 +58,28 @@ class Player(pygame.sprite.Sprite):
 		for y in range(self.rect.top, self.rect.bottom+1, 16):
 			yield (x,y)
 
-	def set_direction(self, x, y):
+	def set_direction(self, x):
 		x*= self.speed
-		y*= self.speed
-		self.velocity = (x,y)
+		self.velocity = (x, self.velocity[1])
 
 	def move(self, ms):
 		s = ms/1000.0
 		dx, dy = self.velocity
+
+		# obey gravity
+		dy += config.getfloat('Physics','gravity') * s
+		dy = min(config.getfloat('Physics','terminal_velocity'), dy)
+		self.velocity = dx,dy
+
 		dx *= s
 		dy *= s
+
+		# Hard limit on speed
+		v = (dx **2 + dy**2) ** 0.5
+		if v > 15:
+			dx = floor(dx * 15.0 / v)
+			dy = floor(dy * 15.0 / v)
+
 		self.rect.left += dx
 		self.rect.top += dy
 		self.debug()
@@ -109,16 +123,11 @@ class Level(object):
 
 	def input_changed(self, action, state):
 		x = 0
-		y = 0
-		if state['up']:
-			y = -1
-		elif state['down']:
-			y = 1
 		if state['left']:
 			x = -1
 		elif state['right']:
 			x = 1
-		self.player.set_direction(x,y)
+		self.player.set_direction(x)
 
 	def tick(self, ms):
 		self.player.move(ms)
