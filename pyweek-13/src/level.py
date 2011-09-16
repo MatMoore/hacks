@@ -207,8 +207,8 @@ class Level(object):
 		self.camera.center = self.player.rect.center
 
 		# Constrain camera to the level
-		self.camera.right = min(self.camera.right, self.screen_width)
-		self.camera.bottom = min(self.camera.right, self.screen_height)
+		self.camera.right = min(self.camera.right, self.world_map.pixel_width)
+		self.camera.bottom = min(self.camera.right, self.world_map.pixel_height)
 		self.camera.left = max(self.camera.left, 0)
 		self.camera.top = max(self.camera.top, 0)
 		self.renderer.set_camera_position(self.camera.centerx, self.camera.centery)
