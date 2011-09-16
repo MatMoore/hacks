@@ -14,12 +14,6 @@ def level_path(filename):
 class Player(pygame.sprite.Sprite):
 	'''
 	Player is max 32x32 px whereas tiles are 16px
-	For collision, check these points
-	x--x--x
-	|     |
-	x     x
-	|     |
-	x--x--x
 	Need to ensure that the player cannot move more than 16px per frame
 	to avoid tunnelling
 	'''
@@ -133,40 +127,7 @@ class Level(object):
 		self.jump_timer = JumpTimer()
 		self.input_state = None
 
-	def collide_wall(self):
-		# get player collision rect
-		# divide up into tiles
-		# check each for stuff
-		for tile in tiles:
-			sprites=pick_layers_sprites()
-	
-	def get_tile(self, pos, layer):
-		x,y = pos
-		x /= 16
-		y /= 16
-		tile = layer.decoded_content[x + y*layer.width]
-		return tile
-
-	def input_changed(self, action, state):
-		x = 0
-		if state['left']:
-			x = -1
-		elif state['right']:
-			x = 1
-		self.player.set_direction(x)
-
-		self.input_state = state
-
-	def tick(self, ms):
-		self.player.move(ms)
-
-		# Jump
-		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
-			debug('jump')
-			self.jump_timer.unset()
-			self.player.velocity = (self.player.velocity[0], -config.getfloat('Physics', 'jump_speed'))
-
-		# Collisions
+	def collide_walls(self, ms):
 		grounded = False
 		for layer in self.world_map.layers:
 			for pos in self.player.bottom_collide_pts:
@@ -202,14 +163,42 @@ class Level(object):
 					self.player.rect.right -= (self.player.collide_rect.right ) % 16
 					break
 
-
 		# Update the jump timer which determines if it's possible to jump
 		if grounded:
 			self.jump_timer.set()
 		else:
 			self.jump_timer.update(ms)
+	
+	def get_tile(self, pos, layer):
+		x,y = pos
+		x /= 16
+		y /= 16
+		tile = layer.decoded_content[x + y*layer.width]
+		return tile
 
-		# center camera on player
+	def input_changed(self, action, state):
+		x = 0
+		if state['left']:
+			x = -1
+		elif state['right']:
+			x = 1
+		self.player.set_direction(x)
+
+		self.input_state = state
+
+	def tick(self, ms):
+		self.player.move(ms)
+
+		# Check for jump every frame, in case user is holding down the button
+		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
+			debug('jump')
+			self.jump_timer.unset()
+			self.player.velocity = (self.player.velocity[0], -config.getfloat('Physics', 'jump_speed'))
+
+		# Handle collisions with walls/platforms
+		self.collide_walls(ms)
+
+		# Center camera on player
 		self.camera.center = self.player.rect.center
 
 		# Constrain camera to the level

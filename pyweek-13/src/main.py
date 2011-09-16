@@ -36,7 +36,7 @@ def main():
 
 	# Pass events through to the active scene
 	director = scene.Director(clock, controller)
-	director.current = level.Level('test.tmx', config.getint('Graphics','width'), config.getint('Graphics', 'height'))
+	director.current = level.Level('level1.tmx', config.getint('Graphics','width'), config.getint('Graphics', 'height'))
 
 	pauseScreen = PauseScreen(director)
 	events.subscribe(pauseScreen.pause)
