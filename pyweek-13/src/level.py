@@ -26,20 +26,50 @@ class Player(pygame.sprite.Sprite):
 	Need to ensure that the player cannot move more than 16px per frame
 	to avoid tunnelling
 	'''
+	tall = 4
+	fat = 2
+	scary = 1
 	def __init__(self, pos):
 		pygame.sprite.Sprite.__init__(self)
-		self.image = resource.load_image('player000.png')
+		self.images = {}
+		for i in range(8):
+			n = str((i & 4) / 4)
+			n += str((i & 2) / 2)
+			n += str(i & 1)
+			print n
+			self.images[i] = resource.load_image('player'+n+'.png')
 		self.speed = 100.0
 		self.velocity = (0,0)
+		self.state = 0
 
 		# Position within the level
 		self.rect = pygame.Rect(pos, self.image.get_size())
 
 	@property
+	def jump_speed(self):
+		if self.tall & self.state:
+			speed = config.getfloat('Physics', 'tall_jump_speed')
+		else:
+			speed = config.getfloat('Physics', 'jump_speed')
+		return speed
+
+	@property
+	def image(self):
+		return self.images[self.state]
+
+	@property
 	def collide_rect(self):
-		rect = self.rect.move((8,16))
+		tall = self.state & self.tall
+		if tall:
+			height=32
+			dy=0
+		else:
+			height=16
+			dy=16
+
+		rect = self.rect.move((8,dy))
 		rect.width=16
-		rect.height=16
+		rect.height=height
 		return rect
 
 	@property
@@ -66,6 +96,9 @@ class Player(pygame.sprite.Sprite):
 		for y in range(self.collide_rect.top+8, self.collide_rect.bottom, 16):
 			yield (x,y)
 
+	def start_jump(self):
+		self.velocity = (self.velocity[0], -self.jump_speed)
+
 	def set_direction(self, x):
 		x*= self.speed
 		self.velocity = (x, self.velocity[1])
@@ -91,6 +124,14 @@ class Player(pygame.sprite.Sprite):
 		self.rect.left += dx
 		self.rect.top += dy
 		self.debug()
+
+	def grow(self):
+		debug('growing player')
+		self.state = self.state | self.tall
+
+	def shrink(self):
+		debug('shrinking player')
+		self.state = self.state & (self.scary | self.fat)
 
 	@throttle(50)
 	def debug(self):
@@ -140,19 +181,34 @@ class Level(object):
 		self.player.rect.topleft=(50,50)
 		self.player.velocity = (0,0)
 
+	def tile_magic(self, tile):
+		'''Handle special tiles'''
+		#debug(tile)
+		for special_tile in ('grow', 'shrink'):
+			if config.getint('Tiles', special_tile) == tile:
+				getattr(self.player, special_tile)()
+				return
+
 	def collide_walls(self, ms):
 		grounded = False
+
 		for layer in self.world_map.layers:
 			if layer.is_object_group:
 				continue
+
+			floor_tile = None
 			for pos in self.player.bottom_collide_pts:
-				if self.get_tile(pos, layer):
+				tile = self.get_tile(pos, layer)
+				if tile:
 					# Move above this tile.
 					# This assumes we are not completely overlapping a tile.
 					# This should never happen if we limit movement to < 16px per frame
+					floor_tile = tile
 					self.player.rect.bottom -= (self.player.collide_rect.bottom) % 16
 					grounded = True
 					break
+			if floor_tile:
+				self.tile_magic(floor_tile)
 
 			top_points = self.player.top_collide_pts
 			for pos in top_points:
@@ -184,7 +240,7 @@ class Level(object):
 			self.jump_timer.set()
 		else:
 			self.jump_timer.update(ms)
-	
+
 	def get_tile(self, pos, layer):
 		x,y = pos
 		if x < 0 or y < 0  or x >= layer.pixel_width or y >= layer.pixel_height:
@@ -216,7 +272,7 @@ class Level(object):
 		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
 			debug('jump')
 			self.jump_timer.unset()
-			self.player.velocity = (self.player.velocity[0], -config.getfloat('Physics', 'jump_speed'))
+			self.player.start_jump()
 
 		# Handle collisions with walls/platforms
 		try:
@@ -273,18 +329,22 @@ class Level(object):
 		goffx = obj_group.x
 		goffy = obj_group.y
 		for map_obj in obj_group.objects:
+			debug1('object at %d,%d', map_obj.x, map_obj.y)
+			debug1('source %s, image %s', map_obj.image_source, map_obj.image)
 			size = (map_obj.width, map_obj.height)
+			if size == (0, 0):
+				size = (16,16)
 			if map_obj.image_source:
 				surf = pygame.image.load(map_obj.image_source)
 				surf = pygame.transform.scale(surf, size)
 				screen.blit(surf, (goffx + map_obj.x - cam_world_pos_x, \
                           goffy + map_obj.y - cam_world_pos_y))
-			#else:
-			#	r = pygame.Rect(\
-			#		(goffx + map_obj.x - cam_world_pos_x, \
-			#		goffy + map_obj.y - cam_world_pos_y),\
-      #             size)
-			#	pygame.draw.rect(screen, (255, 255, 0), r, 1)
+			else:
+				r = pygame.Rect(\
+					(goffx + map_obj.x - cam_world_pos_x, \
+					goffy + map_obj.y - cam_world_pos_y),\
+                   size)
+				pygame.draw.rect(screen, (255, 255, 0), r, 1)
 			#	text_img = font.render(map_obj.name, 1, (255, 255, 0))
 			#	screen.blit(text_img, r.move(1, 2))
 

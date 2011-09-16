@@ -3,24 +3,9 @@
  <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16">
   <image source="../tileset.bmp" trans="ffffff" width="80" height="32"/>
  </tileset>
- <tileset firstgid="11" name="tileset" tilewidth="16" tileheight="16">
-  <image source="../tileset.bmp" trans="ffffff" width="80" height="32"/>
- </tileset>
  <layer name="Tile Layer 1" width="30" height="50">
   <data encoding="base64" compression="zlib">
-   eJztldsOgCAMQ+X/f9pXg8Ja1jEINiExwji7Oa/rrTJhoULPogyUz3ARu9H7VucqziG1K4AN01uePHt6XVlfJbdl2+MiYriWHcttxcPmqdeTaA2QPSUXnQfePKPK5Cr7OYI7MseQXhrtHy/XslWK+e5UPNYvFZedNSN3ePxdjRshpd9eH7K4s2Nn+977vt6frVO5kTWt47LORDxncp/sLG50fVu5jtZp3C/mz41lRXKt/+vuXGuG7M61ZqGCi8zc3bgZ6waQ4wHo
+   eJzdmNsOxCAIRNts//+b97WxgMMM0sskJq0Cx4qwyW7bVXvDQIXaVvMruGy8N3CROTTeYQyE68VDuajdbryzd43dn+VXybX8vDPP1DDD9fyy3OibovUu7uiHcpX+puRX6a3V+UVVnd+ncGf3LIqv3p9Mr0C5qJh6RhnZ+lFjjXbZs2dyweYdkdfXlPvGclE/Joa696q6qeAytZf1ndUrw53VurI2znfozOrkenu4g8vkJjPvMS2bFc8j+6tc5DfAW1PnLe5qzbhV3xhxV55tpKx9law7pYynsBBuZMOI2fdd3Ap1cs+xMlx1b1FdZ2IivWIF1xPih3J/xkD8rP8rD9D3D+s+AoY=
   </data>
  </layer>
- <objectgroup name="Object Layer 1" width="30" height="50">
-  <object gid="14" x="176" y="96"/>
-  <object gid="14" x="192" y="96"/>
-  <object gid="14" x="208" y="96"/>
-  <object type="tallsludge" gid="13" x="16" y="800"/>
-  <object type="tallsludge" gid="13" x="32" y="800"/>
-  <object type="tallsludge" gid="13" x="48" y="800"/>
-  <object type="tallsludge" gid="13" x="64" y="800"/>
-  <object type="tallsludge" gid="13" x="80" y="800"/>
-  <object gid="14" x="176" y="800"/>
-  <object gid="14" x="192" y="800"/>
- </objectgroup>
 </map>
