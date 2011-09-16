@@ -36,7 +36,6 @@ class Player(pygame.sprite.Sprite):
 			n = str((i & 4) / 4)
 			n += str((i & 2) / 2)
 			n += str(i & 1)
-			print n
 			self.images[i] = resource.load_image('player'+n+'.png')
 		self.speed = 100.0
 		self.velocity = (0,0)
