@@ -38,5 +38,17 @@ def throttle(n):
 		return new
 	return wrap
 
+class Timer(object):
+	def __init__(self, period_ms):
+		self.period = period_ms
+		self.t = 0
+		object.__init__(self)
+
+	def check(self, ms):
+		self.t += ms
+		if self.t >= self.period:
+			self.t = 0
+			return True
+		return False
 
 debug1 = run_once(debug)

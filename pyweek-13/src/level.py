@@ -4,7 +4,7 @@ import resource
 import os
 import pygame
 from logging import info,debug,error
-from util import debug1,throttle
+from util import debug1,throttle,Timer
 import config
 from math import floor
 
@@ -37,7 +37,7 @@ class Player(pygame.sprite.Sprite):
 	@property
 	def bottom_collide_pts(self):
 		y = self.rect.bottom
-		for x in range(self.rect.left, self.rect.right+1, 16):
+		for x in range(self.rect.left+16, self.rect.right, 16):
 			yield (x,y)
 
 	@property
@@ -90,6 +90,26 @@ class Player(pygame.sprite.Sprite):
 		debug('velocity = %s', self.velocity)
 
 
+class JumpTimer(object):
+	def __init__(self):
+		object.__init__(self)
+		self.timer = None
+	
+	def set(self):
+		# Add a 100ms timer
+		self.timer = Timer(100)
+	
+	def update(self, ms):
+		# Remove timer when time runs out
+		if self.timer and self.timer.check(ms):
+			self.unset()
+
+	def jump_allowed(self):
+		return self.timer is not None
+
+	def unset(self):
+		self.timer = None
+
 class Level(object):
 	'''This object is responsible for drawing the level and everything in it'''
 	def __init__(self, filename, screen_width, screen_height):
@@ -105,6 +125,8 @@ class Level(object):
 		self.renderer.set_camera_margin(0, 0, 0, 0)
 		self.screen_width = screen_width
 		self.screen_height = screen_height
+		self.jump_timer = JumpTimer()
+		self.input_state = None
 
 	def collide_wall(self):
 		# get player collision rect
@@ -128,10 +150,19 @@ class Level(object):
 			x = 1
 		self.player.set_direction(x)
 
+		self.input_state = state
+
 	def tick(self, ms):
 		self.player.move(ms)
 
+		# Jump
+		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
+			debug('jump')
+			self.jump_timer.unset()
+			self.player.velocity = (self.player.velocity[0], -config.getfloat('Physics', 'jump_speed'))
+
 		# Collisions
+		grounded = False
 		for layer in self.world_map.layers:
 			for pos in self.player.bottom_collide_pts:
 				if self.get_tile(pos, layer):
@@ -141,8 +172,6 @@ class Level(object):
 					self.player.rect.bottom -= (self.player.rect.bottom+1) % 16
 					grounded = True
 					break
-				else:
-					grounded = False
 
 			top_points = self.player.top_collide_pts
 			for pos in top_points:
@@ -166,6 +195,13 @@ class Level(object):
 					debug('collide right %s', pos)
 					self.player.rect.right -= (self.player.rect.right +1) % 16
 					break
+
+
+		# Update the jump timer which determines if it's possible to jump
+		if grounded:
+			self.jump_timer.set()
+		else:
+			self.jump_timer.update(ms)
 
 		# center camera on player
 		self.camera.center = self.player.rect.center
