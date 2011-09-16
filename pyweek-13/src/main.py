@@ -36,7 +36,18 @@ def main():
 
 	# Pass events through to the active scene
 	director = scene.Director(clock, controller)
-	gamescene = level.GameScene(('level1.tmx','test.tmx'), director)
+	levels = ('level1.tmx', 'level2.tmx', 'test.tmx')
+	gamescene = level.GameScene(levels, director)
+
+	try:
+		level_no = int(config.options.level) -1
+		if level_no < 0 or level_no >= len(levels):
+			raise ValueError()
+		gamescene.new_level(level_no)
+	except ValueError:
+		info('No level with number %s', config.options.level)
+		sys.exit(1)
+
 	director.current = gamescene
 
 	pause_screen = PauseScreen(director)

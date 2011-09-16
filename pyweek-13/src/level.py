@@ -143,6 +143,8 @@ class Level(object):
 	def collide_walls(self, ms):
 		grounded = False
 		for layer in self.world_map.layers:
+			if layer.is_object_group:
+				continue
 			for pos in self.player.bottom_collide_pts:
 				if self.get_tile(pos, layer):
 					# Move above this tile.
@@ -228,7 +230,7 @@ class Level(object):
 
 		# Constrain camera to the level
 		self.camera.right = min(self.camera.right, self.world_map.pixel_width)
-		self.camera.bottom = min(self.camera.right, self.world_map.pixel_height)
+		self.camera.bottom = min(self.camera.bottom, self.world_map.pixel_height)
 		self.camera.left = max(self.camera.left, 0)
 		self.camera.top = max(self.camera.top, 0)
 		self.renderer.set_camera_position(self.camera.centerx, self.camera.centery)
@@ -255,8 +257,8 @@ class Level(object):
 		screen.fill((255,255,255))
 		sprite_layers = self.renderer.get_layers_from_map()
 		for sprite_layer in sprite_layers:
-			if 0 and sprite_layer.is_object_group:
-				self._draw_obj_group(screen, sprite_layer, cam_world_pos_x, cam_world_pos_y)
+			if sprite_layer.is_object_group:
+				self._draw_obj_group(screen, sprite_layer, self.camera.left, self.camera.top)
 			else:
 				self.renderer.render_layer(screen, sprite_layer)
 
@@ -297,6 +299,14 @@ class GameScene(object):
 		screen_width, screen_height = config.getint('Graphics','width'), config.getint('Graphics', 'height')
 		self.level = Level(self.levels[self.current], screen_width, screen_height)
 
+	def new_level(self, level_no=None):
+		if level_no is None:
+			self.current += 1
+		else:
+			self.current = level_no
+		screen_width, screen_height = config.getint('Graphics','width'), config.getint('Graphics', 'height')
+		self.level = Level(self.levels[self.current], screen_width, screen_height)
+
 	def tick(self, ms):
 		try:
 			completed = self.level.tick(ms)
@@ -310,9 +320,7 @@ class GameScene(object):
 				self.director.current = self.next_scene
 				return
 			else:
-				self.current += 1
-				screen_width, screen_height = config.getint('Graphics','width'), config.getint('Graphics', 'height')
-				self.level = Level(self.levels[self.current], screen_width, screen_height)
+				self.new_level()
 
 	def draw(self, *args):
 		self.level.draw(*args)
