@@ -8,6 +8,15 @@ from util import debug1,throttle,Timer
 import config
 from math import floor
 
+class OutOfBounds(Exception):
+	pass
+
+class Death(Exception):
+	pass
+
+class FellOffMap(Death):
+	pass
+
 def level_path(filename):
 	return os.path.join(resource.data_path(), 'levels', filename)
 
@@ -127,6 +136,10 @@ class Level(object):
 		self.jump_timer = JumpTimer()
 		self.input_state = None
 
+	def restart(self):
+		self.player.rect.topleft=(50,50)
+		self.player.velocity = (0,0)
+
 	def collide_walls(self, ms):
 		grounded = False
 		for layer in self.world_map.layers:
@@ -160,6 +173,7 @@ class Level(object):
 			for pos in right_points:
 				if self.get_tile(pos, layer):
 					debug('collide right %s', pos)
+					debug(self.get_tile(pos,layer))
 					self.player.rect.right -= (self.player.collide_rect.right ) % 16
 					break
 
@@ -171,6 +185,8 @@ class Level(object):
 	
 	def get_tile(self, pos, layer):
 		x,y = pos
+		if x < 0 or y < 0  or x >= layer.pixel_width or y >= layer.pixel_height:
+			raise OutOfBounds()
 		x /= 16
 		y /= 16
 		tile = layer.decoded_content[x + y*layer.width]
@@ -189,6 +205,11 @@ class Level(object):
 	def tick(self, ms):
 		self.player.move(ms)
 
+		debug1('end of world=%s', self.world_map.pixel_width-16-1)
+		if self.player.collide_rect.left >= self.world_map.pixel_width - 16:
+			debug('Level complete')
+			return True
+
 		# Check for jump every frame, in case user is holding down the button
 		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
 			debug('jump')
@@ -196,7 +217,11 @@ class Level(object):
 			self.player.velocity = (self.player.velocity[0], -config.getfloat('Physics', 'jump_speed'))
 
 		# Handle collisions with walls/platforms
-		self.collide_walls(ms)
+		try:
+			self.collide_walls(ms)
+		except OutOfBounds:
+			debug('%s out of bounds', self.player.collide_rect)
+			raise FellOffMap()
 
 		# Center camera on player
 		self.camera.center = self.player.rect.center
@@ -260,3 +285,37 @@ class Level(object):
 			#	pygame.draw.rect(screen, (255, 255, 0), r, 1)
 			#	text_img = font.render(map_obj.name, 1, (255, 255, 0))
 			#	screen.blit(text_img, r.move(1, 2))
+
+class GameScene(object):
+	def __init__(self, levels, director, next_scene=None):
+		object.__init__(self)
+		self.levels = levels
+		self.current = 0
+		self.next_scene = next_scene
+		self.director = director
+
+		screen_width, screen_height = config.getint('Graphics','width'), config.getint('Graphics', 'height')
+		self.level = Level(self.levels[self.current], screen_width, screen_height)
+
+	def tick(self, ms):
+		try:
+			completed = self.level.tick(ms)
+		except Death:
+			self.level.restart()
+			return
+
+		if completed:
+			if self.current+1 >= len(self.levels):
+				debug('Finished game')
+				self.director.current = self.next_scene
+				return
+			else:
+				self.current += 1
+				screen_width, screen_height = config.getint('Graphics','width'), config.getint('Graphics', 'height')
+				self.level = Level(self.levels[self.current], screen_width, screen_height)
+
+	def draw(self, *args):
+		self.level.draw(*args)
+
+	def input_changed(self, *args):
+		self.level.input_changed(*args)
