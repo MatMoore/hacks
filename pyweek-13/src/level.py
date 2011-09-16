@@ -37,25 +37,25 @@ class Player(pygame.sprite.Sprite):
 	@property
 	def bottom_collide_pts(self):
 		y = self.rect.bottom
-		for x in range(self.rect.left+16, self.rect.right, 16):
+		for x in range(self.rect.left+8, self.rect.right, 16):
 			yield (x,y)
 
 	@property
 	def top_collide_pts(self):
 		y = self.rect.top
-		for x in range(self.rect.left+16, self.rect.right, 16):
+		for x in range(self.rect.left+8, self.rect.right, 16):
 			yield (x,y)
 
 	@property
 	def left_collide_pts(self):
 		x = self.rect.left
-		for y in range(self.rect.top+16, self.rect.bottom, 16):
+		for y in range(self.rect.top+8, self.rect.bottom, 16):
 			yield (x,y)
 
 	@property
 	def right_collide_pts(self):
 		x = self.rect.right
-		for y in range(self.rect.top+16, self.rect.bottom, 16):
+		for y in range(self.rect.top+8, self.rect.bottom, 16):
 			yield (x,y)
 
 	def set_direction(self, x):
@@ -97,7 +97,7 @@ class JumpTimer(object):
 	
 	def set(self):
 		# Add a 100ms timer
-		self.timer = Timer(100)
+		self.timer = Timer(config.getint('Physics','jump_time'))
 	
 	def update(self, ms):
 		# Remove timer when time runs out
@@ -169,12 +169,13 @@ class Level(object):
 					# Move above this tile.
 					# This assumes we are not completely overlapping a tile.
 					# This should never happen if we limit movement to < 16px per frame
-					self.player.rect.bottom -= (self.player.rect.bottom+1) % 16
+					self.player.rect.bottom -= (self.player.rect.bottom) % 16
 					grounded = True
 					break
 
 			top_points = self.player.top_collide_pts
 			for pos in top_points:
+				if grounded: break
 				if self.get_tile(pos, layer):
 					debug('collide top %s', pos)
 					self.player.rect.top += 16 # move one tile down
@@ -193,7 +194,7 @@ class Level(object):
 			for pos in right_points:
 				if self.get_tile(pos, layer):
 					debug('collide right %s', pos)
-					self.player.rect.right -= (self.player.rect.right +1) % 16
+					self.player.rect.right -= (self.player.rect.right ) % 16
 					break
 
 
