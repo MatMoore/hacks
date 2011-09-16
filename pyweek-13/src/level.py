@@ -32,30 +32,35 @@ class Player(pygame.sprite.Sprite):
 		# Position within the level
 		self.rect = pygame.Rect(pos, self.image.get_size())
 
-		# todo: shrink rect to fit
+	@property
+	def collide_rect(self):
+		rect = self.rect.move((8,16))
+		rect.width=16
+		rect.height=16
+		return rect
 
 	@property
 	def bottom_collide_pts(self):
-		y = self.rect.bottom
-		for x in range(self.rect.left+8, self.rect.right, 16):
+		y = self.collide_rect.bottom
+		for x in range(self.collide_rect.left+8, self.collide_rect.right, 16):
 			yield (x,y)
 
 	@property
 	def top_collide_pts(self):
-		y = self.rect.top
-		for x in range(self.rect.left+8, self.rect.right, 16):
+		y = self.collide_rect.top
+		for x in range(self.collide_rect.left+8, self.collide_rect.right, 16):
 			yield (x,y)
 
 	@property
 	def left_collide_pts(self):
-		x = self.rect.left
-		for y in range(self.rect.top+8, self.rect.bottom, 16):
+		x = self.collide_rect.left
+		for y in range(self.collide_rect.top+8, self.collide_rect.bottom, 16):
 			yield (x,y)
 
 	@property
 	def right_collide_pts(self):
-		x = self.rect.right
-		for y in range(self.rect.top+8, self.rect.bottom, 16):
+		x = self.collide_rect.right
+		for y in range(self.collide_rect.top+8, self.collide_rect.bottom, 16):
 			yield (x,y)
 
 	def set_direction(self, x):
@@ -169,7 +174,7 @@ class Level(object):
 					# Move above this tile.
 					# This assumes we are not completely overlapping a tile.
 					# This should never happen if we limit movement to < 16px per frame
-					self.player.rect.bottom -= (self.player.rect.bottom) % 16
+					self.player.rect.bottom -= (self.player.collide_rect.bottom) % 16
 					grounded = True
 					break
 
@@ -179,7 +184,7 @@ class Level(object):
 				if self.get_tile(pos, layer):
 					debug('collide top %s', pos)
 					self.player.rect.top += 16 # move one tile down
-					self.player.rect.top -= self.player.rect.top % 16 # move to the top of the tile
+					self.player.rect.top -= self.player.collide_rect.top % 16 # move to the top of the tile
 					break
 
 			left_points = self.player.left_collide_pts
@@ -187,14 +192,14 @@ class Level(object):
 				if self.get_tile(pos, layer):
 					debug('collide left %s', pos)
 					self.player.rect.left += 16
-					self.player.rect.left -= self.player.rect.left % 16
+					self.player.rect.left -= self.player.collide_rect.left % 16
 					break
 
 			right_points = self.player.right_collide_pts
 			for pos in right_points:
 				if self.get_tile(pos, layer):
 					debug('collide right %s', pos)
-					self.player.rect.right -= (self.player.rect.right ) % 16
+					self.player.rect.right -= (self.player.collide_rect.right ) % 16
 					break
 
 
@@ -241,10 +246,10 @@ class Level(object):
 			else:
 				self.renderer.render_layer(screen, sprite_layer)
 
-		player_pos = self.screen_coordinates(self.player.rect.topleft)
-		debug1('playerpos=%s', player_pos)
+		screen.blit(self.player.image, self.player.rect.move((-self.camera.left, -self.camera.y)).topleft)
 
-		screen.blit(self.player.image, player_pos)
+		if config.options.debug:
+			pygame.draw.rect(screen, (255,0,0), self.player.collide_rect.move((-self.camera.left, -self.camera.y)), 1)
 
 		pygame.display.flip()
 
