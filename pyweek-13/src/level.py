@@ -6,7 +6,7 @@ import pygame
 from logging import info,debug,error
 from util import debug1,throttle,Timer
 import config
-from math import floor
+from math import copysign
 
 class OutOfBounds(Exception):
 	pass
@@ -108,7 +108,7 @@ class Player(pygame.sprite.Sprite):
 
 		# obey gravity
 		dy += config.getfloat('Physics','gravity') * s
-		dy = min(config.getfloat('Physics','terminal_velocity'), dy)
+		dy = copysign(min(config.getfloat('Physics','terminal_velocity'), abs(dy)), dy)
 		self.velocity = dx,dy
 
 		dx *= s
@@ -117,8 +117,9 @@ class Player(pygame.sprite.Sprite):
 		# Hard limit on speed
 		v = (dx **2 + dy**2) ** 0.5
 		if v > 15:
-			dx = floor(dx * 15.0 / v)
-			dy = floor(dy * 15.0 / v)
+			debug('woosh')
+			dx = round(abs(dx) * 15.0 / v)
+			dy = round(abs(dy) * 15.0 / v)
 
 		self.rect.left += dx
 		self.rect.top += dy
