@@ -39,7 +39,7 @@ def main():
 
 	end = scene.EndScene(director)
 
-	levels = ('level1.tmx', 'level3.tmx', 'level2.tmx')
+	levels = ('level1.tmx', 'level3.tmx', 'level2.tmx', 'level4.tmx')
 	gamescene = level.GameScene(levels, director, end)
 
 	start = scene.StartScene(director, gamescene)

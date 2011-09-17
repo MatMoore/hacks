@@ -448,7 +448,7 @@ class GameScene(object):
 		if not config.getboolean('Sound', 'enabled'): return
 		try:
 			pygame.mixer.music.load(resource.file_path('gurdonark_-_Little_Penguin.ogg'))
-			pygame.mixer.music.play()
+			pygame.mixer.music.play(-1)
 		except:
 			error('Unable to play music')
 			debug(sys.exc_info())
