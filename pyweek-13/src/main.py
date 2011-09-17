@@ -36,8 +36,13 @@ def main():
 
 	# Pass events through to the active scene
 	director = scene.Director(clock, controller)
-	levels = ('level1.tmx', 'level3.tmx', 'level2.tmx', 'test.tmx')
-	gamescene = level.GameScene(levels, director)
+
+	end = scene.EndScene(director)
+
+	levels = ('level1.tmx', 'level3.tmx', 'level2.tmx')
+	gamescene = level.GameScene(levels, director, end)
+
+	start = scene.StartScene(director, gamescene)
 
 	try:
 		level_no = int(config.options.level) -1
@@ -48,7 +53,7 @@ def main():
 		info('No level with number %s', config.options.level)
 		sys.exit(1)
 
-	director.current = gamescene
+	director.current = start
 
 	pause_screen = PauseScreen(director)
 	events.subscribe(pause_screen.pause)
