@@ -444,6 +444,15 @@ class GameScene(object):
 			else:
 				self.new_level()
 
+	def music(self):
+		if not config.getboolean('Sound', 'enabled'): return
+		try:
+			pygame.mixer.music.load(resource.file_path('gurdonark_-_Little_Penguin.ogg'))
+			pygame.mixer.music.play()
+		except:
+			error('Unable to play music')
+			debug(sys.exc_info())
+
 	def draw(self, *args):
 		self.level.draw(*args)
 
