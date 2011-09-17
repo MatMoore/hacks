@@ -1,5 +1,5 @@
 from lib.tiledtmxloader import tiledtmxloader
-from lib.tiledtmxloader.helperspygame import ResourceLoaderPygame, RendererPygame
+from lib.tiledtmxloader.helperspygame import ResourceLoaderPygame, RendererPygame, SpriteLayer
 import resource
 import os
 import pygame
@@ -59,15 +59,22 @@ class Player(pygame.sprite.Sprite):
 	@property
 	def collide_rect(self):
 		tall = self.state & self.tall
+		fat = self.state & self.fat
 		if tall:
 			height=32
 			dy=0
 		else:
 			height=16
 			dy=16
+		if fat:
+			width=32
+			dx=0
+		else:
+			width=16
+			dx=8
 
-		rect = self.rect.move((8,dy))
-		rect.width=16
+		rect = self.rect.move((dx,dy))
+		rect.width=width
 		rect.height=height
 		return rect
 
@@ -95,6 +102,10 @@ class Player(pygame.sprite.Sprite):
 		for y in range(self.collide_rect.top+8, self.collide_rect.bottom, 16):
 			yield (x,y)
 
+	@property
+	def heavy(self):
+		return self.velocity[1] > config.getfloat('Physics','break_speed') and (self.state & self.fat)
+
 	def start_jump(self):
 		self.velocity = (self.velocity[0], -self.jump_speed)
 
@@ -115,11 +126,12 @@ class Player(pygame.sprite.Sprite):
 		dy *= s
 
 		# Hard limit on speed
-		v = (dx **2 + dy**2) ** 0.5
-		if v > 15:
+		v = ((dx **2) + (dy**2)) ** 0.5
+		if abs(dy) > 15:
 			debug('woosh')
-			dx = round(abs(dx) * 15.0 / v)
-			dy = round(abs(dy) * 15.0 / v)
+			#dx = round(abs(dx) * 15.0 / v)
+			dy = 15
+			#dy = round(abs(dy) * 15.0 / v)
 
 		self.rect.left += dx
 		self.rect.top += dy
@@ -132,6 +144,14 @@ class Player(pygame.sprite.Sprite):
 	def shrink(self):
 		debug('shrinking player')
 		self.state = self.state & (self.scary | self.fat)
+
+	def widen(self):
+		debug('widening player')
+		self.state = self.state | self.fat
+
+	def narrow(self):
+		debug('narrowing player')
+		self.state = self.state & (self.scary | self.tall)
 
 	@throttle(50)
 	def debug(self):
@@ -176,15 +196,17 @@ class Level(object):
 		self.screen_height = screen_height
 		self.jump_timer = JumpTimer()
 		self.input_state = None
+		self._img_cache = {}
+		self._img_cache["hits"] = 0
 
 	def restart(self):
 		self.player.rect.topleft=(50,50)
 		self.player.velocity = (0,0)
 
-	def tile_magic(self, tile):
+	def tile_magic(self, tile, allow_break=True):
 		'''Handle special tiles'''
 		#debug(tile)
-		for special_tile in ('grow', 'shrink'):
+		for special_tile in ('grow', 'shrink', 'narrow', 'widen'):
 			if config.getint('Tiles', special_tile) == tile:
 				getattr(self.player, special_tile)()
 				return
@@ -209,6 +231,14 @@ class Level(object):
 					break
 			if floor_tile:
 				self.tile_magic(floor_tile)
+
+				if floor_tile == config.getint('Tiles', 'crack') and self.player.heavy:
+					self.set_platform(pos, layer, config.getint('Tiles', 'break'))
+				elif floor_tile == config.getint('Tiles', 'break') and self.player.heavy:
+					self.set_platform(pos, layer, 0)
+
+				# All floor tiles stop the players fall
+				self.player.velocity = (self.player.velocity[0],0)
 
 			top_points = self.player.top_collide_pts
 			for pos in top_points:
@@ -250,6 +280,28 @@ class Level(object):
 		tile = layer.decoded_content[x + y*layer.width]
 		return tile
 
+	def set_tile(self, pos, layer, tile):
+		x,y = pos
+		if x < 0 or y < 0  or x >= layer.pixel_width or y >= layer.pixel_height:
+			raise OutOfBounds()
+		x /= 16
+		y /= 16
+		layer.decoded_content[x + y*layer.width] = tile
+		layer._gen_2D()
+
+	def set_platform(self, pos, layer, tile):
+		'''Set tile and horizontal neighbours'''
+		x,y = pos
+		current_tile = self.get_tile(pos, layer)
+		platform = [pos]
+		if x>=16:
+			platform.append((x-16,y))
+		if x<layer.pixel_width-16:
+			platform.append((x+16,y))
+		for pos2 in platform:
+			if self.get_tile(pos2, layer) == current_tile:
+				self.set_tile(pos2, layer, tile)
+
 	def input_changed(self, action, state):
 		x = 0
 		if state['left']:
@@ -268,18 +320,18 @@ class Level(object):
 			debug('Level complete')
 			return True
 
-		# Check for jump every frame, in case user is holding down the button
-		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
-			debug('jump')
-			self.jump_timer.unset()
-			self.player.start_jump()
-
 		# Handle collisions with walls/platforms
 		try:
 			self.collide_walls(ms)
 		except OutOfBounds:
 			debug('%s out of bounds', self.player.collide_rect)
 			raise FellOffMap()
+
+		# Check for jump every frame, in case user is holding down the button
+		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
+			debug('jump')
+			self.jump_timer.unset()
+			self.player.start_jump()
 
 		# Center camera on player
 		self.camera.center = self.player.rect.center
