@@ -36,7 +36,7 @@ def main():
 
 	# Pass events through to the active scene
 	director = scene.Director(clock, controller)
-	levels = ('level1.tmx', 'level2.tmx', 'level3.tmx', 'test.tmx')
+	levels = ('level1.tmx', 'level3.tmx', 'level2.tmx', 'test.tmx')
 	gamescene = level.GameScene(levels, director)
 
 	try:

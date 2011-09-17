@@ -160,9 +160,11 @@ class Player(pygame.sprite.Sprite):
 
 
 class JumpTimer(object):
+	'''When hitting the ground wait a bit before jumping again. When leaving the ground wait a bit before forbidding jumps'''
 	def __init__(self):
 		object.__init__(self)
 		self.timer = None
+		self.wait_timer = None
 	
 	def set(self):
 		# Add a 100ms timer
@@ -195,6 +197,7 @@ class Level(object):
 		self.screen_width = screen_width
 		self.screen_height = screen_height
 		self.jump_timer = JumpTimer()
+		self.jump_wait_timer = None
 		self.input_state = None
 		self._img_cache = {}
 		self._img_cache["hits"] = 0
@@ -312,6 +315,9 @@ class Level(object):
 
 		self.input_state = state
 
+		if not state['up']:
+			self.jump_wait_timer = None
+
 	def tick(self, ms):
 		self.player.move(ms)
 
@@ -328,10 +334,14 @@ class Level(object):
 			raise FellOffMap()
 
 		# Check for jump every frame, in case user is holding down the button
-		if self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
+		if not self.jump_wait_timer and self.input_state and self.input_state['up'] and self.jump_timer.jump_allowed():
 			debug('jump')
 			self.jump_timer.unset()
+			self.jump_wait_timer = Timer(config.getint('Physics','jump_wait_time')) # wait a bit between jumps
 			self.player.start_jump()
+		elif self.jump_wait_timer:
+			if self.jump_wait_timer.check(ms):
+				self.jump_wait_timer = None
 
 		# Center camera on player
 		self.camera.center = self.player.rect.center
