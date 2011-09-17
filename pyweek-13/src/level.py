@@ -205,6 +205,7 @@ class Level(object):
 	def restart(self):
 		self.player.rect.topleft=(50,50)
 		self.player.velocity = (0,0)
+		self.player.state = 0
 
 	def tile_magic(self, tile, allow_break=True):
 		'''Handle special tiles'''
