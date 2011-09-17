@@ -251,6 +251,7 @@ class Level(object):
 					debug('collide top %s', pos)
 					self.player.rect.top += 16 # move one tile down
 					self.player.rect.top -= self.player.collide_rect.top % 16 # move to the top of the tile
+					self.player.velocity = (self.player.velocity[0],0)
 					break
 
 			left_points = self.player.left_collide_pts
