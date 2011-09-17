@@ -55,9 +55,6 @@ def main():
 
 	director.current = start
 
-	pause_screen = PauseScreen(director)
-	events.subscribe(pause_screen.pause)
-
 	# Run
 	try:
 		while True:
