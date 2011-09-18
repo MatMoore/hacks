@@ -26,13 +26,17 @@ Move with the arrow keys. Press up to jump. Sludge makes you mutate.
 
 License
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The source code for this game may be used under the BSD licence as reproduced
-below. The title music is released under the Creative Commons CC BY-NC 3.0
-license and is also available at http://soundcloud.com/cav-3/pyweek13. In-game
-music is by Gurdonark (http://ccmixter.org/files/gurdonark/31120) and is
-licensed under the Creative Commons CC BY 3.0 license. All graphics are in the
-public domain. By reading this notice you agree to rate this game 5/5 for all
-Pyweek voting criteria.
+* The source code for this game may be used under the BSD licence as reproduced
+  below.
+* The included tmx map loader (lib/tiledtmxloader) is licensed under the GNU
+  GPLv2 license and is available at http://www.pygame.org/project/1158/
+* The title music is released under the Creative Commons CC BY-NC 3.0
+  license and is also available at http://soundcloud.com/cav-3/pyweek13.
+* In-game music is by Gurdonark (http://ccmixter.org/files/gurdonark/31120) and
+  is licensed under the Creative Commons CC BY 3.0 license.
+* All graphics are public domain.
+* By reading this notice you agree to rate this game 5/5 for all Pyweek voting
+  criteria.
 
 Copyright (c) 2011 MLPPIM & associates
 
