@@ -37,12 +37,32 @@ class Player(pygame.sprite.Sprite):
 			n += str((i & 2) / 2)
 			n += str(i & 1)
 			self.images[i] = resource.load_image('player'+n+'.png')
-		self.speed = 100.0
+		self.speed = 100
 		self.velocity = (0,0)
 		self.state = 0
 
 		# Position within the level
 		self.rect = pygame.Rect(pos, self.image.get_size())
+
+		# Position of the top left of the image, using floating point
+		self.pos = pos
+
+	def restart(self):
+		self.rect.topleft=(50,50)
+		self.pos = (50, 50)
+		self.velocity = (0,0)
+		self.state = 0
+
+	def displace(self, dx, dy):
+		# Update float value
+		x,y = self.pos
+		x += dx
+		y += dy
+		self.pos = (x,y)
+
+		# Update display rect (integers)
+		self.rect.top = y
+		self.rect.left = x
 
 	@property
 	def jump_speed(self):
@@ -133,8 +153,7 @@ class Player(pygame.sprite.Sprite):
 			dy = 15
 			#dy = round(abs(dy) * 15.0 / v)
 
-		self.rect.left += dx
-		self.rect.top += dy
+		self.displace(dx, dy)
 		self.debug()
 
 	def grow(self):
@@ -203,9 +222,7 @@ class Level(object):
 		self._img_cache["hits"] = 0
 
 	def restart(self):
-		self.player.rect.topleft=(50,50)
-		self.player.velocity = (0,0)
-		self.player.state = 0
+		self.player.restart()
 
 	def tile_magic(self, tile, allow_break=True):
 		'''Handle special tiles'''
@@ -230,7 +247,7 @@ class Level(object):
 					# This assumes we are not completely overlapping a tile.
 					# This should never happen if we limit movement to < 16px per frame
 					floor_tile = tile
-					self.player.rect.bottom -= (self.player.collide_rect.bottom) % 16
+					self.player.displace(0, -(self.player.collide_rect.bottom % 16))
 					grounded = True
 					break
 			if floor_tile:
@@ -249,8 +266,8 @@ class Level(object):
 				if grounded: break
 				if self.get_tile(pos, layer):
 					debug('collide top %s', pos)
-					self.player.rect.top += 16 # move one tile down
-					self.player.rect.top -= self.player.collide_rect.top % 16 # move to the top of the tile
+					self.player.displace(0, 16) # move one tile down
+					self.player.displace(0, -(self.player.collide_rect.top % 16)) # move to the top of the tile
 					self.player.velocity = (self.player.velocity[0],0)
 					break
 
@@ -258,8 +275,8 @@ class Level(object):
 			for pos in left_points:
 				if self.get_tile(pos, layer):
 					debug('collide left %s', pos)
-					self.player.rect.left += 16
-					self.player.rect.left -= self.player.collide_rect.left % 16
+					self.player.displace(16, 0)
+					self.player.displace(-(self.player.collide_rect.left % 16), 0)
 					break
 
 			right_points = self.player.right_collide_pts
@@ -267,7 +284,7 @@ class Level(object):
 				if self.get_tile(pos, layer):
 					debug('collide right %s', pos)
 					debug(self.get_tile(pos,layer))
-					self.player.rect.right -= (self.player.collide_rect.right ) % 16
+					self.player.displace(-(self.player.collide_rect.right % 16), 0)
 					break
 
 		# Update the jump timer which determines if it's possible to jump
@@ -323,7 +340,6 @@ class Level(object):
 	def tick(self, ms):
 		self.player.move(ms)
 
-		debug1('end of world=%s', self.world_map.pixel_width-16-1)
 		if self.player.collide_rect.left >= self.world_map.pixel_width - 16:
 			debug('Level complete')
 			return True
