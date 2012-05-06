@@ -28,7 +28,7 @@ def main():
 	screen = pygame_init(name, size)
 
 	# create models
-	world = game.Game(screen)
+	world = game.Game(screen.get_size())
 
 	# create controllers
 	controller = Controller()
@@ -39,5 +39,6 @@ def main():
 	try:
 		while True:
 			controller.tick()
+			world.draw(screen)
 	except GameQuit:
 		info('Goodbye')
