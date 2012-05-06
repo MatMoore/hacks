@@ -35,6 +35,7 @@ class Level(object):
 
 	def update(self, dt):
 		self.tilemap.update(dt)
+		self.tilemap.set_focus(self.player.rect.x, self.player.rect.y)
 
 	def draw(self, screen):
 		screen.fill((255, 255, 255))
