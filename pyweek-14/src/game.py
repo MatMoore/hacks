@@ -4,6 +4,7 @@ from lib import tmx
 from resource import load_image, file_path
 import pygame
 from logging import info,debug,error
+from config import settings
 
 class Game(object):
 	'''Main game object to track anything that persists between levels'''
@@ -13,7 +14,7 @@ class Game(object):
 		object.__init__(self)
 
 	def update(self, dt):
-		debug(dt)
+		self.current_level.update(dt)
 
 	def draw(self, screen):
 		self.current_level.draw(screen)
@@ -36,14 +37,28 @@ class Level(object):
 		self.tilemap.update(dt)
 
 	def draw(self, screen):
-		screen.fill((0, 0,0))
+		screen.fill((255, 255, 255))
 		self.tilemap.draw(screen)
 		pygame.display.flip()
 
 class Player(pygame.sprite.Sprite):
 	def __init__(self, location, *groups):
-		super(Player, self).__init__(*groups)
+		pygame.sprite.Sprite.__init__(self, *groups)
 		self.image = load_image('player.png')
 		self.rect = pygame.rect.Rect(location, self.image.get_size())
 		self.resting = False
 		self.dy = 0
+		self.speed = settings.getfloat('Physics', 'run_speed')
+
+		self.keys = {}
+		for action in ('left', 'right'):
+			value = settings.getint('Controls', action)
+			self.keys[action] = value
+			debug('Setting %s to %s' % (action, value))
+
+	def update(self, dt):
+		keys = pygame.key.get_pressed()
+		if keys[self.keys['left']]:
+			self.rect.left -= self.speed * dt
+		elif keys[self.keys['right']]:
+			self.rect.left += self.speed * dt
