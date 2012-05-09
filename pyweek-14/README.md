@@ -2,7 +2,7 @@ Mad-Science--TSIBP
 ==================
 
 Entry in PyWeek 14  <http://www.pyweek.org/14/>  
-URL: http://pyweek.org/e/tsib  
+URL: http://pyweek.org/e/tsibp  
 Team: ????  
 Members: Mat  
 License: WTFPL  
