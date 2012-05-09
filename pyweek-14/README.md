@@ -1,11 +1,11 @@
 Mad-Science--TSIBP
 ==================
 
-Entry in PyWeek 14  <http://www.pyweek.org/14/>
-URL: http://pyweek.org/e/tsib
-Team: ????
-Members: Mat
-License: WTFPL
+Entry in PyWeek 14  <http://www.pyweek.org/14/>  
+URL: http://pyweek.org/e/tsib  
+Team: ????  
+Members: Mat  
+License: WTFPL  
 
 
 Running the Game
