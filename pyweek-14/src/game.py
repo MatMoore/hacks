@@ -29,8 +29,9 @@ class Game(object):
 		self.camera.layers.append(self.sprites)
 		self.player = Player((1, -tilesize), self.sprites)
 		self.generate_platform((0, 0), 15)
-		self.generate_platform((0, -10), 15)
+		self.generate_platform((0, -20), 15)
 		self.control = PlayerInput(self.player)
+		self.next_platform = -viewport[1]-10
 
 	def update(self, dt):
 		# remove everything that has gone past the bottom of the screen
@@ -63,6 +64,11 @@ class Game(object):
 
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 
+		if self.camera.viewport.top <= self.next_platform:
+			y = self.next_platform/self.platforms.tile_height
+			self.generate_platform((0,y-1), 5)
+			self.next_platform -= 300
+
 	def draw(self, screen):
 		screen.fill((255, 255, 255))
 		self.camera.draw(screen)
@@ -72,7 +78,7 @@ class Game(object):
 	def handle_pygame_event(self, event):
 		self.control.handle_pygame_event(event)
 
-	def generate_platform(self, pos, width_tiles= 1):
+	def generate_platform(self, pos, width_tiles = 1):
 		i_min, j = pos
 		i_max = i_min + width_tiles
 		for i in range(i_min, i_max):
