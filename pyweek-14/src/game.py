@@ -27,7 +27,7 @@ class Game(object):
 		self.sprites = SpriteLayer()
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
-		self.player = Player((0, -tilesize), self.sprites)
+		self.player = Player((1, -tilesize), self.sprites)
 		self.generate_platform((0, 0), width)
 		self.control = PlayerInput(self.player)
 
@@ -41,10 +41,13 @@ class Game(object):
 		#   generate platform
 		#   generate next platform time
 		self.control.update(dt)
+		self.platforms.collide_wall(self.player.rect)
+		for obstacle in self.platforms.collide(self.player.rect, 'platform'):
+			self.player.rect.bottom = min(self.player.rect.bottom, obstacle.top)
+
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 		self.camera.update(dt)
 
-		self.platforms.collide_wall(self.player.rect)
 
 	def draw(self, screen):
 		screen.fill((255, 255, 255))
@@ -60,6 +63,7 @@ class Game(object):
 		for i in range(i_min, i_max):
 			debug('generating at %d %d' % (i, j))
 			self.platforms[(i, j)] = self.platforms.tileset.get_tile(0)
+			self.platforms[(i, j)]['platform'] = True
 
 class PlayerInput(object):
 	def __init__(self, player):
