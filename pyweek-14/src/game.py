@@ -27,8 +27,9 @@ class Game(object):
 		self.sprites = SpriteLayer()
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
-		self.player = Player((1, -tilesize-200), self.sprites)
-		self.generate_platform((0, 0), width)
+		self.player = Player((1, -tilesize), self.sprites)
+		self.generate_platform((0, 0), 15)
+		self.generate_platform((0, -10), 15)
 		self.control = PlayerInput(self.player)
 
 	def update(self, dt):
@@ -40,14 +41,25 @@ class Game(object):
 		# if sand on screen and > next platform time:
 		#   generate platform
 		#   generate next platform time
+		height_before = self.player.rect.bottom
+
 		self.control.update(dt)
 		self.platforms.collide_wall(self.player.rect)
 		self.camera.update(dt)
 
+		# Player can only collide with stuff from above.
+		# It might be a bit glitchy if the player falls into a platform from the side,
+		# but lets just let that slide
+		resting = False
 		for obstacle in self.platforms.collide(self.player.rect, 'platform'):
-			self.player.rect.bottom = min(self.player.rect.bottom - 1, obstacle.top)
-			debug('thud')
-			self.player.endjump()
+			if height_before <= obstacle.top:
+				self.player.rect.bottom = min(self.player.rect.bottom, obstacle.top)
+				debug('thud')
+				self.player.endjump()
+			resting = True
+		if not resting:
+			debug('uh oh')
+			self.player.resting = False
 
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 
@@ -77,6 +89,7 @@ class PlayerInput(object):
 			value = settings.getint('Controls', action)
 			self.keys[action] = value
 			debug('Setting %s to %s' % (action, value))
+		self.jumping = False
 
 	def update(self, dt):
 		keys = pygame.key.get_pressed()
@@ -84,12 +97,16 @@ class PlayerInput(object):
 			self.player.left(dt)
 		elif keys[self.keys['right']]:
 			self.player.right(dt)
+		if self.jumping:
+			self.player.jump()
 		if keys[self.keys['up']]:
 			self.player.up(dt)
 
 	def handle_pygame_event(self, event):
 		if event.type == pygame.KEYDOWN:
 			if event.key == self.keys['up']:
-				debug('boing')
-				self.player.jump()
+				self.jumping = True
+		elif event.type == pygame.KEYUP:
+			if event.key == self.keys['up']:
+				self.jumping = False
 

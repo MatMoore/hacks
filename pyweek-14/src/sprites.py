@@ -128,13 +128,13 @@ class PlatformLayer(object):
 
 		Return a list of Cell instances.
 		'''
-		i1 = max(0, x1 // self.tile_width)
-		j1 = max(0, y1 // self.tile_height)
+		i1 = x1 // self.tile_width
+		j1 = y1 // self.tile_height
 		i2 = x2 // self.tile_width + 1
 		j2 = y2 // self.tile_height + 1
-		return [self.cells[i, j]
-			for i in range(int(i1), int(i2))
-				for j in range(int(j1), int(j2))
+		return [self.cells[i, j] \
+			for i in range(int(i1), int(i2)) \
+				for j in range(int(j1), int(j2)) \
 					if (i, j) in self.cells]
 
 	def get_at(self, x, y):
@@ -185,6 +185,7 @@ class Player(pygame.sprite.Sprite):
 	def jump(self):
 		# Initial jump
 		if self.resting:
+			debug('boing')
 			self.resting = False
 			self.dy = -self.jump_speed
 
