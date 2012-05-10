@@ -5,7 +5,7 @@ import pygame
 from logging import info,debug,error
 from config import settings
 from lib.tmx import Layer, SpriteLayer, Tileset
-from sprites import Camera, PlatformLayer, Player
+from sprites import Camera, PlatformLayer, Player, draw_fg
 
 class Game(object):
 	'''Main game object to track anything that persists between levels'''
@@ -54,6 +54,7 @@ class Game(object):
 	def draw(self, screen):
 		screen.fill((255, 255, 255))
 		self.camera.draw(screen)
+		draw_fg(screen, self.player)
 		pygame.display.flip()
 
 	def handle_pygame_event(self, event):

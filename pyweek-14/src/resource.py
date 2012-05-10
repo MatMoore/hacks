@@ -4,6 +4,7 @@ import sys
 import pygame
 
 images = {}
+fonts = {}
 
 def data_path():
 	'''data directory'''
@@ -22,3 +23,9 @@ def load_image(filename):
 	if filename not in images:
 		images[filename] = pygame.image.load(os.path.join(data_path(), filename)).convert_alpha()
 	return images[filename]
+
+def load_font(filename, size):
+	if (filename, size) not in fonts:
+		path = os.path.join(data_path(), 'fonts', filename)
+		fonts[(filename, size)] = pygame.font.Font(path, size)
+	return fonts[(filename, size)]

@@ -4,6 +4,16 @@ import pygame
 from config import settings
 from resource import load_image, file_path
 from logging import info, debug, error
+from resource import load_font
+
+def draw_fg(surface, player):
+	font = load_font('VeraMono.ttf', 32)
+
+	jetpack_percent = float(player.jetpack_time)/player.max_jetpack
+	text = font.render('%2.f' % (jetpack_percent * 100), True, (int(255 - jetpack_percent * 255), 0, 0))
+	x = surface.get_width()-text.get_width() - 10
+	y = 10
+	surface.blit(text, (x, y))
 
 class PlatformLayer(object):
 	'''Tile based layer with infinite height and fixed width'''
