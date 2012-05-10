@@ -4,7 +4,7 @@ from resource import load_image, file_path
 import pygame
 from logging import info,debug,error
 from config import settings
-from lib.tmx import Layer, SpriteLayer
+from lib.tmx import Layer, SpriteLayer, Tileset
 from sprites import Camera, PlatformLayer, Player
 
 class Game(object):
@@ -13,14 +13,22 @@ class Game(object):
 		self.viewport = viewport
 		object.__init__(self)
 
+		tilesize = settings.getint('Graphics', 'tilesize')
+
+		# Round width/height to nearest tile
+		viewport = (viewport[0]/tilesize*tilesize, viewport[1]/tilesize*tilesize)
+		width = viewport[0] / tilesize
+
+		tileset = Tileset('platforms', tilesize, tilesize, 0)
+		tileset.add_image(file_path('platforms.png'))
+		self.platforms = PlatformLayer(width, tileset)
+
 		self.camera = Camera(viewport)
 		self.sprites = SpriteLayer()
-		self.platforms = PlatformLayer()
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
-		self.player = Player((0, -32), self.sprites)
-		self.width = (viewport[1] + 31) / 32
-		self.generate_platform((0, 0), self.width)
+		self.player = Player((0, -tilesize), self.sprites)
+		self.generate_platform((0, 0), width)
 		self.control = PlayerInput(self.player)
 
 	def update(self, dt):
@@ -35,6 +43,8 @@ class Game(object):
 		self.control.update(dt)
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 		self.camera.update(dt)
+
+		self.platforms.collide_wall(self.player.rect)
 
 	def draw(self, screen):
 		screen.fill((255, 255, 255))

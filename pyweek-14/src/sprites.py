@@ -6,14 +6,14 @@ from resource import load_image, file_path
 from logging import info, debug, error
 
 class PlatformLayer(object):
-	'''Tile based layer with infinite height and width'''
+	'''Tile based layer with infinite height and fixed width'''
 
-	def __init__(self):
-		self.tileset = Tileset('platforms', 32, 32, 0)
-		self.tileset.add_image(file_path('platforms.png'))
+	def __init__(self, width, tileset):
+		self.tileset = tileset
 		self.tile_width, self.tile_height = (self.tileset.tile_width, self.tileset.tile_height)
 		self.cells = {}
 		self.visible = True
+		self.width = width
 
 	def __getitem__(self, pos):
 		return self.cells.get(pos)
@@ -58,11 +58,25 @@ class PlatformLayer(object):
 			for y in range(oy, oy+h+self.tile_height, self.tile_height):
 				j = y // self.tile_height
 				if (i, j) not in self.cells:
+					if i == 0 or i >= self.width-1:
+						self.draw_wall(surface, i, j)
 					continue
 				cell = self.cells[i, j]
 				surface.blit(cell.tile.surface, (cell.px-ox, cell.py-oy))
 
-		# TODO draw walls
+	def draw_wall(self, surface, i, j):
+		ox, oy = self.position
+		px = i * self.tile_width
+		py = j * self.tile_width
+		tile = self.tileset.get_tile(0)
+		surface.blit(tile.surface, (px-ox, py-oy))
+
+	def collide_wall(self, rect):
+		rightedge = (self.width -1) * self.tile_width
+		if rect.left < self.tile_width:
+			rect.left = self.tile_width
+		elif rect.right >= rightedge:
+			rect.right = rightedge
 
 	def find(self, *properties):
 		'''Find all cells with the given properties set.
