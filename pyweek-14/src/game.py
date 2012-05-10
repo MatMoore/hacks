@@ -5,7 +5,7 @@ import pygame
 from logging import info,debug,error
 from config import settings
 from lib.tmx import Layer, SpriteLayer, Tileset
-from sprites import Camera, PlatformLayer, Player, draw_fg
+from sprites import Camera, PlatformLayer, Player, draw_fg, GooLayer
 
 class Game(object):
 	'''Main game object to track anything that persists between levels'''
@@ -25,8 +25,10 @@ class Game(object):
 
 		self.camera = Camera(viewport)
 		self.sprites = SpriteLayer()
+		self.goo = GooLayer()
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
+		self.camera.layers.append(self.goo)
 		self.player = Player((1, -tilesize), self.sprites)
 		self.generate_platform((0, 0), 15)
 		self.generate_platform((0, -20), 15)
@@ -44,8 +46,11 @@ class Game(object):
 		#   generate next platform time
 		height_before = self.player.rect.bottom
 
+		# Handle input
 		self.control.update(dt)
 		self.platforms.collide_wall(self.player.rect)
+
+		# Update platform layer, goo layer, and sprite positions
 		self.camera.update(dt)
 
 		# Player can only collide with stuff from above.
@@ -64,6 +69,11 @@ class Game(object):
 
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 
+		if self.goo.goo_level <= self.player.rect.bottom:
+			info('You are dead')
+			return
+
+		# Generate out of view platforms
 		if self.camera.viewport.top <= self.next_platform:
 			y = self.next_platform/self.platforms.tile_height
 			self.generate_platform((0,y-1), 5)
@@ -115,4 +125,3 @@ class PlayerInput(object):
 		elif event.type == pygame.KEYUP:
 			if event.key == self.keys['up']:
 				self.jumping = False
-

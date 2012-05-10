@@ -15,6 +15,25 @@ def draw_fg(surface, player):
 	y = 10
 	surface.blit(text, (x, y))
 
+class GooLayer(object):
+	def __init__(self):
+		self.goo_level = 300
+		self.goo_speed = 0.1
+		self.visible = True
+
+	def update(self, dt):
+		self.goo_level -= self.goo_speed * dt
+
+	def set_view(self, x, y, w, h, viewport_ox=0, viewport_oy=0):
+		y -= viewport_oy
+		self.position = y
+
+	def draw(self, screen):
+		rect = screen.get_rect()
+		if self.goo_level > self.position:
+			rect.top = self.goo_level - self.position
+		screen.fill((200, 200, 200), rect)
+
 class PlatformLayer(object):
 	'''Tile based layer with infinite height and fixed width'''
 
