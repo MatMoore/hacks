@@ -165,7 +165,6 @@ class Camera(object):
    viewport - a Rect instance giving the current viewport specification
    '''
     def __init__(self, size, origin=(0,0)):
-        self.px_width = 0
         self.tile_width = 0
         self.tile_height = 0
         self.layers = Layers()
@@ -188,9 +187,6 @@ class Camera(object):
         '''Determine the viewport based on a desired focus pixel in the
         Layer space (fx, fy) and honoring any bounding restrictions of
         child layers.
-
-        The focus will always be shifted to ensure no child layers display
-        out-of-bounds data, as defined by their dimensions px_width and px_height.
         '''
         # The result is that all chilren will have their viewport set, defining
         # which of their pixels should be visible.
@@ -211,18 +207,7 @@ class Camera(object):
         h = int(self.view_h)
         w2, h2 = w//2, h//2
 
-        if self.px_width <= w:
-            # this branch for centered view and no view jump when
-            # crossing the center; both when world width <= view width
-            restricted_fx = self.px_width / 2
-        else:
-            if (fx - w2) < 0:
-                restricted_fx = w2       # hit minimum X extent
-            elif (fx + w2) > self.px_width:
-                restricted_fx = self.px_width - w2       # hit maximum X extent
-            else:
-                restricted_fx = fx
-
+        restricted_fx = 0
         restricted_fy = fy
 
         # ... and this is our focus point, center of screen

@@ -66,7 +66,7 @@ class PlayerInput(object):
 			self.player.left(dt)
 		elif keys[self.keys['right']]:
 			self.player.right(dt)
-		elif keys[self.keys['up']]:
+		if keys[self.keys['up']]:
 			self.player.rect.top -= self.player.speed * dt
 		elif keys[self.keys['down']]:
 			self.player.rect.top += self.player.speed * dt
