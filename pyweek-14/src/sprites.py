@@ -17,12 +17,12 @@ def draw_fg(surface, player):
 
 class GooLayer(object):
 	def __init__(self):
-		self.goo_level = 300
+		self.level = 300
 		self.goo_speed = 0.1
 		self.visible = True
 
 	def update(self, dt):
-		self.goo_level -= self.goo_speed * dt
+		self.level -= self.goo_speed * dt
 
 	def set_view(self, x, y, w, h, viewport_ox=0, viewport_oy=0):
 		y -= viewport_oy
@@ -30,8 +30,8 @@ class GooLayer(object):
 
 	def draw(self, screen):
 		rect = screen.get_rect()
-		if self.goo_level > self.position:
-			rect.top = self.goo_level - self.position
+		if self.level > self.position:
+			rect.top = self.level - self.position
 		screen.fill((200, 200, 200), rect)
 
 class PlatformLayer(object):
@@ -57,16 +57,14 @@ class PlatformLayer(object):
 		return LayerIterator(self)
 
 	def update(self, dt):
-		self._remove_assimilated()
+		pass
 
-	def _remove_assimilated(self):
+	def remove_assimilated(self, goo_level):
 		'''Remove stuff covered by goo'''
-		# view_y is getting more negative over time
-		# so we can remove anything more positive
-		return
-		max_height = self.view_y / self.tile_height
+		max_height = goo_level / self.tile_height
 		for (i, j) in self.cells.keys():
 			if j > max_height:
+				debug('platform consumed')
 				del self.cells[(i, j)]
 
 	def set_view(self, x, y, w, h, viewport_ox=0, viewport_oy=0):

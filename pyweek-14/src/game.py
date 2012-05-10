@@ -69,9 +69,12 @@ class Game(object):
 
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 
-		if self.goo.goo_level <= self.player.rect.bottom:
+		if self.goo.level <= self.player.rect.bottom:
 			info('You are dead')
 			return
+
+		# Remove old platforms
+		self.platforms.remove_assimilated(self.goo.level)
 
 		# Generate out of view platforms
 		if self.camera.viewport.top <= self.next_platform:
