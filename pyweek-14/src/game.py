@@ -27,7 +27,7 @@ class Game(object):
 		self.sprites = SpriteLayer()
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
-		self.player = Player((1, -tilesize), self.sprites)
+		self.player = Player((1, -tilesize-200), self.sprites)
 		self.generate_platform((0, 0), width)
 		self.control = PlayerInput(self.player)
 
@@ -42,12 +42,14 @@ class Game(object):
 		#   generate next platform time
 		self.control.update(dt)
 		self.platforms.collide_wall(self.player.rect)
-		for obstacle in self.platforms.collide(self.player.rect, 'platform'):
-			self.player.rect.bottom = min(self.player.rect.bottom, obstacle.top)
-
-		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 		self.camera.update(dt)
 
+		for obstacle in self.platforms.collide(self.player.rect, 'platform'):
+			self.player.rect.bottom = min(self.player.rect.bottom - 1, obstacle.top)
+			debug('thud')
+			self.player.endjump()
+
+		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 
 	def draw(self, screen):
 		screen.fill((255, 255, 255))
@@ -55,7 +57,7 @@ class Game(object):
 		pygame.display.flip()
 
 	def handle_pygame_event(self, event):
-		pass
+		self.control.handle_pygame_event(event)
 
 	def generate_platform(self, pos, width_tiles= 1):
 		i_min, j = pos
@@ -82,7 +84,11 @@ class PlayerInput(object):
 		elif keys[self.keys['right']]:
 			self.player.right(dt)
 		if keys[self.keys['up']]:
-			self.player.rect.top -= self.player.speed * dt
-		elif keys[self.keys['down']]:
-			self.player.rect.top += self.player.speed * dt
+			self.player.up(dt)
+
+	def handle_pygame_event(self, event):
+		if event.type == pygame.KEYDOWN:
+			if event.key == self.keys['up']:
+				debug('boing')
+				self.player.jump()
 

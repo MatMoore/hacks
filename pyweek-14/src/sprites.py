@@ -41,7 +41,6 @@ class PlatformLayer(object):
 				del self.cells[(i, j)]
 
 	def set_view(self, x, y, w, h, viewport_ox=0, viewport_oy=0):
-		debug('set_view %d %d' % (x, y))
 		self.view_x, self.view_y = x, y
 		self.view_w, self.view_h = w, h
 		x -= viewport_ox
@@ -159,12 +158,55 @@ class Player(pygame.sprite.Sprite):
 		self.resting = False
 		self.dy = 0
 		self.speed = settings.getfloat('Physics', 'run_speed')
+		self.max_jetpack = settings.getint('Physics', 'jetpack_time')
+		self.jump_speed = settings.getfloat('Physics', 'jump_speed')
+		self.jetpack_accn = settings.getfloat('Physics', 'jetpack_accn')
+		self.jetpack_time = self.max_jetpack
+		self.recharge_rate = self.max_jetpack / settings.getfloat('Physics', 'jetpack_recharge_time')
+		self.gravity = settings.getfloat('Physics', 'gravity')
+		self.terminal_velocity = settings.getfloat('Physics', 'terminal_velocity')
 
 	def left(self, dt):
 		self.rect.left -= self.speed * dt
 
 	def right(self, dt):
 		self.rect.left += self.speed * dt
+
+	def jump(self):
+		# Initial jump
+		if self.resting:
+			self.resting = False
+			self.dy = -self.jump_speed
+
+	def up(self, dt):
+		if self.resting:
+			# Jump must occur first
+			return
+
+		# Jetpack acceleration
+		if self.jetpack_time > 0:
+			debug('woosh')
+			jetpack_time = min(dt, self.jetpack_time)
+			self.dy -= self.jetpack_accn * jetpack_time
+			self.jetpack_time -= jetpack_time
+
+	def endjump(self):
+		self.resting = True
+		self.dy = 0
+
+	def update(self, dt):
+		if self.resting:
+			# Recharge jetpack
+			self.jetpack_time = min(self.max_jetpack,
+					self.jetpack_time + self.recharge_rate * dt)
+		else:
+			# Gravity
+			self.dy += self.gravity * dt
+			self.dy = min(self.dy, self.terminal_velocity)
+			self.dy = max(self.dy, -self.terminal_velocity)
+
+			# Oh hi inertia
+			self.rect.top += self.dy * dt
 
 
 class Camera(object):
@@ -212,9 +254,8 @@ class Camera(object):
         # check for NOOP (same arg passed in)
         if not force and self._old_focus == a:
             return
-        self._old_focus = a
 
-        debug('set focus %d %d' % (fx, fy))
+        self._old_focus = a
 
         # get our viewport information, scaled as appropriate
         w = int(self.view_w)
