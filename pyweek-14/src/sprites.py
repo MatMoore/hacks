@@ -207,7 +207,7 @@ class Camera(object):
         h = int(self.view_h)
         w2, h2 = w//2, h//2
 
-        restricted_fx = 0
+        restricted_fx = w2
         restricted_fy = fy
 
         # ... and this is our focus point, center of screen

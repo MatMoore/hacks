@@ -18,8 +18,9 @@ class Game(object):
 		self.platforms = PlatformLayer()
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
-		self.player = Player((0, 0), self.sprites)
-		self.generate_platform((-1, -1))
+		self.player = Player((0, -32), self.sprites)
+		self.width = (viewport[1] + 31) / 32
+		self.generate_platform((0, 0), self.width)
 		self.control = PlayerInput(self.player)
 
 	def update(self, dt):
