@@ -22,7 +22,7 @@ class Game(object):
 		self.levels = levels()
 		self.next_level()
 
-		self.all_powerups = ['double_speed', 'half_speed']
+		self.all_powerups = ['double_speed', 'half_speed', 'half_gravity', 'double_jetpack', 'reverse_keys']
 		self.powerups = {}
 
 		tilesize = settings.getint('Graphics', 'tilesize')
@@ -68,9 +68,33 @@ class Game(object):
 	def powerdown_half_speed(self):
 		self.player.speed *= 2
 
+	def powerup_double_gravity(self):
+		self.player.gravity *= 1.25
+
+	def powerdown_double_gravity(self):
+		self.player.gravity *= 0.8
+
+	def powerup_half_gravity(self):
+		self.player.gravity *= 0.5
+
+	def powerdown_half_gravity(self):
+		self.player.gravity *= 2
+
+	def powerup_double_jetpack(self):
+		self.player.max_jetpack *= 2
+
+	def powerdown_double_jetpack(self):
+		self.player.max_jetpack *= 0.5
+
+	def powerup_reverse_keys(self):
+		self.control.reverse_keys()
+
+	def powerdown_reverse_keys(self):
+		self.control.reverse_keys()
+
 	def add_powerup(self, name):
 		info('Go go gadget ' + name + '!')
-		self.powerups[name] = 5000
+		self.powerups[name] = 10000
 		getattr(self, 'powerup_' + name)()
 
 	def update_powerups(self, dt):
@@ -78,6 +102,7 @@ class Game(object):
 			self.powerups[k] -= dt
 			if self.powerups[k] < 0:
 				del self.powerups[k]
+				info('Used up ' + k)
 				getattr(self, 'powerdown_' + k)()
 
 	def generate_path(self):
@@ -187,6 +212,9 @@ class PlayerInput(object):
 			self.keys[action] = value
 			debug('Setting %s to %s' % (action, value))
 		self.jumping = False
+
+	def reverse_keys(self):
+		self.keys['left'], self.keys['right'] = (self.keys['right'], self.keys['left'])
 
 	def update(self, dt):
 		keys = pygame.key.get_pressed()

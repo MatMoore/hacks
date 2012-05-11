@@ -9,7 +9,7 @@ from resource import load_font
 def draw_fg(surface, player):
 	font = load_font('VeraMono.ttf', 32)
 
-	jetpack_percent = float(player.jetpack_time)/player.max_jetpack
+	jetpack_percent = min(1.0, float(player.jetpack_time)/player.max_jetpack)
 	text = font.render('%2.f' % (jetpack_percent * 100), True, (int(255 - jetpack_percent * 255), 0, 0))
 	x = surface.get_width()-text.get_width() - 10
 	y = 10
