@@ -31,5 +31,14 @@ def load_font(filename, size):
 		fonts[(filename, size)] = pygame.font.Font(path, size)
 	return fonts[(filename, size)]
 
+def load_sounds():
+	sounds = {}
+	for filename in ('jetpack.wav', 'win.wav', 'WilhelmScream.ogg', 'powerup.wav'):
+		path = file_path(filename)
+		sounds[filename] = pygame.mixer.Sound(path)
+	sounds['jetpack.wav'].set_volume(0.1)
+	sounds['powerup.wav'].set_volume(0.8)
+	return sounds
+
 def levels():
 	return json.load(open(file_path('levels.json'), 'r'))

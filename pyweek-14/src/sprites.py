@@ -193,8 +193,9 @@ class PlatformLayer(object):
 		return n
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, location, *groups):
+	def __init__(self, location, sounds, *groups):
 		pygame.sprite.Sprite.__init__(self, *groups)
+		self.sounds = sounds
 		self.image = load_image('player.png')
 		self.rect = pygame.rect.Rect(location, self.image.get_size())
 		self.resting = False
@@ -218,6 +219,7 @@ class Player(pygame.sprite.Sprite):
 		# Initial jump
 		if self.resting:
 			debug('boing')
+			c=self.sounds['jetpack.wav'].play()
 			self.resting = False
 			self.dy = -self.jump_speed
 

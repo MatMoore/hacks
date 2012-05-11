@@ -1,6 +1,6 @@
 '''Core game logic goes here'''
 
-from resource import load_image, file_path, levels
+from resource import load_image, file_path, levels, load_sounds
 import pygame
 from logging import info,debug,error
 from config import settings
@@ -19,6 +19,8 @@ class Game(object):
 	def __init__(self, viewport):
 		self.viewport = viewport
 		object.__init__(self)
+
+		self.sounds = load_sounds()
 
 		self.tilesize = settings.getint('Graphics', 'tilesize')
 
@@ -53,7 +55,7 @@ class Game(object):
 		for sprite in self.psprites:
 			sprite.kill()
 		self.goo.level = 400
-		self.player = Player((1, - self.tilesize), self.sprites)
+		self.player = Player((1, - self.tilesize), self.sounds, self.sprites)
 		self.control = PlayerInput(self.player)
 		self.powerups = {}
 		self.player.rect.bottom = -20
@@ -76,8 +78,9 @@ class Game(object):
 			self.level = self.levels[self.level_no]
 			self.level_no += 1
 			self.goo.goo_speed = self.level['goo_speed']
-			self.target = self.height - 10000
+			self.target = self.height - 5000
 		except IndexError:
+			self.sounds['win.wav'].play()
 			raise AWinnerIsYou()
 
 	@property
@@ -200,10 +203,12 @@ class Game(object):
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 
 		if self.goo.level <= self.player.rect.bottom:
+			self.sounds['WilhelmScream.ogg'].play()
 			raise Death
 
 		# Pick up powerups
 		for powerup in pygame.sprite.spritecollide(self.player, self.psprites, True):
+			self.sounds['powerup.wav'].play()
 			self.add_powerup(powerup.name)
 
 		# Remove used up powerups

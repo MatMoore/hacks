@@ -41,7 +41,6 @@ def main():
 
 def run(screen, clock, max_framerate, world):
 	'''Create a new game'''
-	info('Begin')
 	try:
 		while True:
 			ms = clock.tick(max_framerate)
@@ -64,6 +63,7 @@ def run(screen, clock, max_framerate, world):
 		while c.waiting:
 			clock.tick(max_framerate)
 			poll(c.handle_pygame_event)
+		info('New game')
 
 class ContinueScreen(object):
 	def __init__(self, text):
@@ -73,7 +73,6 @@ class ContinueScreen(object):
 
 	def handle_pygame_event(self, event):
 		if event.type == pygame.KEYDOWN:
-			print 'bye'
 			self.waiting = False
 
 	def draw(self, surface):
