@@ -1,0 +1,9 @@
+[
+	{
+		"goo_speed": 0.05,
+		"max_jump": 15,
+		"min_jump": 5,
+		"min_platform_width": 5,
+		"max_platform_width": 10
+	}
+]

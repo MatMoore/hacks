@@ -2,6 +2,7 @@
 import os
 import sys
 import pygame
+import json
 
 images = {}
 fonts = {}
@@ -29,3 +30,6 @@ def load_font(filename, size):
 		path = os.path.join(data_path(), 'fonts', filename)
 		fonts[(filename, size)] = pygame.font.Font(path, size)
 	return fonts[(filename, size)]
+
+def levels():
+	return json.load(open(file_path('levels.json'), 'r'))

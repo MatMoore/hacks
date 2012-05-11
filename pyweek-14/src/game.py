@@ -1,11 +1,12 @@
 '''Core game logic goes here'''
 
-from resource import load_image, file_path
+from resource import load_image, file_path, levels
 import pygame
 from logging import info,debug,error
 from config import settings
 from lib.tmx import Layer, SpriteLayer, Tileset
 from sprites import Camera, PlatformLayer, Player, draw_fg, GooLayer
+from random import randint
 
 class Game(object):
 	'''Main game object to track anything that persists between levels'''
@@ -13,15 +14,19 @@ class Game(object):
 		self.viewport = viewport
 		object.__init__(self)
 
+		self.levels = levels()
+		self.next_level()
+
 		tilesize = settings.getint('Graphics', 'tilesize')
+		self.tilesize = tilesize
 
 		# Round width/height to nearest tile
 		viewport = (viewport[0]/tilesize*tilesize, viewport[1]/tilesize*tilesize)
-		width = viewport[0] / tilesize
+		self.width = viewport[0] / tilesize
 
 		tileset = Tileset('platforms', tilesize, tilesize, 0)
 		tileset.add_image(file_path('platforms.png'))
-		self.platforms = PlatformLayer(width, tileset)
+		self.platforms = PlatformLayer(self.width, tileset)
 
 		self.camera = Camera(viewport)
 		self.sprites = SpriteLayer()
@@ -30,20 +35,51 @@ class Game(object):
 		self.camera.layers.append(self.sprites)
 		self.camera.layers.append(self.goo)
 		self.player = Player((1, -tilesize), self.sprites)
-		self.generate_platform((0, 0), 15)
+		self.generate_platform((0, 0), self.width)
 		self.generate_platform((0, -20), 15)
+		self.generate_platform((15, -35), 15)
+		self.generate_platform((15, -50), 15)
 		self.control = PlayerInput(self.player)
-		self.next_platform = -viewport[1]-10
+		self.next_platform = -50 * tilesize
+		self.last = (15, -50, 15)
+
+	def next_level(self):
+		self.level = self.levels.pop(0)
+
+	def generate_path(self):
+		minwidth, maxwidth = (self.level['min_platform_width'],
+				self.level['max_platform_width'])
+		minjump, maxjump = (self.level['min_jump'],
+				self.level['max_jump'])
+
+		lastx, lasty, lastwidth = self.last
+		targety = lasty - randint(minjump, maxjump)
+
+		targetx = randint(0, self.width)
+
+		targetwidth = randint(minwidth, maxwidth)
+
+		self.generate_platform((targetx, targety), targetwidth)
+
+		# Check that the horizontal distance between platforms is small enough
+		dx = min(abs(lastx - targetx), abs((lastx + lastwidth) - (targetx + targetwidth)))
+		while dx > 15:
+			# Create path to target
+			lasty = lasty - maxjump
+			if targetx > lastx:
+				lastx = lastx + lastwidth/2
+				lastwidth = randint(lastwidth, maxwidth)
+			else:
+				lastx = lastx - lastwidth/2
+				lastwidth = randint(lastwidth, maxwidth)
+			self.generate_platform((lastx, lasty), lastwidth)
+			dx = min(abs(lastx - targetx), abs((lastx + lastwidth) - (targetx + targetwidth)))
+
+		# Generate the next platform once this one becomes visible
+		self.next_platform = targety * self.tilesize
+		self.last = (targetx, targety, targetwidth)
 
 	def update(self, dt):
-		# remove everything that has gone past the bottom of the screen
-		# apply gravity to player
-		# apply player movement
-		# handle player - platform/wall collisions
-		# handle player - goo collisions
-		# if sand on screen and > next platform time:
-		#   generate platform
-		#   generate next platform time
 		height_before = self.player.rect.bottom
 
 		# Handle input
@@ -78,9 +114,7 @@ class Game(object):
 
 		# Generate out of view platforms
 		if self.camera.viewport.top <= self.next_platform:
-			y = self.next_platform/self.platforms.tile_height
-			self.generate_platform((0,y-1), 5)
-			self.next_platform -= 300
+			self.generate_path()
 
 	def draw(self, screen):
 		screen.fill((255, 255, 255))

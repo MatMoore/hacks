@@ -27,6 +27,7 @@ class GooLayer(object):
 	def set_view(self, x, y, w, h, viewport_ox=0, viewport_oy=0):
 		y -= viewport_oy
 		self.position = y
+		self.level = min(self.level, self.position+700)
 
 	def draw(self, screen):
 		rect = screen.get_rect()
