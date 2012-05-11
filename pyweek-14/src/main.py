@@ -5,6 +5,7 @@ import game
 import pygame
 from logging import info, debug, error
 from game import Death, AWinnerIsYou
+from resource import load_font
 
 class GameQuit(Exception):
 	pass
@@ -30,25 +31,62 @@ def main():
 	screen = pygame_init(name, size)
 	clock = pygame.time.Clock()
 	max_framerate = settings.getint('Graphics', 'framerate')
+	world = game.Game(screen.get_size())
 
-	done = False
-	while not done:
-		world = game.Game(screen.get_size())
-		try:
-			while True:
-				ms = clock.tick(max_framerate)
-				world.update(ms)
-				poll(world.handle_pygame_event)
-				world.draw(screen)
-		except GameQuit:
-			info('Goodbye')
-			done = True
-		except AWinnerIsYou:
-			info('You win')
-			# TODO continue screen
-		except Death:
-			info('You are dead!')
-			# TODO continue screen
+	try:
+		while True:
+			run(screen, clock, max_framerate, world)
+	except GameQuit:
+		info('Goodbye')
+
+def run(screen, clock, max_framerate, world):
+	'''Create a new game'''
+	info('Begin')
+	try:
+		while True:
+			ms = clock.tick(max_framerate)
+			world.update(ms)
+			poll(world.handle_pygame_event)
+			world.draw(screen)
+
+	except AWinnerIsYou:
+		info('You win')
+		c = ContinueScreen('Congratulation!')
+		c.draw(screen)
+		while c.waiting:
+			poll(lambda x: x)
+
+	except Death:
+		info('You are dead!')
+		c = ContinueScreen('You are dead! Press any key to try again')
+		c.draw(screen)
+		world.reset()
+		while c.waiting:
+			clock.tick(max_framerate)
+			poll(c.handle_pygame_event)
+
+class ContinueScreen(object):
+	def __init__(self, text):
+		object.__init__(self)
+		self.waiting = True
+		self.text = text
+
+	def handle_pygame_event(self, event):
+		if event.type == pygame.KEYDOWN:
+			print 'bye'
+			self.waiting = False
+
+	def draw(self, surface):
+		centred_text(self.text, surface)
+		pygame.display.flip()
+
+def centred_text(text, surface):
+	font = load_font('VeraMono.ttf', 24)
+	text = font.render(text, True, (0, 0, 0))
+	x = (surface.get_width() - text.get_width()) / 2
+	y = (surface.get_height() - text.get_height()) / 2
+	surface.blit(text, (x,y))
+
 
 def poll(callback):
 	for event in pygame.event.get():

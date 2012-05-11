@@ -26,14 +26,9 @@ class Game(object):
 		self.sprites = SpriteLayer()
 		self.psprites = SpriteLayer() # powerups
 
-		self.player = Player((1, - self.tilesize), self.sprites)
-
 		self.levels = levels()
-		self.level_no = 0
-		self.next_level()
 
 		self.all_powerups = ['double_speed', 'half_speed', 'half_gravity', 'double_jetpack', 'reverse_keys']
-		self.powerups = {}
 
 		# Round width/height to nearest tile
 		viewport = (viewport[0] / self.tilesize * self.tilesize, viewport[1] / self.tilesize * self.tilesize)
@@ -48,17 +43,37 @@ class Game(object):
 		self.camera.layers.append(self.sprites)
 		self.camera.layers.append(self.psprites)
 		self.camera.layers.append(self.goo)
+
+		self.reset()
+
+	def reset(self, level=1):
+		self.level_no = 0
+		for sprite in self.sprites:
+			sprite.kill()
+		for sprite in self.psprites:
+			sprite.kill()
+		self.goo.level = 400
+		self.player = Player((1, - self.tilesize), self.sprites)
+		self.control = PlayerInput(self.player)
+		self.powerups = {}
+		self.player.rect.bottom = -20
+		self.player.rect.left = -10
+
 		self.generate_platform((0, 0), self.width)
+
+		for i in range(level):
+			self.next_level()
+
 		self.generate_platform((0, -20), 15)
 		self.generate_platform((15, -35), 15)
 		self.generate_platform((15, -50), 15)
-		self.control = PlayerInput(self.player)
+
 		self.next_platform = -50 * self.tilesize
 		self.last = (15, -50, 15)
 
 	def next_level(self):
 		try:
-			self.level = self.levels.pop(0)
+			self.level = self.levels[self.level_no]
 			self.level_no += 1
 			self.goo.goo_speed = self.level['goo_speed']
 			self.target = self.height - 10000
