@@ -8,6 +8,9 @@ from lib.tmx import Layer, SpriteLayer, Tileset
 from sprites import Camera, PlatformLayer, Player, draw_fg, GooLayer
 from random import randint
 
+class Death(Exception):
+	pass
+
 class Game(object):
 	'''Main game object to track anything that persists between levels'''
 	def __init__(self, viewport):
@@ -106,8 +109,7 @@ class Game(object):
 		self.camera.set_focus(self.player.rect.x, self.player.rect.y)
 
 		if self.goo.level <= self.player.rect.bottom:
-			info('You are dead')
-			return
+			raise Death
 
 		# Remove old platforms
 		self.platforms.remove_assimilated(self.goo.level)

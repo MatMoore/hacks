@@ -4,8 +4,10 @@ from config import settings
 import game
 import pygame
 from logging import info, debug, error
-from control import Controller,GameQuit
+from game import Death
 
+class GameQuit(Exception):
+	pass
 
 def pygame_init(name, size):
 	pygame.init()
@@ -23,22 +25,30 @@ def main():
 	size = settings.getint('Graphics', 'width'), \
 		settings.getint('Graphics', 'height')
 
-	info('Starting '+name+'...')
+	info('Escape the grey goo.')
 
 	screen = pygame_init(name, size)
+	clock = pygame.time.Clock()
+	max_framerate = settings.getint('Graphics', 'framerate')
 
-	# create models
-	world = game.Game(screen.get_size())
+	done = False
+	while not done:
+		world = game.Game(screen.get_size())
+		try:
+			while True:
+				ms = clock.tick(max_framerate)
+				world.update(ms)
+				poll(world.handle_pygame_event)
+				world.draw(screen)
+		except GameQuit:
+			info('Goodbye')
+			done = True
+		except Death:
+			info('You are dead!')
+			# TODO continue screen
 
-	# create controllers
-	controller = Controller()
-	controller.ticks.add_listener(world.update)
-	controller.events.add_listener(world.handle_pygame_event)
-
-	# run game
-	try:
-		while True:
-			controller.tick()
-			world.draw(screen)
-	except GameQuit:
-		info('Goodbye')
+def poll(callback):
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			raise GameQuit()
+		callback(event)
