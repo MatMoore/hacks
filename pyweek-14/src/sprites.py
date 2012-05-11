@@ -15,6 +15,13 @@ def draw_fg(surface, player):
 	y = 10
 	surface.blit(text, (x, y))
 
+class Powerup(pygame.sprite.Sprite):
+	def __init__(self, location, powerup, *groups):
+		pygame.sprite.Sprite.__init__(self, *groups)
+		self.image = load_image('powerup.png')
+		self.rect = pygame.rect.Rect(location, self.image.get_size())
+		self.name = powerup
+
 class GooLayer(object):
 	def __init__(self):
 		self.level = 300

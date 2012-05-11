@@ -5,8 +5,8 @@ import pygame
 from logging import info,debug,error
 from config import settings
 from lib.tmx import Layer, SpriteLayer, Tileset
-from sprites import Camera, PlatformLayer, Player, draw_fg, GooLayer
-from random import randint
+from sprites import Camera, PlatformLayer, Player, draw_fg, GooLayer, Powerup
+from random import randint, random, choice
 
 class Death(Exception):
 	pass
@@ -17,8 +17,13 @@ class Game(object):
 		self.viewport = viewport
 		object.__init__(self)
 
+		self.goo = GooLayer()
+
 		self.levels = levels()
 		self.next_level()
+
+		self.all_powerups = ['double_speed', 'half_speed']
+		self.powerups = {}
 
 		tilesize = settings.getint('Graphics', 'tilesize')
 		self.tilesize = tilesize
@@ -33,9 +38,10 @@ class Game(object):
 
 		self.camera = Camera(viewport)
 		self.sprites = SpriteLayer()
-		self.goo = GooLayer()
+		self.psprites = SpriteLayer() # powerups
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
+		self.camera.layers.append(self.psprites)
 		self.camera.layers.append(self.goo)
 		self.player = Player((1, -tilesize), self.sprites)
 		self.generate_platform((0, 0), self.width)
@@ -48,8 +54,34 @@ class Game(object):
 
 	def next_level(self):
 		self.level = self.levels.pop(0)
+		self.goo.goo_speed = self.level['goo_speed']
+
+	def powerup_double_speed(self):
+		self.player.speed *= 2
+
+	def powerdown_double_speed(self):
+		self.player.speed *= 0.5
+
+	def powerup_half_speed(self):
+		self.player.speed *= 0.5
+
+	def powerdown_half_speed(self):
+		self.player.speed *= 2
+
+	def add_powerup(self, name):
+		info('Go go gadget ' + name + '!')
+		self.powerups[name] = 5000
+		getattr(self, 'powerup_' + name)()
+
+	def update_powerups(self, dt):
+		for k in self.powerups.keys():
+			self.powerups[k] -= dt
+			if self.powerups[k] < 0:
+				del self.powerups[k]
+				getattr(self, 'powerdown_' + k)()
 
 	def generate_path(self):
+		powerup_rate = self.level['powerup_rate']
 		minwidth, maxwidth = (self.level['min_platform_width'],
 				self.level['max_platform_width'])
 		minjump, maxjump = (self.level['min_jump'],
@@ -58,15 +90,20 @@ class Game(object):
 		lastx, lasty, lastwidth = self.last
 		targety = lasty - randint(minjump, maxjump)
 
-		targetx = randint(0, self.width)
-
 		targetwidth = randint(minwidth, maxwidth)
+		targetx = randint(0, self.width-targetwidth)
 
 		self.generate_platform((targetx, targety), targetwidth)
 
+		if random() < powerup_rate:
+			debug('oh hi powerup')
+			offset = randint(0, targetwidth)
+			pos = (self.tilesize * (targetx + offset), self.tilesize * (targety-1))
+			powerup = Powerup(pos, choice(self.all_powerups), self.psprites)
+
 		# Check that the horizontal distance between platforms is small enough
 		dx = min(abs(lastx - targetx), abs((lastx + lastwidth) - (targetx + targetwidth)))
-		while dx > 15:
+		while dx > 20:
 			# Create path to target
 			lasty = lasty - maxjump
 			if targetx > lastx:
@@ -93,8 +130,6 @@ class Game(object):
 		self.camera.update(dt)
 
 		# Player can only collide with stuff from above.
-		# It might be a bit glitchy if the player falls into a platform from the side,
-		# but lets just let that slide
 		resting = False
 		for obstacle in self.platforms.collide(self.player.rect, 'platform'):
 			if height_before <= obstacle.top:
@@ -110,6 +145,13 @@ class Game(object):
 
 		if self.goo.level <= self.player.rect.bottom:
 			raise Death
+
+		# Pick up powerups
+		for powerup in pygame.sprite.spritecollide(self.player, self.psprites, True):
+			self.add_powerup(powerup.name)
+
+		# Remove used up powerups
+		self.update_powerups(dt)
 
 		# Remove old platforms
 		self.platforms.remove_assimilated(self.goo.level)
