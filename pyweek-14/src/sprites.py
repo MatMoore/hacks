@@ -6,14 +6,21 @@ from resource import load_image, file_path
 from logging import info, debug, error
 from resource import load_font
 
-def draw_fg(surface, player):
+def draw_fg(surface, player, level, height):
 	font = load_font('VeraMono.ttf', 32)
+	font2 = load_font('VeraMono.ttf', 48)
+	font3 = load_font('VeraMono.ttf', 20)
 
 	jetpack_percent = min(1.0, float(player.jetpack_time)/player.max_jetpack)
 	text = font.render('%2.f' % (jetpack_percent * 100), True, (int(255 - jetpack_percent * 255), 0, 0))
 	x = surface.get_width()-text.get_width() - 10
 	y = 10
 	surface.blit(text, (x, y))
+
+	text = font2.render(str(level), True, (0, 0, 255))
+	surface.blit(text, (10, 10))
+	text = font3.render(str(height), True, (0, 0, 255))
+	surface.blit(text, (12, 60))
 
 class Powerup(pygame.sprite.Sprite):
 	def __init__(self, location, powerup, *groups):

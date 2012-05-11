@@ -11,50 +11,63 @@ from random import randint, random, choice
 class Death(Exception):
 	pass
 
+class AWinnerIsYou(Exception):
+	pass
+
 class Game(object):
 	'''Main game object to track anything that persists between levels'''
 	def __init__(self, viewport):
 		self.viewport = viewport
 		object.__init__(self)
 
+		self.tilesize = settings.getint('Graphics', 'tilesize')
+
 		self.goo = GooLayer()
+		self.sprites = SpriteLayer()
+		self.psprites = SpriteLayer() # powerups
+
+		self.player = Player((1, - self.tilesize), self.sprites)
 
 		self.levels = levels()
+		self.level_no = 0
 		self.next_level()
 
 		self.all_powerups = ['double_speed', 'half_speed', 'half_gravity', 'double_jetpack', 'reverse_keys']
 		self.powerups = {}
 
-		tilesize = settings.getint('Graphics', 'tilesize')
-		self.tilesize = tilesize
-
 		# Round width/height to nearest tile
-		viewport = (viewport[0]/tilesize*tilesize, viewport[1]/tilesize*tilesize)
-		self.width = viewport[0] / tilesize
+		viewport = (viewport[0] / self.tilesize * self.tilesize, viewport[1] / self.tilesize * self.tilesize)
+		self.width = viewport[0] / self.tilesize
 
-		tileset = Tileset('platforms', tilesize, tilesize, 0)
+		tileset = Tileset('platforms', self.tilesize, self.tilesize, 0)
 		tileset.add_image(file_path('platforms.png'))
 		self.platforms = PlatformLayer(self.width, tileset)
 
 		self.camera = Camera(viewport)
-		self.sprites = SpriteLayer()
-		self.psprites = SpriteLayer() # powerups
 		self.camera.layers.append(self.platforms)
 		self.camera.layers.append(self.sprites)
 		self.camera.layers.append(self.psprites)
 		self.camera.layers.append(self.goo)
-		self.player = Player((1, -tilesize), self.sprites)
 		self.generate_platform((0, 0), self.width)
 		self.generate_platform((0, -20), 15)
 		self.generate_platform((15, -35), 15)
 		self.generate_platform((15, -50), 15)
 		self.control = PlayerInput(self.player)
-		self.next_platform = -50 * tilesize
+		self.next_platform = -50 * self.tilesize
 		self.last = (15, -50, 15)
 
 	def next_level(self):
-		self.level = self.levels.pop(0)
-		self.goo.goo_speed = self.level['goo_speed']
+		try:
+			self.level = self.levels.pop(0)
+			self.level_no += 1
+			self.goo.goo_speed = self.level['goo_speed']
+			self.target = self.height - 10000
+		except IndexError:
+			raise AWinnerIsYou()
+
+	@property
+	def height(self):
+		return self.player.rect.bottom
 
 	def powerup_double_speed(self):
 		self.player.speed *= 2
@@ -145,6 +158,9 @@ class Game(object):
 		self.last = (targetx, targety, targetwidth)
 
 	def update(self, dt):
+		if self.height < self.target:
+			self.next_level()
+
 		height_before = self.player.rect.bottom
 
 		# Handle input
@@ -188,7 +204,7 @@ class Game(object):
 	def draw(self, screen):
 		screen.fill((255, 255, 255))
 		self.camera.draw(screen)
-		draw_fg(screen, self.player)
+		draw_fg(screen, self.player, self.level_no, 0-self.height)
 		pygame.display.flip()
 
 	def handle_pygame_event(self, event):

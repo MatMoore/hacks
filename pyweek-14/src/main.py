@@ -4,7 +4,7 @@ from config import settings
 import game
 import pygame
 from logging import info, debug, error
-from game import Death
+from game import Death, AWinnerIsYou
 
 class GameQuit(Exception):
 	pass
@@ -43,6 +43,9 @@ def main():
 		except GameQuit:
 			info('Goodbye')
 			done = True
+		except AWinnerIsYou:
+			info('You win')
+			# TODO continue screen
 		except Death:
 			info('You are dead!')
 			# TODO continue screen
