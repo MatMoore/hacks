@@ -24,9 +24,16 @@ def draw_fg(surface, player, level, height):
 	surface.blit(text, (12, 60))
 
 class Powerup(pygame.sprite.Sprite):
+	sprites = {
+			'double_speed': 'rainbow.png',
+			'half_speed': 'yellow.png',
+			'half_gravity': 'purple.png',
+			'double_jetpack': 'orange.png',
+			'reverse_keys': 'pink.png',
+	}
 	def __init__(self, location, powerup, *groups):
 		pygame.sprite.Sprite.__init__(self, *groups)
-		self.image = load_image('powerup.png')
+		self.image = load_image(self.sprites[powerup])
 		self.rect = pygame.rect.Rect(location, self.image.get_size())
 		self.name = powerup
 
