@@ -26,6 +26,4 @@ Othewise open a terminal / console and "cd" to the game directory and run:
 How to Play the Game
 --------------------
 
-Move the cursor around the screen with the mouse.
-
-Press the left mouse button to fire the ducks.
+Due to a programming error, you have accidently created a massive swarm of self-replicating nanobots. Avoid these.
