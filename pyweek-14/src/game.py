@@ -152,7 +152,7 @@ class Game(object):
 
 		if random() < powerup_rate:
 			debug('oh hi powerup')
-			offset = randint(0, targetwidth)
+			offset = randint(0, targetwidth-1)
 			pos = (self.tilesize * (targetx + offset), self.tilesize * (targety-1))
 			powerup = Powerup(pos, choice(self.all_powerups), self.psprites)
 
@@ -166,7 +166,10 @@ class Game(object):
 				lastwidth = randint(lastwidth, maxwidth)
 			else:
 				lastx = lastx - lastwidth/2
-				lastwidth = randint(lastwidth, maxwidth)
+				if lastwidth >= maxwidth:
+					lastwidth = maxwidth
+				else:
+					lastwidth = randint(lastwidth, maxwidth)
 			self.generate_platform((lastx, lasty), lastwidth)
 			dx = min(abs(lastx - targetx), abs((lastx + lastwidth) - (targetx + targetwidth)))
 
