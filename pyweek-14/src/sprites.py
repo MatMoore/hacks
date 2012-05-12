@@ -23,6 +23,25 @@ def draw_fg(surface, player, level, height):
 	text = font3.render(str(height), True, (0, 0, 255))
 	surface.blit(text, (12, 60))
 
+class Animation(object):
+	def __init__(self, surface, width, total_time):
+		self.frames = []
+		height = surface.get_height()
+		for x in range(0, surface.get_width()-1, width):
+			rect = Rect(x, 0, width, height)
+			self.frames.append(surface.subsurface(rect))
+		self.total_time = total_time
+		self.frame_time = float(total_time) / len(self.frames)
+		self.t = 0
+
+	@property
+	def current(self):
+		frame = int(self.t / self.frame_time)
+		return self.frames[frame]
+
+	def update(self, dt):
+		self.t = (self.t + dt) % self.total_time
+
 class Powerup(pygame.sprite.Sprite):
 	sprites = {
 			'double_speed': 'rainbow.png',
@@ -212,9 +231,13 @@ class PlatformLayer(object):
 class Player(pygame.sprite.Sprite):
 	def __init__(self, location, *groups):
 		pygame.sprite.Sprite.__init__(self, *groups)
-		self.image = load_image('player.png')
-		self.rect = pygame.rect.Rect(location, self.image.get_size())
+		self.running = Animation(load_image('player-normal.png'), 20, 100)
+		self.flying = Animation(load_image('player-jetpack.png'), 20, 100)
+		self.running_l = Animation(load_image('player-normal-l.png'), 20, 100)
+		self.flying_l = Animation(load_image('player-jetpack-l.png'), 20, 100)
 		self.resting = False
+		self.face_right = True
+		self.rect = pygame.rect.Rect(location, self.image.get_size())
 		self.dy = 0
 		self.speed = settings.getfloat('Physics', 'run_speed')
 		self.max_jetpack = settings.getint('Physics', 'jetpack_time')
@@ -227,9 +250,24 @@ class Player(pygame.sprite.Sprite):
 
 	def left(self, dt):
 		self.rect.left -= self.speed * dt
+		self.face_right = False
 
 	def right(self, dt):
 		self.rect.left += self.speed * dt
+		self.face_right = True
+
+	@property
+	def image(self):
+		if self.resting:
+			if self.face_right:
+				return self.running.current
+			else:
+				return self.running_l.current
+		else:
+			if self.face_right:
+				return self.flying.current
+			else:
+				return self.flying_l.current
 
 	def jump(self):
 		# Initial jump
@@ -256,6 +294,11 @@ class Player(pygame.sprite.Sprite):
 		self.dy = 0
 
 	def update(self, dt):
+		self.running.update(dt)
+		self.running_l.update(dt)
+		self.flying.update(dt)
+		self.flying_l.update(dt)
+
 		if self.resting:
 			# Recharge jetpack
 			self.jetpack_time = min(self.max_jetpack,

@@ -221,7 +221,12 @@ class Game(object):
 			self.generate_path()
 
 	def draw(self, screen):
-		screen.fill((255, 255, 255))
+		bg = load_image('platforms2.png')
+		for x in range(0, screen.get_width(), bg.get_width()):
+			for y in range(0, screen.get_height(), bg.get_height()):
+				screen.blit(bg, (x,y))
+
+#		screen.fill((255, 255, 255))
 		self.camera.draw(screen)
 		draw_fg(screen, self.player, self.level_no, 0-self.height)
 		pygame.display.flip()
