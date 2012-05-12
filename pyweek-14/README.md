@@ -12,6 +12,9 @@ http://ccmixter.org/files/DoKashiteru/19848
 is licensed under a Creative Commons license:
 http://creativecommons.org/licenses/by-nc/3.0/
 
+Thanks to Richard Jones for the TMX code (and platform tile!) available at
+https://bitbucket.org/r1chardj0n3s/pygame-tutorial
+
 
 Running the Game
 ----------------
