@@ -64,7 +64,7 @@ class Game(object):
 		for i in range(level):
 			self.next_level()
 
-		self.generate_platform((0, -20), 15)
+		self.generate_platform((0, -20), self.width)
 		self.generate_platform((15, -35), 15)
 		self.generate_platform((15, -50), 15)
 
