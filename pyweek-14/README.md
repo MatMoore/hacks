@@ -19,6 +19,8 @@ https://bitbucket.org/r1chardj0n3s/pygame-tutorial
 Running the Game
 ----------------
 
+This game requires NumPy and Pygame to run.
+
 On Windows or Mac OS X, locate the "run_game.py" file and double-click it.
 
 Othewise open a terminal / console and "cd" to the game directory and run:
