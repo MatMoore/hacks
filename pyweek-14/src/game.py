@@ -122,7 +122,7 @@ class Game(object):
 		self.control.reverse_keys()
 
 	def add_powerup(self, name):
-		info('Go go gadget ' + name + '!')
+		debug('Go go gadget ' + name + '!')
 		self.powerups[name] = 10000
 		getattr(self, 'powerup_' + name)()
 
@@ -131,7 +131,7 @@ class Game(object):
 			self.powerups[k] -= dt
 			if self.powerups[k] < 0:
 				del self.powerups[k]
-				info('Used up ' + k)
+				debug('Used up ' + k)
 				play_sound('powerdown.wav')
 				getattr(self, 'powerdown_' + k)()
 
@@ -146,7 +146,7 @@ class Game(object):
 		targety = lasty - randint(minjump, maxjump)
 
 		targetwidth = randint(minwidth, maxwidth)
-		targetx = randint(0, self.width-targetwidth)
+		targetx = randint(1, self.width-targetwidth)
 
 		self.generate_platform((targetx, targety), targetwidth)
 
