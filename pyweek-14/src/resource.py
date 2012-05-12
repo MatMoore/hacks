@@ -46,6 +46,13 @@ def load_sounds():
 def levels():
 	return json.load(open(file_path('levels.json'), 'r'))
 
+def play_music():
+	from config import settings
+	if not settings.getboolean('Sound', 'enabled'):
+		return
+	pygame.mixer.music.load(file_path('DoKashiteru_-_The_Annual_New_England_Xylophone_Symposium.ogg'))
+	pygame.mixer.music.play(-1)
+
 def play_sound(name):
 	try:
 		sounds[name].play()

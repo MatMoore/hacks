@@ -56,7 +56,7 @@ class Game(object):
 		self.player = Player((1, - self.tilesize), self.sprites)
 		self.control = PlayerInput(self.player)
 		self.powerups = {}
-		self.player.rect.bottom = -20
+		self.player.rect.bottom = 0
 		self.player.rect.left = -10
 
 		self.generate_platform((0, 0), self.width)

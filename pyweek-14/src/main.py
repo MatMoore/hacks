@@ -5,7 +5,7 @@ import game
 import pygame
 from logging import info, debug, error
 from game import Death, AWinnerIsYou
-from resource import load_font, load_sounds
+from resource import load_font, load_sounds, play_music
 
 class GameQuit(Exception):
 	pass
@@ -31,6 +31,8 @@ def main():
 	screen = pygame_init(name, size)
 	clock = pygame.time.Clock()
 	load_sounds()
+	play_music()
+
 	max_framerate = settings.getint('Graphics', 'framerate')
 	world = game.Game(screen.get_size(), options.level)
 
@@ -51,14 +53,14 @@ def run(screen, clock, max_framerate, world):
 
 	except AWinnerIsYou:
 		info('You win')
-		c = ContinueScreen('Congratulation!', (0, 100, 0))
+		c = ContinueScreen('You outlived the nanobots! Win!', (0, 100, 0))
 		c.draw(screen)
 		while c.waiting:
 			poll(lambda x: x)
 
 	except Death:
 		info('You are dead!')
-		c = ContinueScreen('You are dead! Press any key to try again', (255, 0, 0))
+		c = ContinueScreen('You are dead! Press any key to not be dead...', (255, 0, 0))
 		c.draw(screen)
 		world.reset(options.level)
 		while c.waiting:

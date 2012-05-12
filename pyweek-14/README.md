@@ -7,6 +7,11 @@ Team: ????
 Members: Mat  
 License: WTFPL  
 
+"The Annual New England Xylophone Symposium" by DoKashiteru (feat. spinning merkaba)
+http://ccmixter.org/files/DoKashiteru/19848
+is licensed under a Creative Commons license:
+http://creativecommons.org/licenses/by-nc/3.0/
+
 
 Running the Game
 ----------------
