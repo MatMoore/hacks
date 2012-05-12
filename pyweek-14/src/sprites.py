@@ -4,7 +4,7 @@ import pygame
 from config import settings
 from resource import load_image, file_path
 from logging import info, debug, error
-from resource import load_font
+from resource import load_font, play_sound
 
 def draw_fg(surface, player, level, height):
 	font = load_font('VeraMono.ttf', 32)
@@ -193,9 +193,8 @@ class PlatformLayer(object):
 		return n
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, location, sounds, *groups):
+	def __init__(self, location, *groups):
 		pygame.sprite.Sprite.__init__(self, *groups)
-		self.sounds = sounds
 		self.image = load_image('player.png')
 		self.rect = pygame.rect.Rect(location, self.image.get_size())
 		self.resting = False
@@ -219,7 +218,7 @@ class Player(pygame.sprite.Sprite):
 		# Initial jump
 		if self.resting:
 			debug('boing')
-			c=self.sounds['jetpack.wav'].play()
+			play_sound('jetpack.wav')
 			self.resting = False
 			self.dy = -self.jump_speed
 

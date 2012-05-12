@@ -5,7 +5,7 @@ import game
 import pygame
 from logging import info, debug, error
 from game import Death, AWinnerIsYou
-from resource import load_font
+from resource import load_font, load_sounds
 
 class GameQuit(Exception):
 	pass
@@ -30,6 +30,7 @@ def main():
 
 	screen = pygame_init(name, size)
 	clock = pygame.time.Clock()
+	load_sounds()
 	max_framerate = settings.getint('Graphics', 'framerate')
 	world = game.Game(screen.get_size())
 
@@ -50,14 +51,14 @@ def run(screen, clock, max_framerate, world):
 
 	except AWinnerIsYou:
 		info('You win')
-		c = ContinueScreen('Congratulation!')
+		c = ContinueScreen('Congratulation!', (0, 200, 0))
 		c.draw(screen)
 		while c.waiting:
 			poll(lambda x: x)
 
 	except Death:
 		info('You are dead!')
-		c = ContinueScreen('You are dead! Press any key to try again')
+		c = ContinueScreen('You are dead! Press any key to try again', (255, 0, 0))
 		c.draw(screen)
 		world.reset()
 		while c.waiting:
@@ -66,22 +67,23 @@ def run(screen, clock, max_framerate, world):
 		info('New game')
 
 class ContinueScreen(object):
-	def __init__(self, text):
+	def __init__(self, text, color):
 		object.__init__(self)
 		self.waiting = True
 		self.text = text
+		self.color = color
 
 	def handle_pygame_event(self, event):
 		if event.type == pygame.KEYDOWN:
 			self.waiting = False
 
 	def draw(self, surface):
-		centred_text(self.text, surface)
+		centred_text(self.text, surface, self.color)
 		pygame.display.flip()
 
-def centred_text(text, surface):
+def centred_text(text, surface, color=(0,0,0)):
 	font = load_font('VeraMono.ttf', 24)
-	text = font.render(text, True, (0, 0, 0))
+	text = font.render(text, True, color)
 	x = (surface.get_width() - text.get_width()) / 2
 	y = (surface.get_height() - text.get_height()) / 2
 	surface.blit(text, (x,y))

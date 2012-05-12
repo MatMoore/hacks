@@ -31,14 +31,23 @@ def load_font(filename, size):
 		fonts[(filename, size)] = pygame.font.Font(path, size)
 	return fonts[(filename, size)]
 
+sounds = {}
 def load_sounds():
-	sounds = {}
-	for filename in ('jetpack.wav', 'win.wav', 'WilhelmScream.ogg', 'powerup.wav'):
+	from config import settings
+	if not settings.getboolean('Sound', 'enabled'):
+		return
+	for filename in ('jetpack.wav', 'win.wav', 'WilhelmScream.ogg', 'powerup.wav', 'powerdown.wav'):
 		path = file_path(filename)
 		sounds[filename] = pygame.mixer.Sound(path)
 	sounds['jetpack.wav'].set_volume(0.1)
 	sounds['powerup.wav'].set_volume(0.8)
-	return sounds
+	sounds['powerdown.wav'].set_volume(0.4)
 
 def levels():
 	return json.load(open(file_path('levels.json'), 'r'))
+
+def play_sound(name):
+	try:
+		sounds[name].play()
+	except KeyError:
+		pass
