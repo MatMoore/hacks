@@ -5,6 +5,7 @@ from config import settings
 from resource import load_image, file_path
 from logging import info, debug, error
 from resource import load_font, play_sound
+from numpy.random import randint
 
 def draw_fg(surface, player, level, height):
 	font = load_font('VeraMono.ttf', 32)
@@ -43,11 +44,20 @@ class GooLayer(object):
 		self.position = y
 		self.level = min(self.level, self.position+700)
 
-	def draw(self, screen):
+	def draw(self, screen, tilesize=100):
 		rect = screen.get_rect()
 		if self.level > self.position:
 			rect.top = self.level - self.position
-		screen.fill((200, 200, 200), rect)
+		goo = pygame.Surface((tilesize, tilesize))
+		size = (tilesize, tilesize, 3)
+		goopx = randint(100, 175, size=size)
+		pygame.surfarray.blit_array(goo, goopx)
+		for x in range(rect.left, rect.width, tilesize):
+			for y in range(rect.top, rect.height, tilesize):
+				screen.blit(goo, (x, y))
+
+
+#		screen.fill((200, 200, 200), rect)
 
 class PlatformLayer(object):
 	'''Tile based layer with infinite height and fixed width'''
