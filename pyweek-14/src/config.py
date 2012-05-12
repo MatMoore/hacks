@@ -2,10 +2,7 @@
 import logging
 import optparse
 import resource
-try:
-	from configparser import ConfigParser
-except ImportError:
-	from ConfigParser import ConfigParser
+from ConfigParser import ConfigParser
 
 class Settings(ConfigParser):
 	'''Stores any tweakable settings or savable preferences'''
@@ -23,6 +20,8 @@ def parse_args():
 
 	parser.add_option("-v", "--debug", default=False, action='store_true',
 			dest='debug', help="Print debugging information")
+	parser.add_option("-l", "--level", default=1, action='store',
+			type='int', dest='level', help="Nothing to see here, move along")
 
 	return parser.parse_args()
 

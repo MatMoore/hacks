@@ -1,6 +1,6 @@
 '''Entry point for the game'''
 import config
-from config import settings
+from config import settings, options
 import game
 import pygame
 from logging import info, debug, error
@@ -32,7 +32,7 @@ def main():
 	clock = pygame.time.Clock()
 	load_sounds()
 	max_framerate = settings.getint('Graphics', 'framerate')
-	world = game.Game(screen.get_size())
+	world = game.Game(screen.get_size(), options.level)
 
 	try:
 		while True:
@@ -60,7 +60,7 @@ def run(screen, clock, max_framerate, world):
 		info('You are dead!')
 		c = ContinueScreen('You are dead! Press any key to try again', (255, 0, 0))
 		c.draw(screen)
-		world.reset()
+		world.reset(options.level)
 		while c.waiting:
 			clock.tick(max_framerate)
 			poll(c.handle_pygame_event)

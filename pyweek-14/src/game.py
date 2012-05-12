@@ -16,7 +16,7 @@ class AWinnerIsYou(Exception):
 
 class Game(object):
 	'''Main game object to track anything that persists between levels'''
-	def __init__(self, viewport):
+	def __init__(self, viewport, level=1):
 		self.viewport = viewport
 		object.__init__(self)
 
@@ -44,7 +44,7 @@ class Game(object):
 		self.camera.layers.append(self.psprites)
 		self.camera.layers.append(self.goo)
 
-		self.reset()
+		self.reset(level)
 
 	def reset(self, level=1):
 		self.level_no = 0
