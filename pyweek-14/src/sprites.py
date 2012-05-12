@@ -18,9 +18,9 @@ def draw_fg(surface, player, level, height):
 	y = 10
 	surface.blit(text, (x, y))
 
-	text = font2.render(str(level), True, (0, 0, 255))
+	text = font2.render(str(level), True, (0, 0, 150))
 	surface.blit(text, (10, 10))
-	text = font3.render(str(height), True, (0, 0, 255))
+	text = font3.render(str(height), True, (0, 0, 150))
 	surface.blit(text, (12, 60))
 
 class Animation(object):

@@ -51,7 +51,7 @@ def run(screen, clock, max_framerate, world):
 
 	except AWinnerIsYou:
 		info('You win')
-		c = ContinueScreen('Congratulation!', (0, 200, 0))
+		c = ContinueScreen('Congratulation!', (0, 100, 0))
 		c.draw(screen)
 		while c.waiting:
 			poll(lambda x: x)
