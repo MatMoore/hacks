@@ -1,0 +1,4 @@
+include run_game.py
+include README.md
+recursive-include data *
+recursive-include src *
