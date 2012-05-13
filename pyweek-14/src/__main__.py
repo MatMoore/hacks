@@ -96,3 +96,6 @@ def poll(callback):
 		if event.type == pygame.QUIT:
 			raise GameQuit()
 		callback(event)
+
+if __name__ == '__main__':
+	main()

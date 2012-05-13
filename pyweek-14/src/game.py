@@ -22,6 +22,10 @@ class Game(object):
 
 		self.tilesize = settings.getint('Graphics', 'tilesize')
 
+		# Preload images
+		for img in ('orange.png', 'pink.png', 'platforms.png', 'platforms2.png', 'player-jetpack-l.png', 'player-jetpack.png', 'player-normal-l.png', 'player-normal.png', 'purple.png', 'rainbow.png', 'yellow.png'):
+			load_image(img)
+
 		self.goo = GooLayer()
 		self.sprites = SpriteLayer()
 		self.psprites = SpriteLayer() # powerups
