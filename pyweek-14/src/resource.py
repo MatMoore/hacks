@@ -26,7 +26,7 @@ def load_font(filename, size):
 
 sounds = {}
 def load_sounds():
-	from config import settings
+	from .config import settings
 	if not settings.getboolean('Sound', 'enabled'):
 		return
 	for filename in ('jetpack.wav', 'win.wav', 'WilhelmScream.ogg', 'powerup.wav', 'powerdown.wav'):
@@ -40,7 +40,7 @@ def levels():
 	return json.load(open(file_path('levels.json'), 'r'))
 
 def play_music():
-	from config import settings
+	from .config import settings
 	if not settings.getboolean('Sound', 'enabled'):
 		return
 	pygame.mixer.music.load(file_path('DoKashiteru_-_The_Annual_New_England_Xylophone_Symposium.ogg'))

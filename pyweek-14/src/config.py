@@ -1,8 +1,11 @@
 '''Process command line options and config files'''
 import logging
 import optparse
-import resource
-from ConfigParser import ConfigParser
+from . import resource
+try:
+	from ConfigParser import ConfigParser
+except ImportError:
+	from configparser import ConfigParser
 
 class Settings(ConfigParser):
 	'''Stores any tweakable settings or savable preferences'''

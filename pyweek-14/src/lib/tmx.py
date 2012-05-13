@@ -87,8 +87,8 @@ class Tileset(object):
         if not image:
             sys.exit("Error creating new Tileset: file %s not found" % file)
         id = self.firstgid
-        for line in xrange(image.get_height()/self.tile_height):
-            for column in xrange(image.get_width()/self.tile_width):
+        for line in range(image.get_height()//self.tile_height):
+            for column in range(image.get_width()//self.tile_width):
                 pos = Rect(column*self.tile_width,
                     line*self.tile_height,
                     self.tile_width,

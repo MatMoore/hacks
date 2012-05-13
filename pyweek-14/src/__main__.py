@@ -1,11 +1,11 @@
 '''Entry point for the game'''
-import config
-from config import settings, options
-import game
+from . import config
+from .config import settings, options
+from . import game
 import pygame
 from logging import info, debug, error
-from game import Death, AWinnerIsYou
-from resource import load_font, load_sounds, play_music
+from .game import Death, AWinnerIsYou
+from .resource import load_font, load_sounds, play_music
 
 class GameQuit(Exception):
 	pass

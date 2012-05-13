@@ -1,11 +1,11 @@
 '''Core game logic goes here'''
 
-from resource import load_image, file_path, levels, play_sound
+from .resource import load_image, file_path, levels, play_sound
 import pygame
 from logging import info,debug,error
-from config import settings
-from lib.tmx import Layer, SpriteLayer, Tileset
-from sprites import Camera, PlatformLayer, Player, draw_fg, GooLayer, Powerup
+from .config import settings
+from .lib.tmx import Layer, SpriteLayer, Tileset
+from .sprites import Camera, PlatformLayer, Player, draw_fg, GooLayer, Powerup
 from random import randint, random, choice
 
 class Death(Exception):
@@ -35,8 +35,8 @@ class Game(object):
 		self.all_powerups = ['double_speed', 'half_speed', 'half_gravity', 'double_jetpack', 'reverse_keys']
 
 		# Round width/height to nearest tile
-		viewport = (viewport[0] / self.tilesize * self.tilesize, viewport[1] / self.tilesize * self.tilesize)
-		self.width = viewport[0] / self.tilesize
+		viewport = (viewport[0] // self.tilesize * self.tilesize, viewport[1] // self.tilesize * self.tilesize)
+		self.width = viewport[0] // self.tilesize
 
 		tileset = Tileset('platforms', self.tilesize, self.tilesize, 0)
 		tileset.add_image(file_path('platforms.png'))
@@ -131,7 +131,7 @@ class Game(object):
 		getattr(self, 'powerup_' + name)()
 
 	def update_powerups(self, dt):
-		for k in self.powerups.keys():
+		for k in list(self.powerups.keys()):
 			self.powerups[k] -= dt
 			if self.powerups[k] < 0:
 				del self.powerups[k]
@@ -166,10 +166,10 @@ class Game(object):
 			# Create path to target
 			lasty = lasty - maxjump
 			if targetx > lastx:
-				lastx = lastx + lastwidth/2
+				lastx = lastx + lastwidth//2
 				lastwidth = randint(lastwidth, maxwidth)
 			else:
-				lastx = lastx - lastwidth/2
+				lastx = lastx - lastwidth//2
 				if lastwidth >= maxwidth:
 					lastwidth = maxwidth
 				else:

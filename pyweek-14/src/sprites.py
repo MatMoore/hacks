@@ -1,10 +1,10 @@
-from lib.tmx import Tile, Tileset, SpriteLayer, Cell, Layers, Tilesets, LayerIterator
+from .lib.tmx import Tile, Tileset, SpriteLayer, Cell, Layers, Tilesets, LayerIterator
 from pygame.rect import Rect
 import pygame
-from config import settings
-from resource import load_image, file_path
+from .config import settings
+from .resource import load_image, file_path
 from logging import info, debug, error
-from resource import load_font, play_sound
+from .resource import load_font, play_sound
 from numpy.random import randint
 
 def draw_fg(surface, player, level, height):
@@ -77,10 +77,13 @@ class GooLayer(object):
 		goo = pygame.Surface((tilesize, tilesize))
 		size = (tilesize, tilesize, 3)
 		goopx = randint(100, 175, size=size)
-		pygame.surfarray.blit_array(goo, goopx)
-		for x in range(rect.left, rect.width, tilesize):
-			for y in range(rect.top, rect.height, tilesize):
-				screen.blit(goo, (x, y))
+		try:
+			pygame.surfarray.blit_array(goo, goopx)
+			for x in range(rect.left, rect.width, tilesize):
+				for y in range(rect.top, rect.height, tilesize):
+					screen.blit(goo, (x, y))
+		except NotImplementedError:
+			screen.fill((120,120,120), rect)
 
 
 #		screen.fill((200, 200, 200), rect)
@@ -113,7 +116,7 @@ class PlatformLayer(object):
 	def remove_assimilated(self, goo_level):
 		'''Remove stuff covered by goo'''
 		max_height = goo_level / self.tile_height
-		for (i, j) in self.cells.keys():
+		for (i, j) in list(self.cells.keys()):
 			if j > max_height:
 				debug('platform consumed')
 				del self.cells[(i, j)]
