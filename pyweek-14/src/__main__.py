@@ -2,7 +2,18 @@
 from . import config
 from .config import settings, options
 from . import game
-import pygame
+import sys
+try:
+	import pygame
+except ImportError:
+	sys.stderr.write('Please install pygame!')
+	sys.exit(1)
+try:
+	import numpy
+except ImportError:
+	sys.stderr.write('Please install numpy!')
+	sys.exit(1)
+
 from logging import info, debug, error
 from .game import Death, AWinnerIsYou
 from .resource import load_font, load_sounds, play_music
