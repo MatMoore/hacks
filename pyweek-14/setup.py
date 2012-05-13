@@ -9,11 +9,11 @@ setup(
 		'numpy>=1.3',
 	],
 	package_data={
-		'gamename': ['data/*'],
+		'src': ['data/*'],
 	},
 	entry_points={
 		'console_scripts': [
-			'GreyGoo = src.main:main',
+			'greygoo = src.__main__:main',
 		]
 	}
 )
