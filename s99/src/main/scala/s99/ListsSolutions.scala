@@ -4,13 +4,40 @@ import Solutions._
 
 trait ListsSolutions {
 
-  def last[T](list: List[T]): T = ???
-  def penultimate[T](list: List[T]): T = ???
-  def nth[T](n: Int, list: List[T]): T = ???
-  def length[T](list: List[T]): Int = ???
-  def reverse[T](list: List[T]): List[T] = ???
-  def isPalindrome[T](list: List[T]): Boolean = ???
-  def flatten(list: List[Any]): List[Any] = ???
+  def last[T](list: List[T]): T = list.reduceLeft((a: T, b: T) => b)
+
+  def penultimate[T](list: List[T]): T = list match {
+    case head :: (head2 :: Nil) => head
+    case head :: (head2 :: tail2) => penultimate(head2 :: tail2)
+    case _ => throw new NoSuchElementException
+  }
+
+  def nth[T](n: Int, list: List[T]): T = {
+    if (n == 0) {
+      list.head
+    } else if (n < 0) {
+      throw new NoSuchElementException
+    } else {
+      nth(n - 1, list.tail)
+    }
+  }
+
+  def length[T](list: List[T]): Int = list.foldLeft[Int](0)((count : Int, _ : T) => count + 1)
+
+  def reverse[T](list: List[T]): List[T] = list match {
+    case head :: Nil => head :: Nil
+    case head :: tail => reverse(tail) :+ head
+    case _ => Nil
+  }
+
+  def isPalindrome[T](list: List[T]): Boolean = reverse(list) == list
+
+  def flatten(list: List[Any]): List[Any] = list match {
+    case (head : List[Any]) :: tail => flatten(head) ++ flatten(tail)
+    case head :: tail => head :: flatten(tail)
+    case Nil => Nil
+  }
+
   def compress[T](list: List[T]): List[T] = ???
   def pack[T](list: List[T]): List[List[T]] = ???
   def encode[T](list: List[T]): List[(Int, T)] = ???
