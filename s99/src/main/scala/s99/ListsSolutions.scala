@@ -33,12 +33,22 @@ trait ListsSolutions {
   def isPalindrome[T](list: List[T]): Boolean = reverse(list) == list
 
   def flatten(list: List[Any]): List[Any] = list match {
-    case (head : List[Any]) :: tail => flatten(head) ++ flatten(tail)
+    case (head : List[_]) :: tail => flatten(head) ++ flatten(tail)
     case head :: tail => head :: flatten(tail)
     case Nil => Nil
   }
 
-  def compress[T](list: List[T]): List[T] = ???
+  def compress[T](list: List[T]): List[T] = list match {
+    case first :: second :: tail => {
+      if (first == second) {
+        compress(second :: tail)
+      } else {
+        first :: compress(second :: tail)
+      }
+    }
+    case other => other
+  }
+
   def pack[T](list: List[T]): List[List[T]] = ???
   def encode[T](list: List[T]): List[(Int, T)] = ???
   def encodeModified[T](list: List[T]): List[Any] = ???
