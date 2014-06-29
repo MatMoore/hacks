@@ -35,5 +35,11 @@
         <script src="bower_components/raphael/raphael.js"></script>
         <script src="js/main.js"></script>
         <div id="holder"></div>
+        <script>
+            $(function() {
+                var paper = Raphael("holder");
+                setupGrid(paper);
+            });
+        </script>
     </body>
 </html>

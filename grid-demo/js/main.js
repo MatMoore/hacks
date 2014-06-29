@@ -1,40 +1,40 @@
-$(function() {
-    var eps = 0.0001;
-    var paper = Raphael("holder");
+eps = 0.0001;
+
+function setupGrid(paper) {
 
     var Corner = function(x, y) {
-        // Creates circle at x = 50, y = 40, with radius 10
         this.circle = paper.circle(x, y, 10);
-        // Sets the fill attribute of the circle to red (#f00)
         this.circle.attr("fill", "#f00");
-
-        // Sets the stroke attribute of the circle to white
         this.circle.attr("stroke", "#fff");
+
+        // This is kept in cync with the centre when the point is not being
+        // dragged.
         this.x = x;
         this.y = y;
-        //var moved_x = 0;
-        //var moved_y = 0;
+
+        // Keep track of the distance moved since the start of the drag.
+        // dx, dy are always relative to the start point, not the last move
+        // event.
+        var moved_x = 0;
+        var moved_y = 0;
         var handleMove = function(dx, dy) {
-            console.log('move');
-            //newdx = dx - moved_x;
-            //newdy = dy- moved_y;
-            //this.transform("...t" + newdx + "," + newdy);
-            this.attr('x', this.attr('x') + dx);
-            this.attr('y', this.attr('y') + dy);
-            //moved_x = dx;
-            //moved_y = dy;
-            //this.x = x;
-            //this.y = y;
+            newdx = dx - moved_x;
+            newdy = dy - moved_y;
+            this.attr('cx', this.attr('cx') + newdx);
+            this.attr('cy', this.attr('cy') + newdy);
+            moved_x = dx;
+            moved_y = dy;
         };
         var handleStart = function () {};
         var handleEnd = function() {
-            //moved_x = 0;
-            //moved_y = 0;
-            this.x = this.attr('x');
-            this.y = this.attr('y');
+            moved_x = 0;
+            moved_y = 0;
+            this.x = this.attr('cx');
+            this.y = this.attr('cy');
         };
         this.circle.drag(handleMove, handleStart, handleEnd);
     };
+
     var topleft = new Corner(50, 50);
     var bottomleft = new Corner(50, 200);
     var topright = new Corner(200, 50);
@@ -51,6 +51,8 @@ $(function() {
             grid.refresh();
         };
         this.br.circle.drag(function() {}, function() {}, refresh);
+
+        // Create horizontal and vertical gridlines
         this.horizontal = [];
         this.vertical = [];
         var dy = ((bl.y - tl.y) / 18);
@@ -63,7 +65,6 @@ $(function() {
             var path = 'M' + x + ',' + tl.y + 'L' + x + ',' + bl.y
             this.vertical[this.vertical.length] = paper.path(path);
         }
-
     }
 
     Grid.prototype.refresh = function() {
@@ -99,6 +100,7 @@ $(function() {
             // This means all the vertical grid lines will be parallel to each other,
             // and to the horizon (where horizontal lines meet).
             vertical_vanishing = null;
+            return;
         } else {
             console.log('vertical lines angled');
             // The lines are not parallel. Find where they converge.
@@ -119,5 +121,39 @@ $(function() {
             this.vp1.transform("...t" + vertical_vanishing.x + "," + vertical_vanishing.x);
         }
     };
-    var grid = new Grid(topleft, topright, bottomleft, bottomright);
-});
+    grid = new Grid(topleft, topright, bottomleft, bottomright);
+};
+
+
+/*
+ * Get the convergence point of two lines, or null if they are parallel.
+ */
+function getConvergence(m1, c1, m2, c2) {
+    if(Math.abs(m1 - m2) < eps) {
+        return null;
+    }
+
+    // Y_l = Y_r
+    //     = M_l X + C_l = M_r X + C_r
+    // (M_l - M_r) X = C_r - C_l
+    // X = (C_r - C_l) / (M_l - M_r)
+    console.log(c2, c1, m1, m2);
+    result = {'x': (c2 - c1) / (m1 - m2)};
+    result.y = result.x * m1 + c1;
+    return result;
+}
+
+
+/*
+ * Get the convergence point of a vertical line with another line
+ */
+function getVerticalConvergence(x, m1, c1) {
+}
+
+/*
+ * Draw a line between two points and return the equation
+ * of the line.
+ * Vertical lines return null.
+ */
+function getLineParams(x1, x2, y1, y2) {
+}
