@@ -7,10 +7,11 @@ function setupGrid(paper) {
         this.circle.attr("fill", "#f00");
         this.circle.attr("stroke", "#fff");
 
-        // This is kept in cync with the centre when the point is not being
+        // This is kept in sync with the centre when the point is not being
         // dragged.
         this.x = x;
         this.y = y;
+        var corner = this;
 
         // Keep track of the distance moved since the start of the drag.
         // dx, dy are always relative to the start point, not the last move
@@ -29,8 +30,8 @@ function setupGrid(paper) {
         var handleEnd = function() {
             moved_x = 0;
             moved_y = 0;
-            this.x = this.attr('cx');
-            this.y = this.attr('cy');
+            corner.x = this.attr('cx');
+            corner.y = this.attr('cy');
         };
         this.circle.drag(handleMove, handleStart, handleEnd);
     };
@@ -68,58 +69,29 @@ function setupGrid(paper) {
     }
 
     Grid.prototype.refresh = function() {
-        console.log('refresh');
-        // Vanishing points for vertical lines
-        // (vertical is defined in relation to the corners; these may be
-        // moved around but we assume that opposite sides always stay opposite.)
-        //
-        // Step 1: are the left/right lines parallel?
-        // Y = MX + C
-        // (Y1 - Y2) / (X1 - X2) = M
-        // Y1 - M X1 = C
-        var left_dx = this.tl.x - this.bl.x;
-        var right_dx = this.tr.x - this.br.x;
-        left_m = (this.tl.y - this.bl.y) / left_dx;
-        right_m = (this.tr.y - this.br.y) / right_dx;
-        left_c = this.tl.y - left_m * this.tl.y;
-        right_c = this.tr.y - left_m * this.tr.y;
-        console.log(this.tl);
-        console.log(this.tl.x);
-        console.log(this.bl.x);
-        if (left_dx == 0) {
-            console.log('left is vertical');
-            return;
-        }
-        if (right_dx == 0) {
-            console.log('right is vertical');
-            return;
-        }
-        if (Math.abs(left_m - right_m) < eps) {
-            console.log('Parallel');
-            // The lines are indeed parallel.
-            // This means all the vertical grid lines will be parallel to each other,
-            // and to the horizon (where horizontal lines meet).
-            vertical_vanishing = null;
-            return;
-        } else {
-            console.log('vertical lines angled');
-            // The lines are not parallel. Find where they converge.
-            // Y_l = Y_r
-            //     = M_l X + C_l = M_r X + C_r
-            // (M_l - M_r) X = C_r - C_l
-            // X = (C_r - C_l) / (M_l - M_r)
-            console.log(right_c, left_c, left_m, right_m);
-            vertical_vanishing = {'x': (right_c - left_c) / (left_m - right_m)};
-            vertical_vanishing.y = vertical_vanishing.x * left_m + left_c;
-        }
+       var vertical_vanishing;
 
-        // Now horizontal lines
-        //
+       var leftLine = getLineParams(this.tl.x, this.tl.y, this.bl.x, this.bl.y);
+       var rightLine = getLineParams(this.tr.x, this.tr.y, this.br.x, this.br.y);
 
-        if (vertical_vanishing !== null) {
-            console.log(vertical_vanishing.x, vertical_vanishing.y);
-            this.vp1.transform("...t" + vertical_vanishing.x + "," + vertical_vanishing.x);
-        }
+       if (leftLine === null && rightLine === null) {
+           console.log('both vertical lines are actually vertical');
+           vertical_vanishing === null;
+       } else if (leftLine === null) {
+           console.log('left is vertical');
+           vertical_vanishing = getVerticalConvergence(this.tl.x, rightLine.m, rightLine.c);
+       } else if (rightLine === null) {
+           console.log('right is vertical');
+           vertical_vanishing = getVerticalConvergence(this.tr.x, leftLine.m, leftLine.c);
+       } else {
+           vertical_vanishing = getConvergence(leftLine.m, leftLine.c, rightLine.m, rightLine.c);
+       }
+
+       if (vertical_vanishing === null) {
+           console.log('both lines parallel');
+       } else {
+           console.log(vertical_vanishing);
+       }
     };
     grid = new Grid(topleft, topright, bottomleft, bottomright);
 };
@@ -133,12 +105,7 @@ function getConvergence(m1, c1, m2, c2) {
         return null;
     }
 
-    // Y_l = Y_r
-    //     = M_l X + C_l = M_r X + C_r
-    // (M_l - M_r) X = C_r - C_l
-    // X = (C_r - C_l) / (M_l - M_r)
-    console.log(c2, c1, m1, m2);
-    result = {'x': (c2 - c1) / (m1 - m2)};
+    result = {x: (c2 - c1) / (m1 - m2)};
     result.y = result.x * m1 + c1;
     return result;
 }
@@ -148,6 +115,7 @@ function getConvergence(m1, c1, m2, c2) {
  * Get the convergence point of a vertical line with another line
  */
 function getVerticalConvergence(x, m1, c1) {
+    return m1 * x + c1;
 }
 
 /*
@@ -155,5 +123,12 @@ function getVerticalConvergence(x, m1, c1) {
  * of the line.
  * Vertical lines return null.
  */
-function getLineParams(x1, x2, y1, y2) {
+function getLineParams(x1, y1, x2, y2) {
+    var dx = x1 - x2;
+    if (Math.abs(dx) < eps) {
+        return null;
+    }
+    m = (y1 - y2) / dx;
+    c = y1 - m * x1;
+    return {m: m, c: c}
 }
