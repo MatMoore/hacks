@@ -36,10 +36,13 @@ function setupGrid(paper) {
         this.circle.drag(handleMove, handleStart, handleEnd);
     };
 
+    var width = $(paper.canvas).width();
+    var height = $(paper.canvas).height();
+
     var topleft = new Corner(50, 50, "#f00");
-    var bottomleft = new Corner(50, 200, "#0f0");
-    var topright = new Corner(200, 50, "#00f");
-    var bottomright = new Corner(200, 200, "#ff0");
+    var bottomleft = new Corner(50, height-50, "#0f0");
+    var topright = new Corner(width-50, 50, "#00f");
+    var bottomright = new Corner(width-50, height-50, "#ff0");
 
     var Grid = function (tl, tr, bl, br) {
         var grid = this;
@@ -109,16 +112,14 @@ function setupGrid(paper) {
        var rightLine = getLineParams(this.tr.x, this.tr.y, this.br.x, this.br.y);
 
        if (leftLine === null && rightLine === null) {
-           console.log('both vertical lines are actually vertical');
+           // both vertical lines are actually vertical
            vertical_vanishing = null;
        } else if (leftLine === null) {
-           console.log('left is vertical');
            vertical_vanishing = {
                x: this.tl.x,
                y: getVerticalConvergence(this.tl.x, rightLine.m, rightLine.c)
            };
        } else if (rightLine === null) {
-           console.log('right is vertical');
            vertical_vanishing = {
                x: this.tr.x,
                y: getVerticalConvergence(this.tr.x, leftLine.m, leftLine.c)
@@ -126,12 +127,6 @@ function setupGrid(paper) {
        } else {
            vertical_vanishing = getConvergence(leftLine.m, leftLine.c, rightLine.m, rightLine.c);
 
-       }
-
-       if (vertical_vanishing === null) {
-           console.log('both lines parallel');
-       } else {
-           console.log(vertical_vanishing);
        }
 
        return vertical_vanishing;
@@ -147,16 +142,13 @@ function setupGrid(paper) {
        var bottomLine = getLineParams(this.bl.x, this.bl.y, this.br.x, this.br.y);
 
        if (topLine === null && bottomLine === null) {
-           console.log('both vertical lines are actually vertical');
            horizontal_vanishing = null;
        } else if (topLine === null) {
-           console.log('left is vertical');
            horizontal_vanishing = {
                x: this.tl.x,
                y: getVerticalConvergence(this.tl.x, bottomLine.m, bottomLine.c)
            };
        } else if (bottomLine === null) {
-           console.log('right is vertical');
            horizontal_vanishing = {
                x: this.tr.x,
                y: getVerticalConvergence(this.tr.x, topLine.m, topLine.c)
@@ -164,12 +156,6 @@ function setupGrid(paper) {
        } else {
            horizontal_vanishing = getConvergence(topLine.m, topLine.c, bottomLine.m, bottomLine.c);
 
-       }
-
-       if (horizontal_vanishing === null) {
-           console.log('both lines parallel');
-       } else {
-           console.log(horizontal_vanishing);
        }
 
        return horizontal_vanishing;
@@ -183,7 +169,6 @@ function setupGrid(paper) {
        var horizontal_vanishing = this.findHorizontalVanishing();
 
        if (this.debug && vertical_vanishing !== null) {
-           console.log(vertical_vanishing);
            var leftPath = "M" + this.bl.x + "," + this.bl.y + "L" + vertical_vanishing.x + "," + vertical_vanishing.y;
            var rightPath = "M" + this.br.x + "," + this.br.y + "L" + vertical_vanishing.x + "," + vertical_vanishing.y;
            this.leftVanishingPath.attr("path", leftPath);
@@ -191,7 +176,6 @@ function setupGrid(paper) {
        }
 
        if(this.debug && horizontal_vanishing !== null) {
-           console.log(horizontal_vanishing);
            var topPath = "M" + this.tl.x + "," + this.tl.y + "L" + horizontal_vanishing.x + "," + horizontal_vanishing.y;
            var bottomPath = "M" + this.br.x + "," + this.br.y + "L" + horizontal_vanishing.x + "," + horizontal_vanishing.y;
            this.topVanishingPath.attr("path", topPath);
@@ -209,15 +193,32 @@ function setupGrid(paper) {
        var topSide = getLineParams(this.tl.x, this.tl.y, this.tr.x, this.tr.y);
        var bottomSide = getLineParams(this.bl.x, this.bl.y, this.br.x, this.br.y);
 
-       horizon = new LineOrVertical(horizon, vertical_vanishing.x);
+       if (horizon !== null) {
+           horizon = new LineOrVertical(horizon, vertical_vanishing.x);
+       }
        rightSide = new LineOrVertical(rightSide, this.tr.x);
        leftSide = new LineOrVertical(leftSide, this.tl.x);
        topSide = new LineOrVertical(topSide, this.tl.x);
        bottomSide = new LineOrVertical(bottomSide, this.bl.x);
 
-       horizontal = this.getGridLines(topSide, bottomSide, horizon, horizontal_vanishing);
+       if (horizon === null) {
+           // One or both sets of grid lines do not converge.
+           // If both do not converge then the grid should be perfectly
+           // rectangular/parallelogramish, and we can just divide evenly.
+           //
+           // In the case where the horizontal lines don't converge, but the
+           // vertical ones do, (i.e. a trapezium) then this will be wrong.
+           var horizontal = this.divideEqually(this.tl, this.bl, this.tr, this.br);
+       } else {
+           var horizontal = this.getGridLines(topSide, bottomSide, horizon, horizontal_vanishing);
+       }
        this.drawGridLines(leftSide, rightSide, horizontal, this.horizontal);
-       vertical = this.getGridLines(leftSide, rightSide, horizon, vertical_vanishing);
+
+       if (horizon === null) {
+           var vertical = this.divideEqually(this.tl, this.tr, this.bl, this.br);
+       } else {
+           var vertical = this.getGridLines(leftSide, rightSide, horizon, vertical_vanishing);
+       }
        this.drawGridLines(topSide, bottomSide, vertical, this.vertical);
     };
 
@@ -242,6 +243,31 @@ function setupGrid(paper) {
     }
 
     /*
+     * Get a list of lines that equally divide two sides
+     */
+    Grid.prototype.divideEqually = function(sideStart, sideEnd, matchingStart, matchingEnd) {
+        var delta = {
+            x: (sideEnd.x - sideStart.x) / this.num_spaces,
+            y: (sideEnd.y - sideStart.y) / this.num_spaces
+        }
+
+        var delta2 = {
+            x: (matchingEnd.x - matchingStart.x) / this.num_spaces,
+            y: (matchingEnd.y - matchingStart.y) / this.num_spaces
+        }
+
+        var results = [];
+        for (var i = 0; i < this.num_lines; i++) {
+            var startPoint = {x: sideStart.x + i * delta.x, y: sideStart.y + i * delta.y};
+            var endPoint = {x: matchingStart.x + i * delta2.x, y: matchingStart.y + i * delta2.y};
+            var line = getLineParams(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+            line = new LineOrVertical(line, startPoint.x);
+            results.push(line);
+        }
+        return results;
+    }
+
+    /*
      * Get the line equations for the horizontal or vertical grid lines.
      * Where these lines cross the horizon, the spacing is regular, so trace
      * the lines from the horizon back to the vanishing point.
@@ -250,12 +276,12 @@ function setupGrid(paper) {
        // Project both sides onto the horizon
        var projectedSide = side.intersect(horizon);
        var projectedMatchingSide = matchingSide.intersect(horizon);
-       var distance = getDistance(projectedSide, projectedMatchingSide);
-       if (distance === 0) {
-           console.log("Top and bottom overlap, no horizontal lines for you");
-           return [];
+       if (projectedSide === null || projectedMatchingSide === null) {
+           // Not sure what's going on here
+           console.log('Side is parallel to the horizon');
+           console.log(side, matchingSide, horizon, this.tl, this.tr, this.bl, this.br);
+           return;
        }
-
        var topToBottom = {
            x: projectedMatchingSide.x - projectedSide.x,
            y: projectedMatchingSide.y - projectedSide.y
@@ -278,7 +304,12 @@ function setupGrid(paper) {
      * traced from this line to a vanishing point go through the whole grid.
      */
     Grid.prototype.getHorizon = function(vertical_vanishing, horizontal_vanishing) {
-        horizon = getLineParams(vertical_vanishing.x, vertical_vanishing.y, horizontal_vanishing.x, horizontal_vanishing.y);
+        if(vertical_vanishing === null || horizontal_vanishing === null) {
+            // No horizon. Either lines converge to a point or they do not
+            // converge at all.
+            return null;
+        }
+        var horizon = getLineParams(vertical_vanishing.x, vertical_vanishing.y, horizontal_vanishing.x, horizontal_vanishing.y);
 
         var furthestFromHorizon = this.tl;
         var distanceToHorizon = getDistanceToLine(horizon, this.tl);
@@ -296,6 +327,7 @@ function setupGrid(paper) {
     }
 
     grid = new Grid(topleft, topright, bottomleft, bottomright);
+    grid.refresh();
 };
 
 /*

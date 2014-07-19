@@ -16,13 +16,22 @@
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
         <style media="screen">
             #holder {
-                border: 1px solid white;
-                margin: -350px 0 0 -350px;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 700px;
-                height: 700px;
+                margin: auto;
+                background-color:#eee;
+
+            }
+            @media screen and (orientation:portrait) {
+                #holder {
+                    width: 100vw;
+                    height: 100vw;
+                }
+            }
+            @media screen and (orientation:landscape) {
+                #holder {
+                    width: 100vh;
+                    height: 100vh;
+                }
+
             }
         </style>
     </head>
