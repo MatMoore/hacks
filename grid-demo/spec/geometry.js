@@ -1,4 +1,4 @@
-describe("A convergence point", function() {
+describe("a convergence point", function() {
     it("does not exist for parallel lines", function () {
         expect(getConvergence(1, 2, 1, 3)).toEqual(null);
     });
@@ -69,5 +69,21 @@ describe("line parameters", function() {
     it("has a negative slope if increasing x decreases y", function() {
         var line = getLineParams(123, 56, 12, 213);
         expect(line.m).toBeLessThan(0);
+    });
+});
+
+describe("a parallel line", function() {
+    it("goes through the provided point", function () {
+        var point = {x: 1, y: 1};
+        var line = {m: 1, c: 1};
+        var result = getParallelLine(line, point);
+        expect(result.c).toEqual(0);
+    });
+
+    it("shares the gradient of the original line", function () {
+        var point = {x: 1, y: 1};
+        var line = {m: 1, c: 1};
+        var result = getParallelLine(line, point);
+        expect(result.m).toEqual(1);
     });
 });
