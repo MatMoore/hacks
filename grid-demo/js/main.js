@@ -43,13 +43,13 @@ function setupGrid(paper) {
 
     var Grid = function (tl, tr, bl, br) {
         var grid = this;
-        this.proj_br = paper.circle(300, 300, 5);
         this.num_lines = 19;
         this.num_spaces = this.num_lines - 1;
         this.tl = tl;
         this.tr = tr;
         this.bl = bl;
         this.br = br;
+        this.debug = false;
         var refresh = function() {
             grid.refresh();
         };
@@ -65,34 +65,43 @@ function setupGrid(paper) {
         var dx = ((tr.x - tl.x) / this.num_spaces);
         for (var y = tl.y; y <= bl.y + eps; y += dy) {
             var path = 'M' + tl.x + ',' + y + 'L' + tr.x + ',' + y
-            this.horizontal[this.horizontal.length] = paper.path(path);
+            var element = paper.path(path);
+            element.toBack();
+            this.horizontal[this.horizontal.length] = element;
         }
         for (var x = tl.x; x <= tr.x + eps; x += dx) {
             var path = 'M' + x + ',' + tl.y + 'L' + x + ',' + bl.y
-            this.vertical[this.vertical.length] = paper.path(path);
+            var element = paper.path(path);
+            element.toBack();
+            this.vertical[this.vertical.length] = element;
         }
 
-        var path = "M" + bl.x + "," + bl.y + "V0";
-        this.leftVanishingPath = paper.path(path);
-        this.leftVanishingPath.attr("stroke", "#999");
+        if(this.debug) {
+            var path = "M" + bl.x + "," + bl.y + "V0";
+            this.leftVanishingPath = paper.path(path);
+            this.leftVanishingPath.attr("stroke", "#999");
 
-        var path = "M" + br.x + "," + br.y + "V0";
-        this.rightVanishingPath = paper.path(path);
-        this.rightVanishingPath.attr("stroke", "#999");
+            var path = "M" + br.x + "," + br.y + "V0";
+            this.rightVanishingPath = paper.path(path);
+            this.rightVanishingPath.attr("stroke", "#999");
 
-        var path = "M" + tl.x + "," + tl.y + "H0";
-        this.topVanishingPath = paper.path(path);
-        this.topVanishingPath.attr("stroke", "#999");
+            var path = "M" + tl.x + "," + tl.y + "H0";
+            this.topVanishingPath = paper.path(path);
+            this.topVanishingPath.attr("stroke", "#999");
 
-        var path = "M" + bl.x + "," + bl.y + "H0";
-        this.bottomVanishingPath = paper.path(path);
-        this.bottomVanishingPath.attr("stroke", "#999");
+            var path = "M" + bl.x + "," + bl.y + "H0";
+            this.bottomVanishingPath = paper.path(path);
+            this.bottomVanishingPath.attr("stroke", "#999");
 
-        var path = "M0,100H1000"
-        this.horizon = paper.path(path);
-        this.horizon.attr("stroke", "#fff");
+            var path = "M0,100H1000"
+            this.horizon = paper.path(path);
+            this.horizon.attr("stroke", "#fff");
+        }
     }
 
+    /*
+     * Find the vanishing point of vertical grid lines
+     */
     Grid.prototype.findVerticalVanishing = function() {
        var vertical_vanishing;
 
@@ -128,6 +137,9 @@ function setupGrid(paper) {
        return vertical_vanishing;
     }
 
+    /*
+     * Find vanishing point of horizontal gridlines
+     */
     Grid.prototype.findHorizontalVanishing = function() {
        var horizontal_vanishing;
 
@@ -163,19 +175,22 @@ function setupGrid(paper) {
        return horizontal_vanishing;
     }
 
+    /*
+     * Update the grid lines to reflect the new corner positions
+     */
     Grid.prototype.refresh = function() {
        var vertical_vanishing = this.findVerticalVanishing();
        var horizontal_vanishing = this.findHorizontalVanishing();
-       if (vertical_vanishing === null) {
-       } else {
+
+       if (this.debug && vertical_vanishing !== null) {
            console.log(vertical_vanishing);
            var leftPath = "M" + this.bl.x + "," + this.bl.y + "L" + vertical_vanishing.x + "," + vertical_vanishing.y;
            var rightPath = "M" + this.br.x + "," + this.br.y + "L" + vertical_vanishing.x + "," + vertical_vanishing.y;
            this.leftVanishingPath.attr("path", leftPath);
            this.rightVanishingPath.attr("path", rightPath);
        }
-       if (horizontal_vanishing === null) {
-       } else {
+
+       if(this.debug && horizontal_vanishing !== null) {
            console.log(horizontal_vanishing);
            var topPath = "M" + this.tl.x + "," + this.tl.y + "L" + horizontal_vanishing.x + "," + horizontal_vanishing.y;
            var bottomPath = "M" + this.br.x + "," + this.br.y + "L" + horizontal_vanishing.x + "," + horizontal_vanishing.y;
@@ -183,43 +198,41 @@ function setupGrid(paper) {
            this.bottomVanishingPath.attr("path", bottomPath);
        }
 
-
        var horizon = this.getHorizon(vertical_vanishing, horizontal_vanishing);
+
+       if(this.debug) {
+            this.horizon.attr('path', 'M0,' + horizon.c + 'L1000,' + (horizon.m*1000+horizon.c));
+       }
+
        var rightSide = getLineParams(this.tr.x, this.tr.y, this.br.x, this.br.y);
        var leftSide = getLineParams(this.tl.x, this.tl.y, this.bl.x, this.bl.y);
        var topSide = getLineParams(this.tl.x, this.tl.y, this.tr.x, this.tr.y);
        var bottomSide = getLineParams(this.bl.x, this.bl.y, this.br.x, this.br.y);
 
-       var projected = getConvergence(rightSide.m, rightSide.c, horizon.m, horizon.c)
-       this.proj_br.attr('cx', projected.x);
-       this.proj_br.attr('cy', projected.y);
+       horizon = new LineOrVertical(horizon, vertical_vanishing.x);
+       rightSide = new LineOrVertical(rightSide, this.tr.x);
+       leftSide = new LineOrVertical(leftSide, this.tl.x);
+       topSide = new LineOrVertical(topSide, this.tl.x);
+       bottomSide = new LineOrVertical(bottomSide, this.bl.x);
 
-       horizontal = this.getHorizontalLines(topSide, bottomSide, horizon, horizontal_vanishing);
-       this.drawHorizontalLines(leftSide, rightSide, horizontal);
+       horizontal = this.getGridLines(topSide, bottomSide, horizon, horizontal_vanishing);
+       this.drawGridLines(leftSide, rightSide, horizontal, this.horizontal);
+       vertical = this.getGridLines(leftSide, rightSide, horizon, vertical_vanishing);
+       this.drawGridLines(topSide, bottomSide, vertical, this.vertical);
     };
 
     /*
      * Redraw the horizontal lines based on new line equations
      */
-    Grid.prototype.drawHorizontalLines = function(leftSide, rightSide, lineEqs) {
+    Grid.prototype.drawGridLines = function(side, matchingSide, lineEqs, paths) {
         for (var i = 0; i < lineEqs.length; i++) {
             var line = lineEqs[i];
-            var path = this.horizontal[i];
-            if(leftSide === null) {
-                var start = getVerticalConvergence(this.tl.x, line.m, line.c);
-                start = {x: this.tl.x, y: start};
-            } else {
-                var start = getConvergence(leftSide.m, leftSide.c, line.m, line.c);
-            }
-
-            if(rightSide === null) {
-                var end = getVerticalConvergence(this.tr.x, line.m, line.y);
-            } else {
-                var end = getConvergence(rightSide.m, rightSide.c, line.m, line.c);
-            }
+            var path = paths[i];
+            var start = side.intersect(line);
+            var end = matchingSide.intersect(line);
 
             if (start === null || end === null) {
-                console.log('Your so called horizontal line is parallel to the left or right side. ABORT');
+                console.log('Too squashed');
                 continue;
             }
 
@@ -229,30 +242,31 @@ function setupGrid(paper) {
     }
 
     /*
-     * Get the line equations for the "horizontal" grid lines.
+     * Get the line equations for the horizontal or vertical grid lines.
      * Where these lines cross the horizon, the spacing is regular, so trace
      * the lines from the horizon back to the vanishing point.
      */
-    Grid.prototype.getHorizontalLines = function(topSide, bottomSide, horizon, horizontalVanishing) {
-       // Project top and bottom sides onto the horizon
-       var projectedTop = getConvergence(topSide.m, topSide.c, horizon.m, horizon.c)
-       var projectedBottom = getConvergence(bottomSide.m, bottomSide.c, horizon.m, horizon.c)
-       var distance = getDistance(projectedTop, projectedBottom);
+    Grid.prototype.getGridLines = function(side, matchingSide, horizon, vanishingPoint) {
+       // Project both sides onto the horizon
+       var projectedSide = side.intersect(horizon);
+       var projectedMatchingSide = matchingSide.intersect(horizon);
+       var distance = getDistance(projectedSide, projectedMatchingSide);
        if (distance === 0) {
            console.log("Top and bottom overlap, no horizontal lines for you");
            return [];
        }
 
        var topToBottom = {
-           x: projectedBottom.x - projectedTop.x,
-           y: projectedBottom.y - projectedTop.y
+           x: projectedMatchingSide.x - projectedSide.x,
+           y: projectedMatchingSide.y - projectedSide.y
        }
        var dx = topToBottom.x / this.num_spaces;
        var dy = topToBottom.y / this.num_spaces;
        var results = [];
        for (var i = 0; i < this.num_lines; i++) {
-           var startPoint = {x: projectedTop.x + i * dx, y: projectedTop.y + i * dy};
-           var line = getLineParams(startPoint.x, startPoint.y, horizontalVanishing.x, horizontalVanishing.y);
+           var startPoint = {x: projectedSide.x + i * dx, y: projectedSide.y + i * dy};
+           var line = getLineParams(startPoint.x, startPoint.y, vanishingPoint.x, vanishingPoint.y);
+           line = new LineOrVertical(line, startPoint.x);
            results.push(line);
        }
        return results;
@@ -278,7 +292,6 @@ function setupGrid(paper) {
         });
 
         parallel = getParallelLine(horizon, furthestFromHorizon);
-        this.horizon.attr('path', 'M0,' + parallel.c + 'L1000,' + (parallel.m*1000+parallel.c));
         return parallel;
     }
 
@@ -354,4 +367,42 @@ function getProjectedPoint(line, point) {
  */
 function getDistance(point1, point2) {
     return Math.sqrt(Math.pow((point1.x - point2.x), 2) + Math.pow((point1.y - point2.y), 2));
+}
+
+/*
+ * Type to represent a line, vertical or otherwise
+ */
+function LineOrVertical(line, x) {
+    this.vertical = (line === null);
+    if (this.vertical) {
+        this.x = x;
+    } else {
+        this.m = line.m;
+        this.c = line.c;
+    }
+}
+
+/*
+ * Intersection point with another LineOrVertical object
+ */
+LineOrVertical.prototype.intersect = function(other) {
+    if (this.vertical && other.vertical) {
+        return null;
+    }
+
+    if (this.vertical) {
+        return {
+            x: this.x,
+            y: getVerticalConvergence(this.x, other.m, other.c)
+        }
+    }
+
+    if (other.vertical) {
+        return {
+            x: other.x,
+            y: getVerticalConvergence(other.x, this.m, this.c),
+        }
+    }
+
+    return getConvergence(this.m, this.c, other.m, other.c);
 }
