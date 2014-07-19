@@ -44,6 +44,8 @@ function setupGrid(paper) {
     var Grid = function (tl, tr, bl, br) {
         var grid = this;
         this.proj_br = paper.circle(300, 300, 5);
+        this.num_lines = 19;
+        this.num_spaces = this.num_lines - 1;
         this.tl = tl;
         this.tr = tr;
         this.bl = bl;
@@ -59,8 +61,8 @@ function setupGrid(paper) {
         // Create horizontal and vertical gridlines
         this.horizontal = [];
         this.vertical = [];
-        var dy = ((bl.y - tl.y) / 18);
-        var dx = ((tr.x - tl.x) / 18);
+        var dy = ((bl.y - tl.y) / this.num_spaces);
+        var dx = ((tr.x - tl.x) / this.num_spaces);
         for (var y = tl.y; y <= bl.y + eps; y += dy) {
             var path = 'M' + tl.x + ',' + y + 'L' + tr.x + ',' + y
             this.horizontal[this.horizontal.length] = paper.path(path);
@@ -181,22 +183,87 @@ function setupGrid(paper) {
            this.bottomVanishingPath.attr("path", bottomPath);
        }
 
-       var projected = this.getProjectedBottomRight(vertical_vanishing, horizontal_vanishing);
-       console.log(projected);
+
+       var horizon = this.getHorizon(vertical_vanishing, horizontal_vanishing);
+       var rightSide = getLineParams(this.tr.x, this.tr.y, this.br.x, this.br.y);
+       var leftSide = getLineParams(this.tl.x, this.tl.y, this.bl.x, this.bl.y);
+       var topSide = getLineParams(this.tl.x, this.tl.y, this.tr.x, this.tr.y);
+       var bottomSide = getLineParams(this.bl.x, this.bl.y, this.br.x, this.br.y);
+
+       var projected = getConvergence(rightSide.m, rightSide.c, horizon.m, horizon.c)
        this.proj_br.attr('cx', projected.x);
        this.proj_br.attr('cy', projected.y);
+
+       horizontal = this.getHorizontalLines(topSide, bottomSide, horizon, horizontal_vanishing);
+       this.drawHorizontalLines(leftSide, rightSide, horizontal);
     };
 
+    /*
+     * Redraw the horizontal lines based on new line equations
+     */
+    Grid.prototype.drawHorizontalLines = function(leftSide, rightSide, lineEqs) {
+        for (var i = 0; i < lineEqs.length; i++) {
+            var line = lineEqs[i];
+            var path = this.horizontal[i];
+            if(leftSide === null) {
+                var start = getVerticalConvergence(this.tl.x, line.m, line.c);
+                start = {x: this.tl.x, y: start};
+            } else {
+                var start = getConvergence(leftSide.m, leftSide.c, line.m, line.c);
+            }
+
+            if(rightSide === null) {
+                var end = getVerticalConvergence(this.tr.x, line.m, line.y);
+            } else {
+                var end = getConvergence(rightSide.m, rightSide.c, line.m, line.c);
+            }
+
+            if (start === null || end === null) {
+                console.log('Your so called horizontal line is parallel to the left or right side. ABORT');
+                continue;
+            }
+
+            var newPath = "M" + start.x + "," + start.y + "L" + end.x + "," + end.y;
+            path.attr("path", newPath);
+        }
+    }
 
     /*
-     * Project the bottom right corner onto a line that parallel to the horizon.
-     * Pick the furthest point from the horizon, so that we can tace lines from
-     * this line to a vanishing point knowing that they cross they overlap the
-     * whole grid.
+     * Get the line equations for the "horizontal" grid lines.
+     * Where these lines cross the horizon, the spacing is regular, so trace
+     * the lines from the horizon back to the vanishing point.
      */
-    Grid.prototype.getProjectedBottomRight = function(vertical_vanishing, horizontal_vanishing) {
-        rightSide = getLineParams(this.tr.x, this.tr.y, this.br.x, this.br.y);
-        console.log('right', rightSide);
+    Grid.prototype.getHorizontalLines = function(topSide, bottomSide, horizon, horizontalVanishing) {
+       // Project top and bottom sides onto the horizon
+       var projectedTop = getConvergence(topSide.m, topSide.c, horizon.m, horizon.c)
+       var projectedBottom = getConvergence(bottomSide.m, bottomSide.c, horizon.m, horizon.c)
+       var distance = getDistance(projectedTop, projectedBottom);
+       if (distance === 0) {
+           console.log("Top and bottom overlap, no horizontal lines for you");
+           return [];
+       }
+
+       var topToBottom = {
+           x: projectedBottom.x - projectedTop.x,
+           y: projectedBottom.y - projectedTop.y
+       }
+       var dx = topToBottom.x / this.num_spaces;
+       var dy = topToBottom.y / this.num_spaces;
+       var results = [];
+       for (var i = 0; i < this.num_lines; i++) {
+           var startPoint = {x: projectedTop.x + i * dx, y: projectedTop.y + i * dy};
+           var line = getLineParams(startPoint.x, startPoint.y, horizontalVanishing.x, horizontalVanishing.y);
+           results.push(line);
+       }
+       return results;
+    }
+
+    /*
+     * Find a line parallel to the horizon.
+     * Make it go through the furthest point from the horizon, so that lines
+     * traced from this line to a vanishing point go through the whole grid.
+     */
+    Grid.prototype.getHorizon = function(vertical_vanishing, horizontal_vanishing) {
         horizon = getLineParams(vertical_vanishing.x, vertical_vanishing.y, horizontal_vanishing.x, horizontal_vanishing.y);
 
         var furthestFromHorizon = this.tl;
@@ -211,9 +278,8 @@ function setupGrid(paper) {
         });
 
         parallel = getParallelLine(horizon, furthestFromHorizon);
-        //this.horizon.attr('path', 'M0,' + horizon.c + 'L1000,' + (horizon.m*1000+horizon.c));
         this.horizon.attr('path', 'M0,' + parallel.c + 'L1000,' + (parallel.m*1000+parallel.c));
-        return getConvergence(rightSide.m, rightSide.c, parallel.m, parallel.c);
+        return parallel;
     }
 
     grid = new Grid(topleft, topright, bottomleft, bottomright);
