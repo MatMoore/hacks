@@ -1,6 +1,6 @@
 # Code Book
 
-See also [UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones) and [raw/features_info.txt](raw/features_info.txt).
+See also [UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones), [raw/README.txt](raw/README.txt), and [raw/features_info.txt](raw/features_info.txt).
 
 ## Experimental design
 
@@ -18,11 +18,11 @@ This resulted in the following time signals. XYZ indicates that a seperate varia
 
 Name              | Description
 ----------------- | -----------------------------------------------
-tBodyAcc-XYZ      | Acceleration due to the body
-tGravityAcc-XYZ   | Acceleration due to gravity
+tBodyAcc-XYZ      | Acceleration due to the body in standard gravity units 'g'
+tGravityAcc-XYZ   | Acceleration due to gravity in standard gravity units 'g'
 tBodyAccJerk-XYZ  | Rate of change of acceleration due to the body
-tBodyGyro-XYZ     | Gyroscope signal in each dimension
-tBodyGyroJerk-XYZ | Rate of change of the gyroscope signal
+tBodyGyro-XYZ     | Gyroscope angular velocity in each direction in radians per second
+tBodyGyroJerk-XYZ | Rate of change of the tBodyGyro-XYZ
 tBodyAccMag       | Euclidian norm of tBodyAcc-XYZ
 tGravityAccMag    | Euclidian norm of tGravityAcc-XYZ
 tBodyAccJerkMag   | Euclidian norm of tBodyAccJerk-XYZ
@@ -42,6 +42,8 @@ Fast Fourier Transforms were also computed for each tBody signal, producing thes
 This naming convention has been retained in the processed dataset.
 
 From each of these signal, various variables were estimated. The only variables that were actually used in the processed dataset are the mean and standard deviation of each signal, i.e. tBodyAcc-mean()-XYZ, tBodyGyro-std()-XYZ, etc.
+
+All of these variables have been normalised so that they range from -1 to 1.
 
 ## Processed Data
 
@@ -64,3 +66,5 @@ Name                | Description
 [signal]-std()-XYZ  | The mean accross all samples of the sample standard deviation
 
 Each of these is a column in the final dataset.
+
+Note that the measurements are still using normalised units, so a value close to 1 indicates that the mean accross all samples is close to the maximum recorded sample mean/standard deviation.
