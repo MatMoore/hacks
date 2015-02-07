@@ -1,17 +1,27 @@
+#!/usr/bin/env Rscript
+
 ## This script reads the raw data and does the following:
 ## 1. Merges the training and the test sets to create one data set.
 ## 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
 ## 3. Uses descriptive activity names to name the activities in the data set
 ## 4. Appropriately labels the data set with descriptive variable names. 
 ## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-
+##
+## The script should be run with the repository top level directory as the working directory
+## The output will be saved to the same directory with the filename UCI_activity_recognition_summary.csv.
 library(data.table)
 
 # File paths
-setwd('/home/mat/code/lovely_data')
 rawDir <- file.path(getwd(), "raw")
 testDir <- file.path(rawDir, "test")
 trainingDir <- file.path(rawDir, "train")
+outputFilename <- file.path(getwd(), "UCI_activity_recognition_summary.csv")
+
+if(!file.exists(testDir) || !file.exists(trainingDir)) {
+    stop("Cannot find raw files. Please rerun script from the top level directory.")
+} else {
+    message("Cleaning data...")
+}
 
 # Load feature and activity names
 features <- fread(file.path(rawDir, "features.txt"), header=FALSE)
@@ -36,7 +46,7 @@ loadDataset <- function(setDir, setFilename, labelFilename, subjectFilename) {
     DT[, subject := subjects]
     DT[, activityId := labels]
 
-    # Join in activity names, as a numeric ID is pretty useless
+    # Join in activity names, as a numeric ID is pretty useless (part 3)
     setkey(DT, 'activityId')
     DT <- DT[activityLabels]
     
@@ -61,3 +71,7 @@ completeSet <- rbind(trainingSet, testSet)
 
 # Part 5. Take the mean of all features by subject and activity. There should be 30x6 = 180 observations.
 subjectActivityMeans <- completeSet[, lapply(.SD, mean), by=list(subject, activity)]
+
+# Write to file
+write.csv(subjectActivityMeans, outputFilename, row.names=FALSE)
+message(paste("Output file written to", outputFilename))
