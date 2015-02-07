@@ -12,7 +12,7 @@ The raw data was taken from the [UCI Machine Learning Repository](http://archive
 # Dataset information
 `raw` contains the files from the UCI dataset.
 
-`UCI_activity_recognition_summary.csv` contains the summarised dataset. Each row contains mean values of the measured variables over all sample windows associated with one combination of subject and activity. See CodeBook.md for more information.
+`UCI_activity_recognition_summary.csv` contains the summarised dataset. Each row contains mean values of the measured variables over all sample windows associated with one combination of subject and activity. See [CodeBook.md](CodeBook.md) for more information.
 
 `run_analyse.R` reproduces the dataset from the raw data. This should be executed directly with no arguments, or manually run through Rscript, e.g.
 
