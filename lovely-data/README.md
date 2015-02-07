@@ -16,6 +16,6 @@ The raw data was taken from the [UCI Machine Learning Repository](http://archive
 
 `run_analyse.R` reproduces the dataset from the raw data. This should be executed directly with no arguments, or manually run through Rscript, e.g.
 
-    Rscript run_analyse.R
+    Rscript run_analysis.R
 
 You could also just run it from RStudio, but you will need to set your working directory to be the same as the script first.
