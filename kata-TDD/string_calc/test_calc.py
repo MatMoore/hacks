@@ -153,3 +153,11 @@ def test_only_trailing_delimiter():
     Header with no numbers should be zero
     """
     assert add('//&\n') == 0
+
+
+def test_header_missing_newline():
+    """
+    Header must be followed by a newline
+    """
+    with pytest.raises(ValueError):
+        add('//&1,2,3')
