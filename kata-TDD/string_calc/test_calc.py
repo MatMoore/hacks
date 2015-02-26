@@ -1,6 +1,6 @@
 import math
 import pytest
-from calc import add
+from calc import add, NegativesNotAllowed
 
 
 def test_add_empty_is_zero():
@@ -37,11 +37,10 @@ def test_two_int():
 
 def test_negative_numbers():
     """
-    Positive and negative numbers are added together
+    Negatives aren't allowed
     """
-    result = add('1,-2')
-    assert result == -1
-    assert isinstance(result, float)
+    with pytest.raises(NegativesNotAllowed):
+        add('1,-2')
 
 
 def test_floating_numbers():
@@ -132,3 +131,10 @@ def test_delimiter_change_invalid_use():
     """
     with pytest.raises(ValueError):
         add('//*\n1,2')
+
+
+def test_trailing_delimiter():
+    """
+    Trailing delimiters are ignored
+    """
+    assert add('//|\n1|2|') == 3
