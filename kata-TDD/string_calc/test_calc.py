@@ -117,3 +117,18 @@ def test_repeated_diff_seperators_invalid():
     """
     with pytest.raises(ValueError):
         add('1,\n2')
+
+
+def test_delimiter_change_valid_use():
+    """
+    First line can change the delimeter
+    """
+    assert add('//*\n1*2') == 3
+
+
+def test_delimiter_change_invalid_use():
+    """
+    If the delimiter is changed, comma is no longer valid
+    """
+    with pytest.raises(ValueError):
+        add('//*\n1,2')
