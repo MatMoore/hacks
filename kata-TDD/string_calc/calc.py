@@ -1,7 +1,6 @@
 import re
 
 
-SEP = re.compile('[,\n]')
 HEADER = re.compile('^//(?P<delimiter>[^\n]+)\n(?P<remainder>.*)')
 
 
@@ -18,26 +17,18 @@ def validate_numbers(floatlist):
         raise NegativesNotAllowed(bad)
 
 
-def splitter_func(delim):
-    """
-    Return a function to split on either the delimiter or a newline
-    """
-    regex = re.compile('(?:\n)|(?:{})'.format(re.escape(delim)))
-    return regex.split
-
-
 def parse_header(numbers):
     """
     Parse the optional header and return a tuple of the remainder
-    and a splitter function
+    and the delimiter
     """
     match = HEADER.match(numbers)
     if match:
         delimiter = match.group('delimiter')
         remainder = match.group('remainder')
-        return remainder, splitter_func(delimiter)
+        return remainder, delimiter
     else:
-        return numbers, SEP.split
+        return numbers, ','
 
 
 def add(numbers):
@@ -46,8 +37,8 @@ def add(numbers):
     Delimiter may be changed with an optional prefix of the form
     "//[delimiter]\n"
     """
-    numbers, splitter = parse_header(numbers)
-    numberlist = splitter(numbers)
+    numbers, delimiter = parse_header(numbers)
+    numberlist = numbers.replace('\n', delimiter).split(delimiter)
 
     # Allow a trailing delimiter
     if not numberlist[-1]:

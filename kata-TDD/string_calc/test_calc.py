@@ -145,7 +145,8 @@ def test_only_trailing_delimiter():
     """
     Delimiter with no numbers is invalid
     """
-    assert add(',') == 0
+    with pytest.raises(ValueError):
+        add(',')
 
 
 def test_only_header():
