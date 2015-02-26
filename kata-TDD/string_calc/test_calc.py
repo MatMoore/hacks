@@ -1,5 +1,6 @@
-from calc import add
 import math
+import pytest
+from calc import add
 
 
 def test_add_empty_is_zero():
@@ -86,3 +87,33 @@ def test_add_nan():
     result = add('NaN,1')
     assert math.isnan(result)
     assert isinstance(result, float)
+
+
+def test_five_numbers():
+    """
+    Should be able to add any number of numbers
+    """
+    assert add('1,2,3,4,5') == 15
+
+
+def test_newlines_commas_interchangable():
+    """
+    Newlines can be used in place of commas
+    """
+    assert add('1\n2\n3') == 6
+
+
+def test_repeated_same_seperators_invalid():
+    """
+    Multiple seperators of the same type are invalid
+    """
+    with pytest.raises(ValueError):
+        add('1,,2')
+
+
+def test_repeated_diff_seperators_invalid():
+    """
+    Multiple seperators of different type are invalid
+    """
+    with pytest.raises(ValueError):
+        add('1,\n2')
