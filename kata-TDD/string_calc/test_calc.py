@@ -148,7 +148,7 @@ def test_only_trailing_delimiter():
     assert add(',') == 0
 
 
-def test_only_trailing_delimiter():
+def test_only_header():
     """
     Header with no numbers should be zero
     """

@@ -1,4 +1,6 @@
 import re
+
+
 SEP = re.compile('[,\n]')
 HEADER = re.compile('^//(?P<delimiter>[^\n]+)\n(?P<remainder>.*)')
 
@@ -8,22 +10,44 @@ class NegativesNotAllowed(ValueError):
 
 
 def validate_numbers(floatlist):
+    """
+    Validate numbers are positive
+    """
     bad = [num for num in floatlist if num < 0]
     if bad:
         raise NegativesNotAllowed(bad)
 
 
-def add(numbers):
+def splitter_func(delim):
+    """
+    Return a function to split on either the delimiter or a newline
+    """
+    regex = re.compile('(?:\n)|(?:{})'.format(re.escape(delim)))
+    return regex.split
+
+
+def parse_header(numbers):
+    """
+    Parse the optional header and return a tuple of the remainder
+    and a splitter function
+    """
     match = HEADER.match(numbers)
     if match:
-        delimiter = re.escape(match.group('delimiter'))
-        delimiter_regex = re.compile('(?:\n)|(?:{})'.format(delimiter))
-        numbers = match.group('remainder')
+        delimiter = match.group('delimiter')
+        remainder = match.group('remainder')
+        return remainder, splitter_func(delimiter)
     else:
-        delimiter = ','
-        delimiter_regex = SEP
+        return numbers, SEP.split
 
-    numberlist = delimiter_regex.split(numbers)
+
+def add(numbers):
+    """
+    Parse a comma or newline seperated string of numbers and add the results.
+    Delimiter may be changed with an optional prefix of the form
+    "//[delimiter]\n"
+    """
+    numbers, splitter = parse_header(numbers)
+    numberlist = splitter(numbers)
 
     # Allow a trailing delimiter
     if not numberlist[-1]:
