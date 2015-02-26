@@ -14,9 +14,6 @@ def validate_numbers(floatlist):
 
 
 def add(numbers):
-    if not numbers:
-        return 0
-
     match = HEADER.match(numbers)
     if match:
         delimiter = re.escape(match.group('delimiter'))
@@ -31,6 +28,9 @@ def add(numbers):
     # Allow a trailing delimiter
     if not numberlist[-1]:
         numberlist = numberlist[:-1]
+
+    if not numberlist:
+        return 0
 
     floatlist = [float(i) for i in numberlist]
 

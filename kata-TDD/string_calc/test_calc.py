@@ -12,9 +12,10 @@ def test_add_empty_is_zero():
 
 def test_none_is_zero():
     """
-    None is treated the same as empty string
+    None is a typeerror
     """
-    assert add(None) == 0
+    with pytest.raises(TypeError):
+        add(None)
 
 
 def test_one_int():
@@ -138,3 +139,17 @@ def test_trailing_delimiter():
     Trailing delimiters are ignored
     """
     assert add('//|\n1|2|') == 3
+
+
+def test_only_trailing_delimiter():
+    """
+    Delimiter with no numbers is invalid
+    """
+    assert add(',') == 0
+
+
+def test_only_trailing_delimiter():
+    """
+    Header with no numbers should be zero
+    """
+    assert add('//&\n') == 0
