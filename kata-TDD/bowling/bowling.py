@@ -1,6 +1,9 @@
 class Game(object):
+    def __init__(self):
+        self._score = 0
+
     def roll(self, number):
-        return
+        self._score += number
 
     def score(self):
-        return 0
+        return self._score
