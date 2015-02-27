@@ -14,6 +14,9 @@ class GameHelper(Game):
         self.roll(first)
         self.roll(10 - first)
 
+    def roll_strike(self):
+        self.roll(10)
+
 
 @pytest.fixture
 def game():
@@ -37,7 +40,14 @@ def test_one_spare(game):
     assert game.score() == 16
 
 
-#def test_strike(game):
-#    game.roll(10)
-#    game.roll(3)
-#    game.roll(4)
+def test_strike(game):
+    game.roll_strike()
+    game.roll(3)
+    game.roll(4)
+    game.roll_many(17, pins=0)
+    assert game.score() == 24
+
+
+#def test_perfect_game(game):
+#    game.roll_many(12, 10)
+#    assert game.score() == 300
