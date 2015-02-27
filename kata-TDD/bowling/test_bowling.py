@@ -48,6 +48,6 @@ def test_strike(game):
     assert game.score() == 24
 
 
-#def test_perfect_game(game):
-#    game.roll_many(12, 10)
-#    assert game.score() == 300
+def test_perfect_game(game):
+    game.roll_many(12, 10)
+    assert game.score() == 300
