@@ -47,6 +47,16 @@ map func tree = case tree of
     Node a left right -> Node (func a) (map func left) (map func right)
 
 
+fold: (a -> b -> b) -> b -> Tree a -> b
+fold func initial tree = case tree of
+    Empty -> initial
+    Node value left right ->
+        fold func (
+            fold func (func value initial) left
+        ) right
+
+foldNum : Tree Int -> Int
+foldNum = fold (+) 0
 {-----------------------------------------------------------------
 
 Exercises:
