@@ -73,6 +73,11 @@ flatten tree =
       []
     Node a left right -> a :: List.append (flatten left) (flatten right)
 
+
+-- Flatten with a fold
+flatten2 : Tree a -> List a
+flatten2 tree = fold (\item list -> item :: list) [] tree
+
 {-----------------------------------------------------------------
 
 Exercises:

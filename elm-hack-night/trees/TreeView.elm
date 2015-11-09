@@ -35,7 +35,7 @@ draw viewWidth tree =
             |> Text.fromString
             |> text
             |> move (-380, treeHeight / 2)
-        , Tree.flatten tree
+        , Tree.flatten2 tree
             |> toString
             |> Text.fromString
             |> text
