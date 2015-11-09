@@ -38,7 +38,13 @@ fromList things = case things of
 
 
 
--- depth : Tree a -> Int
+depth : Tree a -> Int
+depth tree =
+  case tree of
+    Node parent left right ->
+      1 + (depth left) + (depth right)
+    Empty ->
+      0
 
 
 map : (a -> b) -> Tree a -> Tree b
