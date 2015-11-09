@@ -9,7 +9,7 @@ myTree =
     --Tree.empty
     Tree.map (\n -> n + 1) (Tree.fromList [3, 2, 1, 4])
 
-mySum = (Tree.foldNum tree) |> toString
+mySum = (Tree.foldNum myTree) |> toString
 
 main : Html
 main =
