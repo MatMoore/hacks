@@ -14,10 +14,16 @@ empty =
 -- singleton : a -> Tree a
 
 
--- insert : comparable -> Tree comparable -> Tree comparable
+-- Temp
+insert : comparable -> Tree comparable -> Tree comparable
+insert thing tree = Node thing tree Empty
 
 
--- fromList : List comparable -> Tree comparable
+fromList : List comparable -> Tree comparable
+fromList things = case things of
+    [] -> Empty
+    head :: tail -> fromList tail |> insert head
+
 
 
 -- depth : Tree a -> Int

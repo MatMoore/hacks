@@ -5,7 +5,8 @@ import TreeView
 
 
 myTree =
-    Tree.empty
+    --Tree.empty
+    Tree.fromList [1, 2, 3, 4]
 
 
 main : Html
