@@ -61,8 +61,18 @@ fold func initial tree = case tree of
             fold func (func value initial) left
         ) right
 
+
 foldNum : Tree Int -> Int
 foldNum = fold (+) 0
+
+
+flatten : Tree a -> List a
+flatten tree =
+  case tree of
+    Empty ->
+      []
+    Node a left right -> a :: List.append (flatten left) (flatten right)
+
 {-----------------------------------------------------------------
 
 Exercises:

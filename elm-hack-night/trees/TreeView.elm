@@ -33,8 +33,14 @@ draw viewWidth tree =
         [ Tree.depth tree
             |> toString
             |> Text.fromString
-            |> text,
-          treeForm
+            |> text
+            |> move (-380, treeHeight / 2)
+        , Tree.flatten tree
+            |> toString
+            |> Text.fromString
+            |> text
+            |> move (-380, treeHeight / 2 - 20)
+        , treeForm
             |> scale scaleFactor
             |> move (0, treeHeight / 2)
         ]
