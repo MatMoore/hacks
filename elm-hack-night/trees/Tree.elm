@@ -19,9 +19,13 @@ insert : comparable -> Tree comparable -> Tree comparable
 insert el tree =
   case tree of
     Node parent left right ->
-      if | el < parent -> Node parent (insert el left) right
-         | el > parent -> Node parent left (insert el right)
-         | otherwise -> tree
+      if el < parent then
+        Node parent (insert el left) right
+      else if el > parent then
+        Node parent left (insert el right)
+      else
+        tree
+
     Empty ->
       singleton el
 
