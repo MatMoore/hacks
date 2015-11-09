@@ -30,7 +30,11 @@ draw viewWidth tree =
       collage
         (round viewWidth)
         (round treeHeight + 40)
-        [ treeForm
+        [ Tree.depth tree
+            |> toString
+            |> Text.fromString
+            |> text,
+          treeForm
             |> scale scaleFactor
             |> move (0, treeHeight / 2)
         ]
