@@ -11,10 +11,20 @@ empty =
   Empty
 
 
--- singleton : a -> Tree a
+singleton : a -> Tree a
+singleton el = Node el Empty Empty
 
 
--- insert : comparable -> Tree comparable -> Tree comparable
+insert : comparable -> Tree comparable -> Tree comparable
+insert el tree =
+  case tree of
+    Node parent left right ->
+      if | el < parent -> Node parent (insert el left) right
+         | el > parent -> Node parent left (insert el right)
+         | otherwise -> tree
+    Empty ->
+      singleton el
+
 
 
 -- fromList : List comparable -> Tree comparable
