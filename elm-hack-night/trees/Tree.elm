@@ -42,7 +42,7 @@ depth : Tree a -> Int
 depth tree =
   case tree of
     Node parent left right ->
-      1 + (depth left) + (depth right)
+      1 + (max (depth left) (depth right))
     Empty ->
       0
 
