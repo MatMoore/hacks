@@ -37,7 +37,10 @@ fromList things = case things of
 -- depth : Tree a -> Int
 
 
--- map : (a -> b) -> Tree a -> Tree b
+map : (a -> b) -> Tree a -> Tree b
+map func tree = case tree of
+    Empty -> Empty
+    Node a left right -> Node (func a) (map func left) (map func right)
 
 
 {-----------------------------------------------------------------
