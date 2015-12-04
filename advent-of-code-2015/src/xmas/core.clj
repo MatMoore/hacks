@@ -1,6 +1,7 @@
 (ns xmas.core
   (:require [clojure.string :refer [split]])
   (:require [clojure.set :refer [union]])
+  (:require [digest :refer [md5]])
   (:gen-class))
 
 (defn parse-int
@@ -144,7 +145,19 @@
       (visited-houses human-santa-directions)
       (visited-houses robo-santa-directions))))
 
+(def day4-secret-key "iwrupvqb")
+
+(def day4-inputs
+  (map #(str day4-secret-key %) (range)))
+
+(def advent-coins
+  (filter #(.startsWith (md5 %) "000000") day4-inputs))
+
+(defn first-advent-coin
+  []
+  (first advent-coins))
+
 (defn -main
   "Solve the last task"
   [& args]
-  (println (pr-str assisted-least-one-present)))
+  (println (pr-str (first-advent-coin))))
