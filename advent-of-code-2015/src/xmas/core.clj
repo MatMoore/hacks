@@ -25,6 +25,10 @@
     #(contains? (set ">v<^") %)
     (slurp "day3.txt")))
 
+(def day5-data
+  (with-open [rdr (clojure.java.io/reader "day5.txt")]
+    (into '() (line-seq rdr))))
+
 (defn take-elevator
   "Go to the floor indicated by the symbol"
   [start-floor instruction]
@@ -157,7 +161,32 @@
   []
   (first advent-coins))
 
+(def repeated-letter? #"(\w)\1")
+(def three-vowels? #"(.*[aeiou]){3}")
+(def bad-letter-pair? #"(ab)|(cd)|(pq)|(xy)")
+(def repeated-pair? #"(\w\w).*\1")
+(def three-letter-palindrome? #"(\w).\1")
+
+(defn nice?
+  [n]
+  (and
+    (not (empty? (re-seq repeated-letter? n)))
+    (not (empty? (re-seq three-vowels? n)))
+    (empty? (re-seq bad-letter-pair? n))))
+
+(defn really-nice?
+  [n]
+  (and
+    (not (empty? (re-seq repeated-pair? n)))
+    (not (empty? (re-seq three-letter-palindrome? n)))))
+
+(def nice-list
+  (filter really-nice? day5-data))
+
+(def number-nice
+  (count nice-list))
+
 (defn -main
   "Solve the last task"
   [& args]
-  (println (pr-str (first-advent-coin))))
+  (println (pr-str number-nice)))
