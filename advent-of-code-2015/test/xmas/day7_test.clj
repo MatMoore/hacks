@@ -1,6 +1,6 @@
-(ns xmas.core-test
+(ns xmas.day7-test
   (:require [clojure.test :refer :all]
-            [xmas.core :refer :all]))
+            [xmas.day7 :refer :all]))
 
 (def test-data
   (with-open [rdr (clojure.java.io/reader "day7test.txt")]
