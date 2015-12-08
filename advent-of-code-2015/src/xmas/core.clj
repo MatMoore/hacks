@@ -344,7 +344,7 @@
 
 (def day8-data (read-lines "day8.txt"))
 
-(def replace-hex (fn [string] (replace string #"\\x[0-9a-fA-F]+" "X")))
+(def replace-hex (fn [string] (replace string #"\\x[0-9a-fA-F]{2}" "X")))
 
 (def day8-parsed (map read-string (map replace-hex day8-data)))
 
