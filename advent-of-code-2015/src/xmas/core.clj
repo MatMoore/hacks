@@ -1,5 +1,5 @@
 (ns xmas.core
-  (:require [clojure.string :refer [split]])
+  (:require [clojure.string :refer [split, replace]])
   (:require [clojure.set :refer [union]])
   (:require [digest :refer [md5]])
   (:gen-class))
@@ -342,7 +342,17 @@
   []
   (evaluate-wires day7-data2 "a"))
 
+(def day8-data (read-lines "day8.txt"))
+
+(def replace-hex (fn [string] (replace string #"\\x[0-9a-fA-F]+" "X")))
+
+(def day8-parsed (map read-string (map replace-hex day8-data)))
+
+(def diffs (map - (map count day8-data) (map count day8-parsed)))
+
+(defn day8-result [diffs] (reduce + diffs))
+
 (defn -main
   "Solve the last task"
   [& args]
-  (println (pr-str (wire-a2))))
+  (println (pr-str (day8-result diffs))))
