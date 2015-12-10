@@ -30,5 +30,5 @@
 
 (defn day10-solution
   []
-  [(repeat-look-and-say input 40)]
+  [(count (repeat-look-and-say input 40)) (count (repeat-look-and-say input 50))]
   )
