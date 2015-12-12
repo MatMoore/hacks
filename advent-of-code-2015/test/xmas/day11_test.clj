@@ -8,8 +8,23 @@
   (is (= (inc-char \z) \a))
 )
 
-(deftest inc-string-without-duplicate-test
-  (is (= (inc-string-without-duplicate "a") "b"))
-  (is (= (inc-string-without-duplicate "zb") "ac"))
-  (is (= (inc-string-without-duplicate "za") "ab"))
+(deftest inc-string-test
+  (is (= (inc-string "a") "b"))
+  (is (= (inc-string "bz") "ca"))
+  (is (= (inc-string "az") "ba"))
 )
+
+(deftest valid-pass
+  (is (true? (is-valid "aabbcd"))))
+
+(deftest missing-pair
+  (is (false? (is-valid "abbcd"))))
+
+(deftest is-straight-yes
+  (is (true? (is-straight (seq "abc")))))
+
+(deftest is-straight-no
+  (is (false? (is-straight (seq "abb")))))
+
+(deftest missing-straight
+  (is (false? (is-valid "aabbc"))))

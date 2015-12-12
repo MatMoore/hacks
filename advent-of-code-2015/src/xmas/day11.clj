@@ -20,35 +20,54 @@
       (recur next-char)
       next-char)))
 
-(defn inc-string
-  [character & string]
-  (let [next-character (char (inc-char character))]
-    (if (= next-character \a)
-      (str next-character (inc-string string))
-      (str next-character string))
+(defn inc-charvector
+  "Increment a vector of characters, ignoring the rules for straights/pairs"
+  [ca]
+  (let [smallest (last ca)
+       others (into [] (butlast ca))
+       next-char (inc-char smallest)]
+    (if (= next-char \a)
+      (conj (inc-charvector others) next-char)
+      (conj others next-char)
     )
-  )
+  ))
 
-(defn has-duplicate
-  [char1 char2 & string]
-  (= char1 char2)
-  )
+(defn is-straight
+  "Increasing straight of characters, e.g. abc bcd. Skipping letters doesn't count."
+  [substr]
+  (let
+    [nums (map int substr)
+     pairs (map vector nums (rest nums))
+     diffs (map #(apply - %) pairs)]
+    (every? (partial = -1) diffs)))
 
-(defn inc-string-without-duplicate
+(defn is-valid
+  "Does a string meet all three rules?"
+  [string]
+  (and
+    (not (nil? (re-find #"(\w)\1.*(\w)\2" string)))
+    (boolean (some
+      is-straight
+      (partition 3 1 string)))
+  ))
+
+(defn inc-string
+  "Takes a string and returns the next possible one"
+  [string]
+  (apply str (inc-charvector (into [] string))))
+
+(defn inc-valid-string
+  "Takes a string and returns the next valid password"
   [string]
   (let [next-string (inc-string string)]
-  (if (has-duplicate next-string)
-    (recur next-string)
-    next-string
-    ))
-  )
-
-(defn reverse-inc-string
-  [string]
-  (reverse (inc-string-without-duplicate (reverse string)))
-  )
+    (println next-string)
+    (if (is-valid next-string)
+      next-string
+      (recur next-string))))
 
 (defn day11-solution
   []
-  [])
+  (let [a (inc-valid-string input)
+        b (inc-valid-string a)]
+    [a b]))
 

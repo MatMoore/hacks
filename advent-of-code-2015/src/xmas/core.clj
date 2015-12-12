@@ -9,6 +9,7 @@
   (:require [xmas.day8 :refer [day8-solution]])
   (:require [xmas.day9 :refer [day9-solution]])
   (:require [xmas.day10 :refer [day10-solution]])
+  (:require [xmas.day11 :refer [day11-solution]])
   (:gen-class))
 
 (def resolve-string (comp resolve symbol))
