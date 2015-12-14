@@ -9,7 +9,7 @@
 (defn parse-reindeer
   [acc line]
   (let [[match reindeer-name flyspeed flyseconds restseconds] (re-find reindeer-regex line)]
-    (conj acc [reindeer-name (take 2503 (cycle (concat (repeat (parse-int flyseconds) (parse-int flyspeed)) (repeat (parse-int restseconds) 0))))])
+    (conj acc [reindeer-name (cycle (concat (repeat (parse-int flyseconds) (parse-int flyspeed)) (repeat (parse-int restseconds) 0)))])
     )
   )
 
