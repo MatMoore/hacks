@@ -25,11 +25,15 @@
   [reindeer-name (reductions + reindeer-speed)]
 )
 
+(defn cumulative-reindeer-distance
+  [n reindeer-info]
+  (drop (dec n)
+    (second (distance-travelled reindeer-info))))
+
 (defn distance-travelled-after
   [n reindeer-info]
   (first
-    (drop (dec n)
-          (second (distance-travelled reindeer-info))))
+    (cumulative-reindeer-distance n reindeer-info))
   )
 
 (defn winner
@@ -37,7 +41,29 @@
   (apply max (map (partial distance-travelled-after n) reindeers))
   )
 
+(defn winning-reindeer
+  [reindeers n]
+  (first (apply (partial max-key second) (map (partial cumulative-reindeer-distance n) reindeers)))
+  )
+
+(println (map (partial cumulative-reindeer-distance n) reindeers))
+(println (winning-reindeer day14-input 2))
+
+(defn winner2
+  [reindeers n]
+  (reduce
+    (fn [acc reindeer-name]
+      (assoc-in
+        acc
+        [reindeer-name]
+        (inc (get acc reindeer-name 0))
+      ))
+    {}
+    (map
+      (partial winning-reindeer reindeers)
+      (range 1 (inc n)))))
+
 (defn day14-solution
   []
-  [(winner day14-input 2503)]
+  [(winner day14-input 2503) (winner2 day14-input 2503)]
   )
