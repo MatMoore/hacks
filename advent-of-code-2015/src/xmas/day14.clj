@@ -54,8 +54,6 @@
         #(= (second %) (second furthest-distance))
       reindeer-locations))))
 
-(println (winning-reindeer day14-input 2))
-
 (defn winner2
   [reindeers n]
   (frequencies
