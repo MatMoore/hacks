@@ -80,4 +80,4 @@ puts(count_lights(testresult))
 grid = parse(STDIN)
 puts(grid.length)
 endgrid = simulate(grid, 100, 100)
-puts(count_lights(endgrid)) # 861 too low
+puts(count_lights(endgrid))
