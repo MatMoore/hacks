@@ -7,6 +7,20 @@ module Primitives
             bytes.zip(another.bytes).map {|pair| pair.first ^ pair.last}
                 .pack('c*')
         end
+
+        def hamming_distance(another)
+            sum = 0
+
+            bytes.zip(another.bytes).each do |pair|
+                byte = pair.first ^ pair.last
+                while byte != 0
+                    sum += byte & 1
+                    byte = byte >> 1
+                end
+            end
+
+            sum
+        end
     end
 end
 
@@ -20,4 +34,6 @@ if __FILE__ == $0
     actual = hex1.decode_hex.xor(hex2.decode_hex).encode_hex
     puts actual
     puts actual == expected
+
+    puts 'this is a test'.hamming_distance('wokka wokka!!!') == 37
 end
