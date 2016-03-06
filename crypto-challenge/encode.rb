@@ -13,7 +13,7 @@ module EncodeHelpers
         end
 
         def decode_base64
-            unpack('m0')
+            unpack('m0')[0]
         end
     end
 end
