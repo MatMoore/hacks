@@ -1,4 +1,4 @@
-require_relative "../repeating_key_xor"
+require_relative "../src/repeating_key_xor"
 
 RSpec.describe RepeatingKeyXor, "#unravel" do
     it "gathers together characters a fixed distance apart" do

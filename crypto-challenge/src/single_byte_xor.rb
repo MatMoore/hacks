@@ -30,7 +30,7 @@ module SingleByteXor
         puts best_guess(cyphertext)
 
         scorer = Scoring::dictionary_scorer
-        possible_ct = IO.readlines('4.txt').map(&:strip).map {|x| x.decode_hex}
+        possible_ct = IO.readlines('data/4.txt').map(&:strip).map {|x| x.decode_hex}
         puts possible_ct.map {|ct| best_guess(ct, scorer:scorer)}.max_by(&:last)
     end
 end
