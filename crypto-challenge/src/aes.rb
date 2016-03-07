@@ -2,7 +2,7 @@ require_relative 'encode'
 require "OpenSSL"
 require "set"
 
-module AESDetector
+module ECBDetector
     def self.detect(line)
         seen = Set.new
         line.chars.each_slice(16).each do |block|
@@ -25,7 +25,7 @@ if __FILE__ == $0
 
     puts "---"
 
-    File.foreach("8.txt") do |line|
-        puts "Detected repeated block: #{line}" if AESDetector.detect(line.strip.decode_hex)
+    File.foreach("data/8.txt") do |line|
+        puts "Detected repeated block: #{line}" if ECBDetector.detect(line.strip.decode_hex)
     end
 end
