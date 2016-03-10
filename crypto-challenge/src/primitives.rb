@@ -21,6 +21,11 @@ module Primitives
 
             sum
         end
+
+        def pad_to_size(blocksize)
+            padding_size = (blocksize - size)
+            self + [padding_size].pack('C') * padding_size
+        end
     end
 end
 
@@ -36,4 +41,8 @@ if __FILE__ == $0
     puts actual == expected
 
     puts 'this is a test'.hamming_distance('wokka wokka!!!') == 37
+
+    padded = "YELLOW SUBMARINE".pad_to_size(20)
+    puts padded.encode_hex
+    puts padded == "YELLOW SUBMARINE\x04\x04\x04\x04"
 end
