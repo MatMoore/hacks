@@ -24,6 +24,7 @@ module Primitives
 
         def pad_to_size(blocksize)
             padding_size = (blocksize - size)
+            padding_size += blocksize if padding_size == 0
             self + [padding_size].pack('C') * padding_size
         end
     end
