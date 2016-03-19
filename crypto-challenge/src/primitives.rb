@@ -23,9 +23,14 @@ module Primitives
         end
 
         def pad_to_size(blocksize)
-            padding_size = (blocksize - size)
-            padding_size += blocksize if padding_size == 0
+            padding_size = blocksize - (size % blocksize)
             self + [padding_size].pack('C') * padding_size
+        end
+
+        def trim_padding
+            last_byte = self.chars.last
+            padding_size = last_byte.unpack("C").first
+            self[0...-padding_size]
         end
     end
 end

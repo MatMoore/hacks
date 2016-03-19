@@ -8,6 +8,10 @@ module EncodeHelpers
             unpack('H*').first
         end
 
+        def encode_hex_blocks(blocksize)
+            chars.each_slice(blocksize).map(&:join).map {|x| x.encode_hex}.join('-')
+        end
+
         def encode_base64
             [self].pack('m0')
         end
