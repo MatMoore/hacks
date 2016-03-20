@@ -1,6 +1,7 @@
 require_relative 'encode'
 require_relative 'primitives'
 require "OpenSSL"
+require 'securerandom'
 
 module Block
     using Primitives
@@ -38,6 +39,10 @@ module Block
     class AesEcbCipher
         def initialize(key)
             @key = key
+        end
+
+        def self.with_random_key
+            new(SecureRandom.random_bytes(16))
         end
 
         def encrypt_block(plaintext)
@@ -118,5 +123,4 @@ if __FILE__ == $0
         cipher.decrypt(block, no_padding: true)
     end)
 
-       
 end

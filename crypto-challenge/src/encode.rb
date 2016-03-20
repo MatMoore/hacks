@@ -19,8 +19,45 @@ module EncodeHelpers
         def decode_base64
             unpack('m0')[0]
         end
+
+        def decode_uri_params
+            pairs = split('&')
+            result = {}
+            decode_percent_chars = lambda do |str|
+                str.gsub(/%([0-9a-fA-F]{2})/) do |match|
+                    [$1].pack('H')
+                end
+            end
+
+            pairs.each do |pair|
+                key, value = pair.split('=')
+                next if key.nil?
+
+                value ||= ""
+
+                result[decode_percent_chars.call(key)] = decode_percent_chars.call(value)
+            end
+
+            result
+        end
+    end
+
+    refine Hash do
+        def encode_uri_params
+            # Incomplete but good enough for the exercise
+            encode_reserved = lambda do |str|
+                str.gsub(/[=&]/) {|char| "%" + char.unpack('H*')[0].upcase}
+            end
+
+            encoded_pairs = []
+            each_pair do |key, value|
+                encoded_pairs << "#{encode_reserved.call(key.to_s)}=#{encode_reserved.call(value.to_s)}"
+            end
+            encoded_pairs.join("&")
+        end
     end
 end
+
 
 if __FILE__ == $0
     using EncodeHelpers
