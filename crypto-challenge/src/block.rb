@@ -85,6 +85,24 @@ module Block
             [:cbc, ciphertext]
         end
     end
+
+    def self.ecb_encryption_oracle(plaintext)
+        prng = Random.new
+        key = prng.bytes(16)
+        prefix_size = prng.rand(5..10)
+        postfix_size = prng.rand(5..10)
+        padded = prng.bytes(prefix_size) + plaintext + prng.bytes(postfix_size)
+        cipher = AesEcbCipher.new(key)
+        if prng.rand > 0.5
+            ciphertext = cipher.encrypt(padded)
+            [:ecb, ciphertext]
+        else
+            iv = prng.bytes(16)
+            ciphertext = Block.cbc_encrypt(padded, iv, &cipher.method(:encrypt_block))
+            [:cbc, ciphertext]
+        end
+    end
+
 end
 
 if __FILE__ == $0
@@ -99,4 +117,6 @@ if __FILE__ == $0
     puts (Block.cbc_decrypt(ciphertext, iv) do |block|
         cipher.decrypt(block, no_padding: true)
     end)
+
+       
 end
