@@ -13,8 +13,21 @@ module EcbDecryption
             @unknown_string = "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK".decode_base64
         end
 
-        def encrypt_with_prefix(plaintext)
+        def encrypt(plaintext)
             @cipher.encrypt(plaintext + @unknown_string)
+        end
+    end
+
+    class EcbPrefixOracle
+        def initialize(blocksize: 16)
+            key = SecureRandom.random_bytes(blocksize)
+            @random_prefix = SecureRandom.random_bytes(SecureRandom.random_number(2 * blocksize))
+            @cipher = Block::AesEcbCipher.new(key)
+            @unknown_string = "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK".decode_base64
+        end
+
+        def encrypt(plaintext)
+            @cipher.encrypt(@random_prefix + plaintext + @unknown_string)
         end
     end
 
@@ -32,7 +45,7 @@ module EcbDecryption
             last = nil
             search_space.each do |i|
                 plaintext = "A" * i
-                size_difference = @oracle.encrypt_with_prefix(plaintext).length - plaintext.length
+                size_difference = @oracle.encrypt(plaintext).length - plaintext.length
                 unless last.nil?
                     jump = size_difference - last
                     highest_jump = jump if jump > highest_jump
@@ -42,6 +55,24 @@ module EcbDecryption
             end
 
             highest_jump + 1
+        end
+
+        # Find how many random blocks there are in front of the attacker
+        # controlled string in the plaintext. We can find this in the
+        # ciphertext by sending two blocks that are the same
+        def count_prefix_blocks
+            blocksize = determine_blocksize
+            attacker_text = "A" * blocksize * 2
+            ciphertext = @oracle.encrypt(attacker_text)
+
+            ct_blocks = ciphertext.chars.each_slice(blocksize).to_a
+            ct_blocks.zip(ct_blocks[1..-1]).each_with_index do |(current_block, next_block), i|
+                if current_block == next_block
+                    return i
+                end
+            end
+
+            nil
         end
 
         def decrypt
@@ -75,7 +106,7 @@ module EcbDecryption
                 n_bytes_short = preceding_block[byte_number, blocksize]
                 byte_short_prefix = n_bytes_short
 
-                oracle_result = @oracle.encrypt_with_prefix(byte_short_prefix)
+                oracle_result = @oracle.encrypt(byte_short_prefix)
 
                 # Extract the block of ciphertext we're examining.
                 # This corresponds to the plaintext we manipulated above to
@@ -89,7 +120,7 @@ module EcbDecryption
                 # and just ignore the ciphertext blocks after the first one.
                 ("\x00".."\x7f").each do |char|
                     test_prefix = byte_short_prefix + decrypted + char
-                    test_result = @oracle.encrypt_with_prefix(test_prefix)
+                    test_result = @oracle.encrypt(test_prefix)
 
                     if test_result[0...blocksize] == oracle_block
                         decrypted << char
@@ -110,7 +141,8 @@ module EcbDecryption
         oracle = EcbOracle.new
         decryptor = EcbDecryptor.new(oracle)
         puts "Block size = #{decryptor.determine_blocksize}"
-        puts "Using ECB = #{ECBDetector.detect(oracle.encrypt_with_prefix("a" * 200))}"
+        puts "Attacker controlled text starts at block #{decryptor.count_prefix_blocks}"
+        puts "Using ECB = #{ECBDetector.detect(oracle.encrypt("a" * 200))}"
         puts decryptor.decrypt
     end
 
