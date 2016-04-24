@@ -32,6 +32,17 @@ module Primitives
             padding_size = last_byte.unpack("C").first
             self[0...-padding_size]
         end
+
+        def padding_valid?
+            last_byte = self.chars.last
+            padding_size = last_byte.unpack("C").first
+
+            raise SecurityError if padding_size > size
+
+            if self[-padding_size..-1].chars.any? {|c| c != last_byte}
+                raise SecurityError
+            end
+        end
     end
 end
 
