@@ -1,0 +1,38 @@
+var _krisajenkins$elm_cdn$CDN$stylesheet = function (url) {
+	return A3(
+		_elm_lang$html$Html$node,
+		'link',
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$rel('stylesheet'),
+				_elm_lang$html$Html_Attributes$href(url)
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[]));
+};
+var _krisajenkins$elm_cdn$CDN$script = function (url) {
+	return A3(
+		_elm_lang$html$Html$node,
+		'script',
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$src(url)
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[]));
+};
+var _krisajenkins$elm_cdn$CDN$foundation = {
+	css: _krisajenkins$elm_cdn$CDN$stylesheet('https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.3/foundation.min.css'),
+	js: _krisajenkins$elm_cdn$CDN$script('https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.3/foundation.min.js')
+};
+var _krisajenkins$elm_cdn$CDN$reset = {
+	css: _krisajenkins$elm_cdn$CDN$stylesheet('https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css')
+};
+var _krisajenkins$elm_cdn$CDN$skeleton = {
+	css: _krisajenkins$elm_cdn$CDN$stylesheet('https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css')
+};
+var _krisajenkins$elm_cdn$CDN$bootstrap = {
+	css: _krisajenkins$elm_cdn$CDN$stylesheet('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'),
+	theme: _krisajenkins$elm_cdn$CDN$stylesheet('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css'),
+	js: _krisajenkins$elm_cdn$CDN$script('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js')
+};

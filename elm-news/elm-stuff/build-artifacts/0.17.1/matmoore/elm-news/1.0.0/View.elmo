@@ -2,7 +2,9 @@ var _matmoore$elm_news$View$newsItem = function (news) {
 	return A2(
 		_elm_lang$html$Html$li,
 		_elm_lang$core$Native_List.fromArray(
-			[]),
+			[
+				_elm_lang$html$Html_Attributes$class('list-group-item')
+			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
@@ -30,6 +32,7 @@ var _matmoore$elm_news$View$root = function (model) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
+						_krisajenkins$elm_cdn$CDN$bootstrap.css,
 						A2(
 						_elm_lang$html$Html$h1,
 						_elm_lang$core$Native_List.fromArray(
@@ -37,6 +40,7 @@ var _matmoore$elm_news$View$root = function (model) {
 								_elm_lang$html$Html_Attributes$style(
 								_elm_lang$core$Native_List.fromArray(
 									[
+										{ctor: '_Tuple2', _0: 'margin-left', _1: '0.2em'},
 										{ctor: '_Tuple2', _0: 'font-style', _1: 'italic'}
 									]))
 							]),
@@ -47,24 +51,10 @@ var _matmoore$elm_news$View$root = function (model) {
 						A2(
 						_elm_lang$html$Html$ul,
 						_elm_lang$core$Native_List.fromArray(
-							[]),
-						A2(_elm_lang$core$List$map, _matmoore$elm_news$View$newsItem, _p0._0)),
-						A2(
-						_elm_lang$html$Html$div,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$core$Native_List.fromArray(
 							[
-								A2(
-								_elm_lang$html$Html$code,
-								_elm_lang$core$Native_List.fromArray(
-									[]),
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html$text(
-										_elm_lang$core$Basics$toString(model))
-									]))
-							]))
+								_elm_lang$html$Html_Attributes$class('list-group')
+							]),
+						A2(_elm_lang$core$List$map, _matmoore$elm_news$View$newsItem, _p0._0))
 					]));
 	}
 };
