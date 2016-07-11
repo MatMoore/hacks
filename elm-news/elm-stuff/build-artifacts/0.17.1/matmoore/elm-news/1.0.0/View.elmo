@@ -1,4 +1,61 @@
+var _matmoore$elm_news$View$newsItem = function (news) {
+	return A2(
+		_elm_lang$html$Html$li,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$h3,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(news.headline)
+					]))
+			]));
+};
 var _matmoore$elm_news$View$root = function (model) {
-	return _elm_lang$html$Html$text(
-		_elm_lang$core$Basics$toString(model));
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$h1,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'font-style', _1: 'italic'}
+							]))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('News!')
+					])),
+				A2(
+				_elm_lang$html$Html$ul,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				A2(_elm_lang$core$List$map, _matmoore$elm_news$View$newsItem, model.news)),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$code,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(model))
+							]))
+					]))
+			]));
 };

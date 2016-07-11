@@ -1,2 +1,11 @@
-var _matmoore$elm_news$Types$Model = {};
+var _matmoore$elm_news$Types$Model = F2(
+	function (a, b) {
+		return {news: a, error: b};
+	});
+var _matmoore$elm_news$Types$News = function (a) {
+	return {headline: a};
+};
+var _matmoore$elm_news$Types$GetNewsResponse = function (a) {
+	return {ctor: 'GetNewsResponse', _0: a};
+};
 var _matmoore$elm_news$Types$Nope = {ctor: 'Nope'};

@@ -4,10 +4,36 @@ var _matmoore$elm_news$State$subscriptions = function (_p0) {
 var _matmoore$elm_news$State$update = F2(
 	function (msg, model) {
 		var _p1 = msg;
-		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		if (_p1.ctor === 'GetNewsResponse') {
+			if (_p1._0.ctor === 'Err') {
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							error: _elm_lang$core$Maybe$Just(_p1._0._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			} else {
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{error: _elm_lang$core$Maybe$Nothing, news: _p1._0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			}
+		} else {
+			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		}
 	});
 var _matmoore$elm_news$State$init = {
 	ctor: '_Tuple2',
-	_0: {},
-	_1: _elm_lang$core$Platform_Cmd$none
+	_0: {
+		news: _elm_lang$core$Native_List.fromArray(
+			[]),
+		error: _elm_lang$core$Maybe$Nothing
+	},
+	_1: _matmoore$elm_news$Rest$getNews
 };
