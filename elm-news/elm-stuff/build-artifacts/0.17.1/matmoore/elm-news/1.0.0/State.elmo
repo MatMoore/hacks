@@ -1,0 +1,13 @@
+var _matmoore$elm_news$State$subscriptions = function (_p0) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _matmoore$elm_news$State$update = F2(
+	function (msg, model) {
+		var _p1 = msg;
+		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+	});
+var _matmoore$elm_news$State$init = {
+	ctor: '_Tuple2',
+	_0: {},
+	_1: _elm_lang$core$Platform_Cmd$none
+};

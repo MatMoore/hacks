@@ -1,0 +1,4 @@
+var _matmoore$elm_news$App$main = {
+	main: _elm_lang$html$Html_App$program(
+		{init: _matmoore$elm_news$State$init, update: _matmoore$elm_news$State$update, subscriptions: _matmoore$elm_news$State$subscriptions, view: _matmoore$elm_news$View$root})
+};

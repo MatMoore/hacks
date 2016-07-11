@@ -1,0 +1,4 @@
+var _matmoore$elm_news$View$root = function (model) {
+	return _elm_lang$html$Html$text(
+		_elm_lang$core$Basics$toString(model));
+};
