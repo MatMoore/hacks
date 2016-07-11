@@ -11,7 +11,7 @@ type alias Model = {
 
 type Msg
         = Nope |
-        GetNewsResponse (Result Http.Error (List News))
+        GetNewsResponse (FetchedData (List News))
 
 type alias News = { headline : String}
 

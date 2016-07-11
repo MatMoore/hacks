@@ -12,6 +12,6 @@ var _matmoore$elm_news$Rest$getNews = A2(
 	_matmoore$elm_news$Types$GetNewsResponse,
 	A3(
 		_elm_lang$core$Task$perform,
-		_elm_lang$core$Result$Err,
-		_elm_lang$core$Result$Ok,
+		_matmoore$elm_news$Types$Failed,
+		_matmoore$elm_news$Types$Succeed,
 		A2(_evancz$elm_http$Http$get, _matmoore$elm_news$Rest$decodeNews, _matmoore$elm_news$Rest$endpoint)));
