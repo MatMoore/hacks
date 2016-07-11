@@ -3,17 +3,17 @@ import Types exposing (..)
 import Rest exposing (..)
 
 init : ( Model, Cmd Msg )
-init = ( {news = [], error=Nothing}
+init = ( {news = Loading}
         , getNews
     )
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
+    case (Debug.log "OH HI" msg) of
         GetNewsResponse (Err errorMessage) ->
-            ( { model | error = Just errorMessage }, Cmd.none )
+            ( { model | news = Failed errorMessage }, Cmd.none )
         GetNewsResponse (Result.Ok news) ->
-            ( { model | error = Nothing , news=news }, Cmd.none )
+            ( { model | news = Succeed news }, Cmd.none )
         Nope ->
             ( model, Cmd.none )
 

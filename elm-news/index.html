@@ -8326,13 +8326,19 @@ var _evancz$elm_http$Http$post = F3(
 			decoder,
 			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request));
 	});
-var _matmoore$elm_news$Types$Model = F2(
-	function (a, b) {
-		return {news: a, error: b};
-	});
+var _matmoore$elm_news$Types$Model = function (a) {
+	return {news: a};
+};
 var _matmoore$elm_news$Types$News = function (a) {
 	return {headline: a};
 };
+var _matmoore$elm_news$Types$Succeed = function (a) {
+	return {ctor: 'Succeed', _0: a};
+};
+var _matmoore$elm_news$Types$Failed = function (a) {
+	return {ctor: 'Failed', _0: a};
+};
+var _matmoore$elm_news$Types$Loading = {ctor: 'Loading'};
 var _matmoore$elm_news$Types$GetNewsResponse = function (a) {
 	return {ctor: 'GetNewsResponse', _0: a};
 };
@@ -8359,7 +8365,7 @@ var _matmoore$elm_news$State$subscriptions = function (_p0) {
 };
 var _matmoore$elm_news$State$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
+		var _p1 = A2(_elm_lang$core$Debug$log, 'OH HI', msg);
 		if (_p1.ctor === 'GetNewsResponse') {
 			if (_p1._0.ctor === 'Err') {
 				return {
@@ -8367,7 +8373,7 @@ var _matmoore$elm_news$State$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							error: _elm_lang$core$Maybe$Just(_p1._0._0)
+							news: _matmoore$elm_news$Types$Failed(_p1._0._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -8376,7 +8382,9 @@ var _matmoore$elm_news$State$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{error: _elm_lang$core$Maybe$Nothing, news: _p1._0._0}),
+						{
+							news: _matmoore$elm_news$Types$Succeed(_p1._0._0)
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			}
@@ -8386,11 +8394,7 @@ var _matmoore$elm_news$State$update = F2(
 	});
 var _matmoore$elm_news$State$init = {
 	ctor: '_Tuple2',
-	_0: {
-		news: _elm_lang$core$Native_List.fromArray(
-			[]),
-		error: _elm_lang$core$Maybe$Nothing
-	},
+	_0: {news: _matmoore$elm_news$Types$Loading},
 	_1: _matmoore$elm_news$Rest$getNews
 };
 var _matmoore$elm_news$View$newsItem = function (news) {
@@ -8411,48 +8415,57 @@ var _matmoore$elm_news$View$newsItem = function (news) {
 			]));
 };
 var _matmoore$elm_news$View$root = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$h1,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$style(
-						_elm_lang$core$Native_List.fromArray(
-							[
-								{ctor: '_Tuple2', _0: 'font-style', _1: 'italic'}
-							]))
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('News!')
-					])),
-				A2(
-				_elm_lang$html$Html$ul,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				A2(_elm_lang$core$List$map, _matmoore$elm_news$View$newsItem, model.news)),
-				A2(
+	var _p0 = model.news;
+	switch (_p0.ctor) {
+		case 'Loading':
+			return _elm_lang$html$Html$text('Plz wait');
+		case 'Failed':
+			return _elm_lang$html$Html$text(
+				_elm_lang$core$Basics$toString(_p0._0));
+		default:
+			return A2(
 				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
 						A2(
-						_elm_lang$html$Html$code,
+						_elm_lang$html$Html$h1,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$style(
+								_elm_lang$core$Native_List.fromArray(
+									[
+										{ctor: '_Tuple2', _0: 'font-style', _1: 'italic'}
+									]))
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('News!')
+							])),
+						A2(
+						_elm_lang$html$Html$ul,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						A2(_elm_lang$core$List$map, _matmoore$elm_news$View$newsItem, _p0._0)),
+						A2(
+						_elm_lang$html$Html$div,
 						_elm_lang$core$Native_List.fromArray(
 							[]),
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(model))
+								A2(
+								_elm_lang$html$Html$code,
+								_elm_lang$core$Native_List.fromArray(
+									[]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text(
+										_elm_lang$core$Basics$toString(model))
+									]))
 							]))
-					]))
-			]));
+					]));
+	}
 };
 var _matmoore$elm_news$App$main = {
 	main: _elm_lang$html$Html_App$program(
