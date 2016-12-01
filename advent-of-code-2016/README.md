@@ -2,6 +2,6 @@
 
 My attempts at solving http://adventofcode.com/2016
 
-Solutions are in [elm-lang.org](Elm).
+Solutions are in [Elm](elm-lang.org).
 
-[https://github.com/MatMoore/adventofcode](Last year's solutions).
+[Last year's solutions](https://github.com/MatMoore/adventofcode).
