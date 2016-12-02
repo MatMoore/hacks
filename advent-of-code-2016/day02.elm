@@ -22,9 +22,9 @@ type Direction
 
 keyPad =
     Array.fromList
-        [ Array.fromList [ 1, 2, 3 ]
-        , Array.fromList [ 4, 5, 6 ]
-        , Array.fromList [ 7, 8, 9 ]
+        [ Array.fromList [ "1", "2", "3" ]
+        , Array.fromList [ "4", "5", "6" ]
+        , Array.fromList [ "7", "8", "9" ]
         ]
 
 
@@ -32,7 +32,7 @@ type alias Position =
     ( Int, Int )
 
 
-button : Position -> Maybe Int
+button : Position -> Maybe String
 button ( row, col ) =
     Array.get row keyPad
         |> Maybe.andThen (Array.get col)
@@ -110,7 +110,7 @@ linePositions lines =
     List.scanl moveLine startPosition lines
 
 
-code : List (List Direction) -> List Int
+code : List (List Direction) -> List String
 code lines =
     log "positions " (linePositions lines)
         |> List.filterMap button
@@ -125,7 +125,6 @@ update msg model =
 part1 =
     parseInstructions input
         |> code
-        |> List.map toString
         |> String.join ""
 
 
