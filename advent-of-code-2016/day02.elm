@@ -22,9 +22,11 @@ type Direction
 
 keyPad =
     Array.fromList
-        [ Array.fromList [ "1", "2", "3" ]
-        , Array.fromList [ "4", "5", "6" ]
-        , Array.fromList [ "7", "8", "9" ]
+        [ Array.fromList [ Nothing, Nothing, Just "1", Nothing, Nothing ]
+        , Array.fromList [ Nothing, Just "2", Just "3", Just "4", Nothing ]
+        , Array.fromList [ Just "5", Just "6", Just "7", Just "8", Just "9" ]
+        , Array.fromList [ Nothing, Just "A", Just "B", Just "C", Nothing ]
+        , Array.fromList [ Nothing, Nothing, Just "D", Nothing, Nothing ]
         ]
 
 
@@ -36,6 +38,7 @@ button : Position -> Maybe String
 button ( row, col ) =
     Array.get row keyPad
         |> Maybe.andThen (Array.get col)
+        |> Maybe.withDefault Nothing
 
 
 move : Direction -> Position -> Position
