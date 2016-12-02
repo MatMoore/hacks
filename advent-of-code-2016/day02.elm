@@ -33,10 +33,10 @@ button ( row, col ) =
         |> Maybe.andThen (Array.get row)
 
 
-move : Direction -> Position -> Position
-move direction ( row, col ) =
+move : Direction -> Maybe Position -> Maybe Position
+move direction start =
     let
-        target =
+        target ( row, col ) =
             case direction of
                 Up ->
                     ( row - 1, col )
@@ -50,20 +50,24 @@ move direction ( row, col ) =
                 Right ->
                     ( row, col + 1 )
 
+        end =
+            Maybe.map target start
+
         targetButton =
-            button target
+            Maybe.map button end
     in
         case targetButton of
             Just button ->
-                target
+                end
 
             Nothing ->
-                ( row, col )
+                Nothing
 
 
 moveLine : List Direction -> Position -> Position
 moveLine directions start =
-    List.foldl move start directions
+    List.foldl move (Just start) directions
+        |> Maybe.withDefault start
 
 
 parseChar : Char -> Maybe Direction
@@ -118,7 +122,8 @@ update msg model =
 part1 =
     parseInstructions input
         |> code
-        |> toString
+        |> List.map toString
+        |> String.join ""
 
 
 main =
