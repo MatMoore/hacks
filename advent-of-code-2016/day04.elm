@@ -7,6 +7,7 @@ import List.Extra exposing (group)
 import Regex exposing (..)
 import Debug exposing (..)
 import Result
+import Char exposing (..)
 
 
 input =
@@ -965,13 +966,23 @@ type alias RoomData =
     }
 
 
+type alias DecryptedRoomData =
+    { name : String
+    , sectorId : Int
+    }
+
+
+
+{- FIXME: the dodgy sorting is because sorting by length alone doesn't seem to preserve the lexigographic ordering from the original sort. The first sort is needed to group the characters. -}
+
+
 checksum : String -> Checksum
 checksum encrypted_name =
     toList encrypted_name
-        |> sort
         |> List.filter (\c -> c /= '-')
+        |> sort
         |> group
-        |> sortBy (List.length >> (\x -> -1 * x))
+        |> sortBy (\x -> ( -1 * (List.length x), (List.head x) |> (Maybe.withDefault 'a') ))
         |> List.filterMap List.head
         |> take 5
 
@@ -1018,13 +1029,26 @@ isRoomValid roomData =
 
 model =
     String.lines input
-        |> List.map parse
-        |> List.map (log "Parsed input")
+        |> List.map (parse << log "Parsed input")
         |> List.map Result.toMaybe
         |> List.filterMap identity
         |> List.filter isRoomValid
-        |> List.map (\room -> room.sectorId)
-        |> List.sum
+        |> List.map shift
+
+
+shift : RoomData -> DecryptedRoomData
+shift roomdata =
+    let
+        aCode =
+            (Char.toCode 'a')
+
+        shiftLowerChar char =
+            Char.fromCode ((((Char.toCode char) - aCode + roomdata.sectorId) % 26) + aCode)
+
+        shiftChar char =
+            shiftLowerChar (Char.toLower char)
+    in
+        { name = String.map shiftChar roomdata.encryptedName, sectorId = roomdata.sectorId }
 
 
 update msg model =
@@ -1032,7 +1056,8 @@ update msg model =
 
 
 view model =
-    model |> toString |> text
+    div []
+        (List.map (toString >> text >> (\x -> p [] [ x ])) model)
 
 
 main =
