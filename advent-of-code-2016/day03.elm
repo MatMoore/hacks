@@ -1,4 +1,4 @@
-module Da02 exposing (..)
+module Day02 exposing (..)
 
 import Html exposing (..)
 import String exposing (..)
