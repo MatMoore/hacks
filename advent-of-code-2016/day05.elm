@@ -10,6 +10,7 @@ import Result
 import Char exposing (..)
 import MD5
 
+
 input =
     "reyedfim"
 
@@ -20,28 +21,35 @@ testInput =
 
 findFiveZeroHash : String -> Int -> Maybe Char
 findFiveZeroHash doorId integer =
-  let
-    plain = doorId ++ (toString integer)
-    hash = MD5.hex plain
-  in
-    if startsWith "00000" hash then
-      hash |> toList |> drop 5 |> head
+    let
+        plain =
+            doorId ++ (toString integer)
+
+        hash =
+            MD5.hex plain
+    in
+        if startsWith "00000" hash then
+            hash |> toList |> drop 5 |> head
+        else
+            Nothing
+
+
+buildPassword : String -> List Char -> Int -> Int -> Int -> String
+buildPassword doorId foundDigits digitsRemaining startNumber endNumber =
+    if (digitsRemaining == 0) || (startNumber >= endNumber) then
+        String.fromList foundDigits
     else
-      Nothing
+        case findFiveZeroHash doorId startNumber of
+            Just char ->
+                buildPassword doorId (foundDigits ++ [ log "found" char ]) (digitsRemaining - 1) (startNumber + 1) endNumber
 
-buildPassword : String -> List Char -> Int -> Int -> String
-buildPassword doorId foundDigits startNumber endNumber =
-  if (List.length foundDigits == 8) || (startNumber >= endNumber) then
-    String.fromList foundDigits
-  else
-    case log "result" (findFiveZeroHash doorId (log "num" startNumber)) of
-      Just char ->
-        buildPassword doorId (foundDigits ++ [char]) (startNumber + 1) endNumber
-      Nothing ->
-        buildPassword doorId foundDigits (startNumber + 1) endNumber
+            Nothing ->
+                buildPassword doorId foundDigits digitsRemaining (startNumber + 1) endNumber
 
 
-model = testInput
+model =
+    (buildPassword input [] 8 1 10000000)
+
 
 update msg model =
     model
@@ -49,7 +57,7 @@ update msg model =
 
 view model =
     div []
-        [(buildPassword model [] 1 5017309) |> toString |> text]
+        [ model |> toString |> text ]
 
 
 main =
