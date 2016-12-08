@@ -3,6 +3,9 @@ module Day08 exposing (..)
 import Html exposing (..)
 import Array exposing (Array)
 import Time exposing (every, second)
+import Regex exposing (..)
+import String exposing (lines)
+import Debug exposing (log)
 
 type Pixel = On | Off
 
@@ -186,18 +189,54 @@ rotate column x=1 by 5"""
 testInput =
     """rect 3x2
 rotate column x=1 by 1
-rotate row y=0
+rotate row y=0 by 4
 rotate column x=1 by 1
 """
 
 
 
 init : (Model, Cmd Message)
-init = ({instructions = [], grid = Array.empty}, Cmd.none)
+init = ({instructions = lines testInput |> parseInstructions, grid = Array.empty}, Cmd.none)
 
 parseInstructions: List String -> List Instruction
 parseInstructions lines =
-  []
+  List.filterMap parseInstruction lines
+
+parseInstruction: String -> Maybe Instruction
+parseInstruction string =
+  let
+    stringPairToInts (a, b) =
+      case (String.toInt a |> Result.toMaybe, String.toInt b |> Result.toMaybe) of
+        (Just a, Just b) -> Just (a, b)
+        _ -> Nothing
+
+    parseSubmatches submatches =
+      case (log "" submatches) of
+        [(Just "rect"), Just rectWidth, Just rectHeight, _, _] ->
+          Just (rectWidth, rectHeight)
+          |> Maybe.andThen stringPairToInts
+          |> Maybe.map (\(x, y) -> RectOn x y)
+
+        [(Just "rotate row"), _, _, Just row, Just amount] ->
+          Just (row, amount)
+          |> Maybe.andThen stringPairToInts
+          |> Maybe.map (\(x, y) -> RotateRowRight x y)
+
+        [(Just "rotate column"), _, _, Just column, Just amount] ->
+          Just (column, amount)
+            |> Maybe.andThen stringPairToInts
+            |> Maybe.map (\(x, y) -> RotateColumnDown x y)
+
+        _ -> Nothing
+  in
+    (find
+      (AtMost 1)
+      (regex "(rect|rotate row|rotate column) (?:(?:(\\d+)+x(\\d+))|(?:.=(\\d+) by (\\d+)))")
+      string
+    )
+      |> List.head
+      |> Maybe.map .submatches
+      |> Maybe.andThen parseSubmatches
 
 processInstruction: Model -> Model
 processInstruction model = model
