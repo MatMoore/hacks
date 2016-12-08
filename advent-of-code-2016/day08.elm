@@ -6,6 +6,7 @@ import Time exposing (every, second)
 import Regex exposing (..)
 import String exposing (lines)
 import Debug exposing (log)
+import Dict exposing (Dict)
 
 type Pixel = On | Off
 
@@ -16,7 +17,8 @@ type Instruction =
   | RotateRowRight Int NumPixels
   | RotateColumnDown Int NumPixels
 
-type alias Model = {instructions: List Instruction, grid: Array (Array Pixel)}
+type alias Grid = {width: Int, height: Int, pixels: Dict (Int, Int) Pixel}
+type alias Model = {instructions: List Instruction, grid: Grid}
 
 type Message = Step
 
@@ -193,10 +195,12 @@ rotate row y=0 by 4
 rotate column x=1 by 1
 """
 
-
+makeGrid: Int -> Int -> Grid
+makeGrid gridWidth gridHeight =
+  {width = gridWidth, height=gridHeight, pixels = Dict.empty}
 
 init : (Model, Cmd Message)
-init = ({instructions = lines testInput |> parseInstructions, grid = Array.empty}, Cmd.none)
+init = ({instructions = lines testInput |> parseInstructions, grid = makeGrid 7 3}, Cmd.none)
 
 parseInstructions: List String -> List Instruction
 parseInstructions lines =
@@ -238,8 +242,25 @@ parseInstruction string =
       |> Maybe.map .submatches
       |> Maybe.andThen parseSubmatches
 
+
+setPixel : Pixel -> (Int, Int) -> Grid -> Grid
+setPixel pixel pos grid =
+    {grid | pixels = Dict.insert pos pixel grid.pixels}
+
+
+setRect : (Int, Int) -> Pixel -> Grid -> Grid
+setRect (right, bottom) pixel grid =
+  List.range 0 (right - 1)
+  |> List.concatMap (\x -> List.map (\y -> (x, y)) (List.range 0 (bottom - 1)))
+  |> List.foldl (setPixel On) grid
+
 processInstruction: Model -> Model
-processInstruction model = model
+processInstruction model =
+  case model.instructions of
+    (RectOn x y :: rest) ->
+      {model | grid = setRect (x, y) On model.grid }
+    _ ->
+      model
 
 stepThrough: (Model -> Model) -> Message -> Model -> (Model, Cmd Message)
 stepThrough stepFunction Step model =
@@ -251,9 +272,34 @@ update = stepThrough processInstruction
 subscriptions model =
   every second (\t -> Step)
 
+gridToString : Grid -> String
+gridToString grid =
+  let
+    pixelToChar: Int -> Int -> Char
+    pixelToChar row col =
+      case (
+        Dict.get (col, row) grid.pixels
+      ) |> Maybe.withDefault Off of
+        On -> '#'
+        Off -> '.'
+
+    rowToString: Int -> String
+    rowToString row =
+      List.range 0 (grid.width - 1)
+        |> List.map (pixelToChar row)
+        |> String.fromList
+  in
+    List.range 0 (grid.height - 1)
+      |> List.map rowToString
+      |> String.join "\n"
+
+viewGrid : Grid -> Html Message
+viewGrid grid =
+  pre []
+    [gridToString grid |> text]
+
 view model =
-    div []
-        [ model |> toString |> text ]
+    viewGrid model.grid
 
 main =
     program { init = init, view = view, update = update, subscriptions = subscriptions }
