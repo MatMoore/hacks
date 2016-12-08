@@ -2,7 +2,7 @@ module Day08 exposing (..)
 
 import Html exposing (..)
 import Array exposing (Array)
-import Time exposing (every, second)
+import Time exposing (every, second, millisecond)
 import Regex exposing (..)
 import String exposing (lines)
 import Debug exposing (log)
@@ -200,7 +200,8 @@ makeGrid gridWidth gridHeight =
   {width = gridWidth, height=gridHeight, pixels = Dict.empty}
 
 init : (Model, Cmd Message)
-init = ({instructions = lines testInput |> parseInstructions, grid = makeGrid 7 3}, Cmd.none)
+--init = ({instructions = lines testInput |> parseInstructions, grid = makeGrid 7 3}, Cmd.none)
+init = ({instructions = lines input |> parseInstructions, grid = makeGrid 50 6}, Cmd.none)
 
 parseInstructions: List String -> List Instruction
 parseInstructions lines =
@@ -215,7 +216,7 @@ parseInstruction string =
         _ -> Nothing
 
     parseSubmatches submatches =
-      case (log "" submatches) of
+      case submatches of
         [(Just "rect"), Just rectWidth, Just rectHeight, _, _] ->
           Just (rectWidth, rectHeight)
           |> Maybe.andThen stringPairToInts
@@ -247,6 +248,10 @@ setPixel : Pixel -> (Int, Int) -> Grid -> Grid
 setPixel pixel pos grid =
     {grid | pixels = Dict.insert pos pixel grid.pixels}
 
+getPixel : (Int, Int) -> Grid -> Pixel
+getPixel pos grid =
+  Dict.get pos grid.pixels
+  |> Maybe.withDefault Off
 
 setRect : (Int, Int) -> Pixel -> Grid -> Grid
 setRect (right, bottom) pixel grid =
@@ -254,11 +259,31 @@ setRect (right, bottom) pixel grid =
   |> List.concatMap (\x -> List.map (\y -> (x, y)) (List.range 0 (bottom - 1)))
   |> List.foldl (setPixel On) grid
 
+rotateRowRight: (Int, Int) -> Grid -> Grid
+rotateRowRight (row, amount) grid =
+    let
+      updateCol col newGrid =
+        setPixel (getPixel ((col - amount) % grid.width, row) grid) (col, row) newGrid
+    in
+      List.foldl updateCol grid (List.range 0 grid.width)
+
+rotateColumnDown: (Int, Int) -> Grid -> Grid
+rotateColumnDown (col, amount) grid =
+    let
+      updateRow row newGrid =
+        setPixel (getPixel (col, (row - 1) % grid.height) grid) (col, row) newGrid
+    in
+      List.foldl updateRow grid (List.range 0 grid.height)
+
 processInstruction: Model -> Model
 processInstruction model =
   case model.instructions of
     (RectOn x y :: rest) ->
-      {model | grid = setRect (x, y) On model.grid }
+      {model | grid = setRect (x, y) On model.grid, instructions = rest }
+    (RotateRowRight row amount :: rest) ->
+      {model | grid = rotateRowRight (row, amount) model.grid, instructions = rest}
+    (RotateColumnDown col amount :: rest) ->
+      {model | grid = rotateColumnDown (col, amount) model.grid, instructions = rest}
     _ ->
       model
 
@@ -270,7 +295,7 @@ update : Message -> Model -> (Model, Cmd Message)
 update = stepThrough processInstruction
 
 subscriptions model =
-  every second (\t -> Step)
+  every (100 * millisecond) (\t -> Step)
 
 gridToString : Grid -> String
 gridToString grid =
@@ -298,8 +323,17 @@ viewGrid grid =
   pre []
     [gridToString grid |> text]
 
+litCount : Grid -> Int
+litCount grid =
+  Dict.values grid.pixels
+    |> List.filter (\pixel -> pixel == On)
+    |> List.length
+
 view model =
-    viewGrid model.grid
+  div []
+    [viewGrid model.grid,
+    p [] [("Pixels lit: " ++ (litCount model.grid |> toString)) |> text]
+    ]
 
 main =
     program { init = init, view = view, update = update, subscriptions = subscriptions }
