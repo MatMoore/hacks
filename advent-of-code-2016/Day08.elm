@@ -295,16 +295,16 @@ rotateRowRight ( row, amount ) grid =
         updateCol col newGrid =
             setPixel (getPixel ( (col - amount) % grid.width, row ) grid) ( col, row ) newGrid
     in
-        List.foldl updateCol grid (List.range 0 grid.width)
+        List.foldl updateCol grid (List.range 0 (grid.width - 1))
 
 
 rotateColumnDown : ( Int, Int ) -> Grid -> Grid
 rotateColumnDown ( col, amount ) grid =
     let
         updateRow row newGrid =
-            setPixel (getPixel ( col, (row - 1) % grid.height ) grid) ( col, row ) newGrid
+            setPixel (getPixel ( col, (row - amount) % grid.height ) grid) ( col, row ) newGrid
     in
-        List.foldl updateRow grid (List.range 0 grid.height)
+        List.foldl updateRow grid (List.range 0 (grid.height - 1))
 
 
 processInstruction : Model -> Model
@@ -334,7 +334,10 @@ update =
 
 
 subscriptions model =
-    every (100 * millisecond) (\t -> Step)
+    if model.instructions == [] then
+        Sub.none
+    else
+        every (100 * millisecond) (\t -> Step)
 
 
 gridToString : Grid -> String
