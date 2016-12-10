@@ -16,7 +16,7 @@ type Mode
 
 
 type alias Model =
-    { compressed : String, uncompressed : String, mode : Mode }
+    { compressed : String, uncompressedLength : Int, mode : Mode }
 
 
 type Message
@@ -36,7 +36,7 @@ X(8x2)(3x3)ABCY
 
 init : ( Model, Cmd Message )
 init =
-    ( { compressed = input, uncompressed = "", mode = SkipUntilMarker }, Cmd.none )
+    ( { compressed = input, uncompressedLength = 0, mode = SkipUntilMarker }, Cmd.none )
 
 
 fuckingParseTheInt string =
@@ -55,7 +55,7 @@ decompressStep : Model -> Model
 decompressStep model =
     case model.mode of
         FuckingBroken ->
-            { model | uncompressed = "This shouldn't happen LOL" }
+            { model | uncompressedLength = -1 }
 
         Done ->
             model
@@ -68,7 +68,7 @@ decompressStep model =
                             String.left match.index model.compressed
 
                         afterMarker =
-                            String.dropLeft (match.index + String.length match.match) model.compressed
+                            String.dropLeft (match.index + (countNonWhitespace match.match)) model.compressed
 
                         newMode =
                             case match.submatches of
@@ -78,10 +78,10 @@ decompressStep model =
                                 _ ->
                                     FuckingBroken
                     in
-                        { model | compressed = afterMarker, uncompressed = model.uncompressed ++ beforeMarker, mode = newMode }
+                        { model | compressed = afterMarker, uncompressedLength = model.uncompressedLength + (countNonWhitespace beforeMarker), mode = newMode }
 
                 _ ->
-                    { model | compressed = "", uncompressed = model.uncompressed ++ model.compressed, mode = Done }
+                    { model | compressed = "", uncompressedLength = model.uncompressedLength + (countNonWhitespace model.compressed), mode = Done }
 
         RepeatNext numberOfChars numberOfTimes ->
             let
@@ -91,7 +91,7 @@ decompressStep model =
                 remaining =
                     (String.dropLeft numberOfChars model.compressed)
             in
-                { model | compressed = remaining, uncompressed = model.uncompressed ++ (String.repeat numberOfTimes skippedChars), mode = SkipUntilMarker }
+                { model | compressed = remaining, uncompressedLength = model.uncompressedLength + (numberOfTimes * (countNonWhitespace skippedChars)), mode = SkipUntilMarker }
 
 
 stepThrough : (Model -> Model) -> Message -> Model -> ( Model, Cmd Message )
@@ -113,10 +113,8 @@ subscriptions model =
 
 view model =
     div []
-        [ pre []
-            [ (model.uncompressed ++ model.compressed) |> text ]
-        , p []
-            [ text ("Decompressed " ++ (countNonWhitespace model.uncompressed |> toString) ++ " chars") ]
+        [ p []
+            [ text ("Decompressed " ++ (model.uncompressedLength |> toString) ++ " chars") ]
         ]
 
 
