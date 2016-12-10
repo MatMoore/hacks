@@ -28,9 +28,7 @@ input =
 
 
 testInput =
-    """A(2x2)BCD(2x2)EFG
-(6x1)(1x3)A
-X(8x2)(3x3)ABCY
+    """(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN
 """
 
 
@@ -49,6 +47,18 @@ markerPattern =
 
 countNonWhitespace string =
     String.words string |> String.join "" |> String.length
+
+
+decompress model =
+    case model.mode of
+        Done ->
+            model
+
+        FuckingBroken ->
+            decompressStep model
+
+        _ ->
+            decompress (decompressStep model)
 
 
 decompressStep : Model -> Model
@@ -85,13 +95,17 @@ decompressStep model =
 
         RepeatNext numberOfChars numberOfTimes ->
             let
-                skippedChars =
-                    (String.left numberOfChars model.compressed)
+                repeatedChars =
+                    decompress
+                        { uncompressedLength = 0
+                        , compressed = (String.left numberOfChars model.compressed)
+                        , mode = SkipUntilMarker
+                        }
 
                 remaining =
                     (String.dropLeft numberOfChars model.compressed)
             in
-                { model | compressed = remaining, uncompressedLength = model.uncompressedLength + (numberOfTimes * (countNonWhitespace skippedChars)), mode = SkipUntilMarker }
+                { model | compressed = remaining, uncompressedLength = model.uncompressedLength + (repeatedChars.uncompressedLength * numberOfTimes), mode = SkipUntilMarker }
 
 
 stepThrough : (Model -> Model) -> Message -> Model -> ( Model, Cmd Message )
