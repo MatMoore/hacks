@@ -9,6 +9,10 @@ import String exposing (toInt)
 import Result exposing (withDefault)
 
 
+type Message
+    = Step
+
+
 type alias Microchip =
     Int
 
@@ -21,6 +25,37 @@ type alias Bot =
     { lowest : Maybe Microchip, other : Maybe Microchip }
 
 
+type Transfer
+    = GiveToBot Int
+    | PutInBin Int
+
+
+type alias GiveInstruction =
+    { high : Maybe Transfer
+    , low : Maybe Transfer
+    }
+
+
+type Instruction
+    = DoTransfer Int GiveInstruction
+    | Input Int Int
+
+
+type alias Bots =
+    Dict Int Bot
+
+
+type alias Bins =
+    Dict Int Bin
+
+
+type alias Model =
+    { bots : Bots
+    , bins : Bins
+    , instructions : List Instruction
+    }
+
+
 testInput =
     """value 5 goes to bot 2
 bot 2 gives low to bot 1 and high to bot 0
@@ -28,22 +63,6 @@ value 3 goes to bot 1
 bot 1 gives low to output 1 and high to bot 0
 bot 0 gives low to output 2 and high to output 0
 value 2 goes to bot 2"""
-
-
-type Task
-    = GiveToBot Int
-    | PutInBin Int
-
-
-type alias GiveInstruction =
-    { high : Maybe Task
-    , low : Maybe Task
-    }
-
-
-type Instruction
-    = Transfer Int GiveInstruction
-    | Input Int Int
 
 
 inputRegex =
@@ -54,6 +73,7 @@ giveRegex =
     regex "bot (\\d+) gives (?:low to (bot|output) (\\d+))?(?: and )?(?:high to (bot|output) (\\d+))?"
 
 
+parseInputInstruction : String -> Result String Instruction
 parseInputInstruction string =
     case find (AtMost 1) inputRegex string of
         [ match ] ->
@@ -73,41 +93,37 @@ parseInputInstruction string =
             Err "Not found"
 
 
+parseTarget : Maybe String -> Maybe String -> Maybe Transfer
+parseTarget targetType targetNumber =
+    case targetType of
+        Just "bot" ->
+            Maybe.andThen (Result.toMaybe << toInt) targetNumber
+                |> Maybe.map GiveToBot
+
+        Just "output" ->
+            Maybe.andThen (Result.toMaybe << toInt) targetNumber
+                |> Maybe.map PutInBin
+
+        _ ->
+            Nothing
+
+
+parseGiveInstruction : String -> Result String Instruction
 parseGiveInstruction string =
     case find (AtMost 1) giveRegex string of
         [ match ] ->
             case match.submatches of
                 [ Just fromBot, lowTarget, lowNumber, highTarget, highNumber ] ->
                     let
-                        highTask =
-                            case highTarget of
-                                Just "bot" ->
-                                    Maybe.andThen (Result.toMaybe << toInt) highNumber
-                                        |> Maybe.map GiveToBot
+                        highTransfer =
+                            parseTarget highTarget highNumber
 
-                                Just "output" ->
-                                    Maybe.andThen (Result.toMaybe << toInt) highNumber
-                                        |> Maybe.map PutInBin
-
-                                _ ->
-                                    Nothing
-
-                        lowTask =
-                            case lowTarget of
-                                Just "bot" ->
-                                    Maybe.andThen (Result.toMaybe << toInt) lowNumber
-                                        |> Maybe.map GiveToBot
-
-                                Just "output" ->
-                                    Maybe.andThen (Result.toMaybe << toInt) lowNumber
-                                        |> Maybe.map PutInBin
-
-                                _ ->
-                                    Nothing
+                        lowTransfer =
+                            parseTarget lowTarget lowNumber
                     in
                         toInt fromBot
                             |> Result.map
-                                (\botNumber -> Transfer botNumber { high = highTask, low = lowTask })
+                                (\botNumber -> DoTransfer botNumber { high = highTransfer, low = lowTransfer })
 
                 _ ->
                     Err "Broken regex"
@@ -116,6 +132,7 @@ parseGiveInstruction string =
             Err "No match"
 
 
+parseInstruction : String -> Result String Instruction
 parseInstruction string =
     case parseInputInstruction string of
         Ok instruction ->
@@ -148,21 +165,6 @@ giveBot chip bot =
             giveBot chip { bot | lowest = Just a, other = Nothing }
 
 
-type alias Bots =
-    Dict Int Bot
-
-
-type alias Bins =
-    Dict Int Bin
-
-
-type alias Model =
-    { bots : Bots
-    , bins : Bins
-    , instructions : List Instruction
-    }
-
-
 init : ( Model, Cmd Message )
 init =
     ( { instructions = parsedInstructions
@@ -171,10 +173,6 @@ init =
       }
     , Cmd.none
     )
-
-
-type Message
-    = Step
 
 
 stepThrough : (Model -> Model) -> Message -> Model -> ( Model, Cmd Message )
