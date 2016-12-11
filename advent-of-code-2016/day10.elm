@@ -22,7 +22,7 @@ type alias Bin =
 
 
 type alias Bot =
-    { lowest : Maybe Microchip, other : Maybe Microchip }
+    { lowest : Maybe Microchip, other : Maybe Microchip, errors : List String }
 
 
 type Transfer
@@ -146,14 +146,14 @@ parsedInstructions =
     String.lines testInput |> List.filterMap (Result.toMaybe << parseInstruction)
 
 
-giveBot : Microchip -> Bot -> Result String Bot
-giveBot chip bot =
+giveToBot : Microchip -> Bot -> Result String Bot
+giveToBot chip bot =
     case ( bot.lowest, bot.other ) of
         ( Just a, Nothing ) ->
             if chip >= a then
                 Ok { bot | other = Just chip }
             else
-                Ok { lowest = Just chip, other = Just a }
+                Ok { bot | lowest = Just chip, other = Just a }
 
         ( Nothing, Nothing ) ->
             Ok { bot | lowest = Just chip }
@@ -162,7 +162,31 @@ giveBot chip bot =
             Err "Already holding two chips"
 
         ( Nothing, Just a ) ->
-            giveBot chip { bot | lowest = Just a, other = Nothing }
+            giveToBot chip { bot | lowest = Just a, other = Nothing }
+
+
+takeFromBot : Microchip -> Bot -> Result String Bot
+takeFromBot chip bot =
+    case ( bot.lowest, bot.other ) of
+        ( Just a, Nothing ) ->
+            if a == chip then
+                Ok { bot | lowest = Nothing }
+            else
+                Err "Not holding chip"
+
+        ( Just a, Just b ) ->
+            if a == chip then
+                Ok { bot | lowest = Just b, other = Nothing }
+            else if b == chip then
+                Ok { bot | lowest = Just a, other = Nothing }
+            else
+                Err "Not holding chip"
+
+        ( Nothing, Nothing ) ->
+            Err "Not holding anything"
+
+        ( Nothing, Just a ) ->
+            takeFromBot chip { bot | lowest = Just a, other = Nothing }
 
 
 init : ( Model, Cmd Message )
@@ -178,6 +202,61 @@ init =
 stepThrough : (Model -> Model) -> Message -> Model -> ( Model, Cmd Message )
 stepThrough stepFunction Step model =
     ( stepFunction model, Cmd.none )
+
+
+newBot : Bot
+newBot =
+    { lowest = Nothing, other = Nothing, errors = [] }
+
+
+
+{- TODO make lowest and other a result? -}
+
+
+maybeGiveToBot : Int -> Maybe Bot -> Maybe Bot
+maybeGiveToBot chip existing =
+    let
+        before =
+            existing |> Maybe.withDefault newBot
+
+        result =
+            giveToBot chip before
+    in
+        case result of
+            Ok after ->
+                Just after
+
+            Err msg ->
+                Just { before | errors = msg :: before.errors }
+
+
+maybeTakeFromBot : Int -> Maybe Bot -> Maybe Bot
+maybeTakeFromBot chip existing =
+    let
+        before =
+            existing |> Maybe.withDefault newBot
+    in
+        case (takeFromBot chip before) of
+            Ok new ->
+                Just new
+
+            Err msg ->
+                Just { before | errors = msg :: before.errors }
+
+
+runInstruction : Model -> Model
+runInstruction model =
+    case model.instructions of
+        head :: tail ->
+            case head of
+                DoTransfer bot gifts ->
+                    model
+
+                Input bot value ->
+                    model
+
+        _ ->
+            model
 
 
 update : Message -> Model -> ( Model, Cmd Message )
