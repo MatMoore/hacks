@@ -21,8 +21,16 @@ type alias Reading =
     }
 
 
+type alias Player =
+    { name : String
+    , position : Vector
+    }
+
+
 type alias Response =
-    List Reading
+    { gpss : List Reading
+    , players : List Player
+    }
 
 
 decodePoint : Decoder Point
@@ -32,14 +40,25 @@ decodePoint =
         (Json.Decode.field "y" Json.Decode.float)
 
 
+decodeReading : Decoder Reading
 decodeReading =
     Json.Decode.map2 Reading
         (Json.Decode.field "distance" Json.Decode.float)
         (Json.Decode.field "position" decodePoint)
 
 
+decodePlayer : Decoder Player
+decodePlayer =
+    Json.Decode.map2 Player
+        (Json.Decode.field "name" Json.Decode.string)
+        (Json.Decode.field "position" decodePoint)
+
+
+decodeResponse : Decoder Response
 decodeResponse =
-    Json.Decode.field "gpss" (Json.Decode.list decodeReading)
+    Json.Decode.map2 Response
+        (Json.Decode.field "gpss" (Json.Decode.list decodeReading))
+        (Json.Decode.field "players" (Json.Decode.list decodePlayer))
 
 
 example =
@@ -62,7 +81,10 @@ example =
     {"tag":"SetColor","contents":"#ff0000"},
     {"tag":"Move","contents":{"x":1,"y":-2}}
     ],
-    "players":[{"color":null,"score":0,"name":"<Your Name Here>","position":{"x":0,"y":0}}]
+    "players":[
+    {"color":null,"score":0,
+    "name":"<Your Name Here>","position":{"x":0,"y":0}
+    }]
 }
 """
 
@@ -71,7 +93,7 @@ readingToCircle reading =
     { x = reading.position.x, y = reading.position.y, r = reading.distance }
 
 
-readingIntersection : Response -> Result String Vector
+readingIntersection : List Reading -> Result String Vector
 readingIntersection readings =
     case readings of
         first :: second :: rest ->
@@ -193,11 +215,23 @@ type Msg
     | NewMessage String
 
 
+findLocation : List Player -> Maybe Vector
+findLocation players =
+    List.filter (\player -> player.name == "Not a bot!") players
+        |> List.map .position
+        |> List.head
+
+
 sendRequest : Request -> Cmd Msg
 sendRequest request =
     encodeRequest request
         |> Json.Encode.encode 2
         |> WebSocket.send echoServer
+
+
+relativeTo : Vector -> Vector -> Vector
+relativeTo origin vector =
+    { x = vector.x - origin.x, y = vector.y - origin.y }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -211,13 +245,16 @@ update msg { input, messages } =
 
         NewMessage str ->
             case Json.Decode.decodeString decodeResponse str of
-                Ok response ->
+                Ok { gpss, players } ->
                     let
                         target =
-                            readingIntersection response
+                            readingIntersection gpss
+
+                        location =
+                            findLocation players |> Maybe.withDefault { x = 0, y = 0 }
 
                         cmd =
-                            case target of
+                            case Result.map (relativeTo location) target of
                                 Ok someTarget ->
                                     sendRequest (Move someTarget)
 
