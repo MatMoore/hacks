@@ -10,6 +10,11 @@ We have 3 signals that tell us how far away a present is from a specific locatio
 
 Find the presents and direct a robot to pick them up.
 
+## Solution
+
+To triangulate the presents we use some maths we copied from
+[http://math.stackexchange.com/a/1033561](http://math.stackexchange.com/a/1033561).
+
 ## Game Server
 The game server runs at [http://game.clearercode.com](http://game.clearercode.com).
 
