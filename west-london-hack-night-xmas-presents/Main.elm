@@ -45,6 +45,10 @@ type alias Circle =
     { x : Float, y : Float, r : Float }
 
 
+myName =
+    "Elf"
+
+
 decodeVector : Decoder Vector
 decodeVector =
     Json.Decode.map2 Vector
@@ -178,12 +182,15 @@ echoServer =
 
 
 type alias Model =
-    Maybe Response
+    { lastSeen : Maybe Response
+    , currentPosition : Vector
+    , pendingRequests : List Request
+    }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Nothing, Cmd.batch [ sendRequest (SetName "Not a bot!"), sendRequest (SetColor "red") ] )
+    ( { lastSeen = Nothing, currentPosition = { x = 0, y = 0 }, pendingRequests = [ SetColor "green" ] }, sendRequest (SetName myName) )
 
 
 type Msg
@@ -192,7 +199,7 @@ type Msg
 
 findLocation : List Player -> Maybe Vector
 findLocation players =
-    List.filter (\player -> player.name == "Not a bot!") players
+    List.filter (\player -> player.name == myName) players
         |> List.map .position
         |> List.head
 
@@ -200,7 +207,7 @@ findLocation players =
 sendRequest : Request -> Cmd Msg
 sendRequest request =
     encodeRequest request
-        |> Json.Encode.encode 2
+        |> Json.Encode.encode 0
         |> WebSocket.send echoServer
 
 
@@ -209,29 +216,51 @@ relativeTo origin vector =
     { x = vector.x - origin.x, y = vector.y - origin.y }
 
 
+defaultRequest =
+    SetColor "red"
+
+
+generateMove : Response -> Model -> ( Model, Cmd Msg )
+generateMove { gpss, players } model =
+    let
+        target =
+            readingIntersection gpss
+
+        location =
+            log "Currently at" (findLocation players |> Maybe.withDefault { x = 0, y = 0 })
+
+        cmd =
+            case Result.map (relativeTo location) target of
+                Ok someTarget ->
+                    sendRequest (Move (log "going" someTarget))
+
+                Err msg ->
+                    let
+                        debug =
+                            log "OH NO" msg
+                    in
+                        sendRequest defaultRequest
+    in
+        ( { model | currentPosition = location, lastSeen = Just { gpss = gpss, players = players } }, cmd )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update (NewMessage str) model =
     case Json.Decode.decodeString decodeResponse str of
-        Ok { gpss, players } ->
+        Ok response ->
+            case model.pendingRequests of
+                request :: rest ->
+                    ( { model | pendingRequests = rest }, sendRequest request )
+
+                _ ->
+                    generateMove response model
+
+        Err msg ->
             let
-                target =
-                    readingIntersection gpss
-
-                location =
-                    findLocation players |> Maybe.withDefault { x = 0, y = 0 }
-
-                cmd =
-                    case Result.map (relativeTo location) target of
-                        Ok someTarget ->
-                            sendRequest (Move someTarget)
-
-                        Err msg ->
-                            Cmd.none
+                debug =
+                    log "aaaah" msg
             in
-                ( Just { gpss = gpss, players = players }, cmd )
-
-        _ ->
-            ( model, Cmd.none )
+                ( model, sendRequest defaultRequest )
 
 
 subscriptions : Model -> Sub Msg
