@@ -7,6 +7,19 @@ import WebSocket
 import Json.Decode exposing (Decoder, field)
 import Json.Encode
 import Debug exposing (log)
+import Time exposing (every, second)
+
+
+type alias Model =
+    { lastSeen : Maybe Response
+    , currentPosition : Vector
+    , pendingRequests : List Request
+    }
+
+
+type Msg
+    = NewMessage String
+    | Tick
 
 
 type alias Reading =
@@ -181,20 +194,14 @@ echoServer =
     "ws://game.clearercode.com/"
 
 
-type alias Model =
-    { lastSeen : Maybe Response
-    , currentPosition : Vector
-    , pendingRequests : List Request
-    }
-
-
 init : ( Model, Cmd Msg )
 init =
-    ( { lastSeen = Nothing, currentPosition = { x = 0, y = 0 }, pendingRequests = [ SetColor "green" ] }, sendRequest (SetName myName) )
-
-
-type Msg
-    = NewMessage String
+    ( { lastSeen = Nothing
+      , currentPosition = { x = 0, y = 0 }
+      , pendingRequests = [ SetName myName, SetColor "green" ]
+      }
+    , Cmd.none
+    )
 
 
 findLocation : List Player -> Maybe Vector
@@ -245,27 +252,38 @@ generateMove { gpss, players } model =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update (NewMessage str) model =
-    case Json.Decode.decodeString decodeResponse str of
-        Ok response ->
-            case model.pendingRequests of
-                request :: rest ->
+update message model =
+    case message of
+        Tick ->
+            case ( model.pendingRequests, model.lastSeen ) of
+                ( request :: rest, _ ) ->
                     ( { model | pendingRequests = rest }, sendRequest request )
 
-                _ ->
+                ( _, Just response ) ->
                     generateMove response model
 
-        Err msg ->
-            let
-                debug =
-                    log "aaaah" msg
-            in
-                ( model, sendRequest defaultRequest )
+                _ ->
+                    ( model, Cmd.none )
+
+        NewMessage str ->
+            case Json.Decode.decodeString decodeResponse str of
+                Ok response ->
+                    ( { model | lastSeen = Just response }, Cmd.none )
+
+                Err msg ->
+                    let
+                        debug =
+                            log "aaaah" msg
+                    in
+                        ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen echoServer NewMessage
+    Sub.batch
+        [ WebSocket.listen echoServer NewMessage
+        , every second (\t -> Tick)
+        ]
 
 
 view : Model -> Html Msg
