@@ -18,7 +18,7 @@ To triangulate the presents we use some maths we copied from
 ## Game Server
 The game server runs at [http://game.clearercode.com](http://game.clearercode.com).
 
-We communicate with it with JSON over a websocket.
+We communicate with it using JSON over a websocket.
 
 Example commands:
 
@@ -28,4 +28,4 @@ Example commands:
 {"tag":"Move","contents":{"x":1,"y":-2}}
 ```
 
-The movement is a vector, and the length doesn't matter (it gets normalised).
+The movement is a vector, and the length doesn't matter (we move at a fixed speed).
