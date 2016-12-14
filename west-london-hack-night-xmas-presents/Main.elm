@@ -7,7 +7,7 @@ import WebSocket
 import Json.Decode exposing (Decoder, field)
 import Json.Encode
 import Debug exposing (log)
-import Time exposing (every, second)
+import Time exposing (every, millisecond)
 
 
 type alias Model =
@@ -15,6 +15,10 @@ type alias Model =
     , currentPosition : Vector
     , pendingRequests : List Request
     }
+
+
+timeBetweenCommands =
+    150 * millisecond
 
 
 type Msg
@@ -191,7 +195,7 @@ main =
 
 echoServer : String
 echoServer =
-    "ws://game.clearercode.com/"
+    "ws://localhost:9000/"
 
 
 init : ( Model, Cmd Msg )
@@ -282,7 +286,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ WebSocket.listen echoServer NewMessage
-        , every second (\t -> Tick)
+        , every timeBetweenCommands (\t -> Tick)
         ]
 
 
