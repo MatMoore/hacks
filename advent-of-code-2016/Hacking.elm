@@ -1,4 +1,4 @@
-module ExcitingHackingApp exposing (program)
+module Hacking exposing (stepByStepProgram)
 
 import Html exposing (..)
 import Array exposing (..)
@@ -50,8 +50,8 @@ view { state, instructions } =
         [ text (instructions |> toString) ]
 
 
-program : ProgramFunctions instruction state -> Program Never (Model instruction state) Message
-program { init, instructions, step } =
+stepByStepProgram : ProgramFunctions instruction state -> Program Never (Model instruction state) Message
+stepByStepProgram { init, instructions, step } =
     Html.program
         { init = ( { stepNo = 0, state = init, instructions = instructions }, Cmd.none )
         , view = view
