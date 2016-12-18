@@ -16,7 +16,9 @@ type Message
 type alias ProgramFunctions instruction state =
     { init : state
     , instructions : List instruction
-    , step : instruction -> state -> state
+    , step : Maybe (instruction -> state -> state)
+    , view : Maybe (Model instruction state -> Html Message)
+    , delayMs : Maybe Float
     }
 
 
@@ -37,24 +39,43 @@ update stepFunction Step { stepNo, state, instructions } =
             ( { stepNo = stepNo, state = state, instructions = instructions }, Cmd.none )
 
 
-subscriptions : Model instruction state -> Sub Message
-subscriptions { state, instructions } =
+subscriptions : Float -> Model instruction state -> Sub Message
+subscriptions delayMs { state, instructions } =
     if (List.length instructions) == 0 then
         Sub.none
     else
-        every (100 * millisecond) (\t -> Step)
+        every (delayMs * millisecond) (\t -> Step)
 
 
-view { state, instructions } =
-    p []
-        [ text (instructions |> toString) ]
+viewInstructions instructions =
+    ul []
+        (List.map
+            (toString >> text >> (\text -> li [] [ text ]))
+            instructions
+        )
+
+
+viewState state =
+    p [] [ state |> toString |> text ]
+
+
+defaultView { state, instructions } =
+    div
+        []
+        [ viewState state
+        , viewInstructions instructions
+        ]
+
+
+defaultStep instruction state =
+    state
 
 
 stepByStepProgram : ProgramFunctions instruction state -> Program Never (Model instruction state) Message
-stepByStepProgram { init, instructions, step } =
+stepByStepProgram { init, instructions, step, view, delayMs } =
     Html.program
         { init = ( { stepNo = 0, state = init, instructions = instructions }, Cmd.none )
-        , view = view
-        , update = update step
-        , subscriptions = subscriptions
+        , view = view |> Maybe.withDefault defaultView
+        , update = update (step |> Maybe.withDefault defaultStep)
+        , subscriptions = subscriptions (delayMs |> Maybe.withDefault 0)
         }
