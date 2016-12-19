@@ -9,6 +9,12 @@ import Debug exposing (..)
 import Result
 import Char exposing (..)
 import MD5
+import Time exposing (every)
+import Array exposing (Array)
+
+
+type Message
+    = Step
 
 
 input =
@@ -19,7 +25,7 @@ testInput =
     "abc"
 
 
-findFiveZeroHash : String -> Int -> Maybe Char
+findFiveZeroHash : String -> Int -> List Char
 findFiveZeroHash doorId integer =
     let
         plain =
@@ -29,36 +35,83 @@ findFiveZeroHash doorId integer =
             MD5.hex plain
     in
         if startsWith "00000" hash then
-            hash |> toList |> drop 5 |> head
+            (log "Hash" hash) |> toList |> drop 5 |> take 2
         else
-            Nothing
+            []
 
 
-buildPassword : String -> List Char -> Int -> Int -> Int -> String
-buildPassword doorId foundDigits digitsRemaining startNumber endNumber =
-    if (digitsRemaining == 0) || (startNumber >= endNumber) then
-        String.fromList foundDigits
-    else
-        case findFiveZeroHash doorId startNumber of
-            Just char ->
-                buildPassword doorId (foundDigits ++ [ log "found" char ]) (digitsRemaining - 1) (startNumber + 1) endNumber
+buildPassword : State -> State
+buildPassword state =
+    case findFiveZeroHash state.doorId state.number of
+        position :: char :: rest ->
+            let
+                idx =
+                    log "idx" (String.toInt (String.fromChar position) |> Result.withDefault 8)
 
-            Nothing ->
-                buildPassword doorId foundDigits digitsRemaining (startNumber + 1) endNumber
+                value =
+                    case Array.get idx state.foundDigits of
+                        Just Nothing ->
+                            Just char
+
+                        Just a ->
+                            a
+
+                        Nothing ->
+                            Nothing
+
+                foundDigits =
+                    Array.set idx value state.foundDigits
+
+                digitsRemaining =
+                    Array.filter (\val -> val == Nothing) foundDigits |> Array.length
+            in
+                { state | foundDigits = foundDigits, digitsRemaining = digitsRemaining, number = (state.number + 1) }
+
+        _ ->
+            { state | number = state.number + 1 }
 
 
-model =
-    (buildPassword input [] 8 1 10000000)
+type alias State =
+    { foundDigits : Array (Maybe Char)
+    , number : Int
+    , doorId : String
+    , digitsRemaining : Int
+    }
+
+
+init : State
+init =
+    { foundDigits = Array.repeat 8 Nothing
+    , number = 1
+    , doorId = input
+    , digitsRemaining = 8
+    }
 
 
 update msg model =
-    model
+    let
+        buildMany =
+            List.foldl (<<) identity (List.repeat 2000 buildPassword)
+    in
+        ( buildMany model, Cmd.none )
 
 
 view model =
     div []
-        [ model |> toString |> text ]
+        [ "DECRYPTING: " ++ (model |> toString) |> text ]
+
+
+subscriptions state =
+    if state.digitsRemaining > 0 then
+        every 0 (\t -> Step)
+    else
+        Sub.none
 
 
 main =
-    beginnerProgram { model = model, view = view, update = update }
+    Html.program
+        { init = ( init, Cmd.none )
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
