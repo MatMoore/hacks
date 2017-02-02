@@ -5,7 +5,6 @@ class Linter:
     def __init__(self, tree, filename, lines=None):
         self.lines = lines
         self.tree = tree
-        print(lines)
 
     @classmethod
     def add_options(cls, parser):
@@ -18,10 +17,15 @@ class Linter:
 
         cls.options = optdict
 
+    def line_too_short(self, line):
+        return len(line) <= 80
+
     def run(self):
-        yield (
-            1,
-            0,
-            "{0} {1}".format(666, "This isn't real code"),
-            Linter,
-        )
+        for line_number, line in enumerate(self.lines):
+            if self.line_too_short(line):
+                yield (
+                    line_number + 1,
+                    0,
+                    "{0} {1}".format(666, "Line too short"),
+                    Linter,
+                )
