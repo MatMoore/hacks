@@ -1,5 +1,5 @@
 import itertools
-
+import ast
 
 class Linter:
     name = "pep666-team-6"
@@ -32,6 +32,7 @@ class Linter:
                     "{0} {1}".format(666, "Line too short"),
                     Linter,
                 )
+
             if self.line_starts_with_4_spaces(line):
                 yield (
                     line_number + 1,
@@ -39,10 +40,18 @@ class Linter:
                     "{0} {1}".format(666, "Line starts with multiply of 4 spaces"),
                     Linter,
                 )
+
             if self.spaces_around_binary_operator(line):
                 yield (
                     line_number + 1,
                     0,
                     "{0} {1}".format(666, "Spaces found around a binary operator"),
+
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.FunctionDef):
+                yield (
+                    node.lineno,
+                    0,
+                    "{0} {1}".format(666, "Use a lambda instead of def"),
                     Linter,
                 )

@@ -5,3 +5,5 @@ if True:
     print('hello world')
 
 1 + 1 == 2
+def foo():
+  return 1
