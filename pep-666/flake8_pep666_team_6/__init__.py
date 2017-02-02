@@ -41,6 +41,8 @@ class Linter:
                     line_number + 1,
                     0,
                     "{0} {1}".format(666, "Line starts with multiply of 4 spaces"),
+                    Linter
+                )
             if self.blank_line(line):
                 yield (
                     line_number + 1,
