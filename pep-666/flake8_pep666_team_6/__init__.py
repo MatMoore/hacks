@@ -23,6 +23,9 @@ class Linter:
                     return True
         return False
 
+    def blank_line(self, line):
+        return len(line) <= 1
+
     def run(self):
         for line_number, line in enumerate(self.lines):
             if self.line_too_short(line):
@@ -38,6 +41,18 @@ class Linter:
                     line_number + 1,
                     0,
                     "{0} {1}".format(666, "Line starts with multiply of 4 spaces"),
+            if self.blank_line(line):
+                yield (
+                    line_number + 1,
+                    0,
+                    "{0} {1}".format(6661, "Save space. Avoid blank lines!"),
+                    Linter,
+                )
+            if self.spaces_around_binary_operator(line):
+                yield (
+                    line_number + 1,
+                    0,
+                    "{0} {1}".format(666, "Spaces found around a binary operator"),
                     Linter,
                 )
 
@@ -46,6 +61,8 @@ class Linter:
                     line_number + 1,
                     0,
                     "{0} {1}".format(666, "Spaces found around a binary operator"),
+                    Linter
+                )
 
         for node in ast.walk(self.tree):
             if isinstance(node, ast.FunctionDef):

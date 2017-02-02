@@ -1,0 +1,8 @@
+setup.py
+flake8_pep666_team_6/__init__.py
+flake8_pep666_team_6.egg-info/PKG-INFO
+flake8_pep666_team_6.egg-info/SOURCES.txt
+flake8_pep666_team_6.egg-info/dependency_links.txt
+flake8_pep666_team_6.egg-info/entry_points.txt
+flake8_pep666_team_6.egg-info/requires.txt
+flake8_pep666_team_6.egg-info/top_level.txt
