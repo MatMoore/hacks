@@ -16,6 +16,13 @@ class Linter:
         leading_spaces = list(itertools.takewhile(lambda x: x == ' ', line))
         return leading_spaces and len(leading_spaces) % 4 == 0
 
+    def spaces_around_binary_operator(self, line):
+        for operator in ['+', '-', '/', '*', '^', '=']:
+            for template in [' {}', '{} ']:
+                if template.format(operator) in line:
+                    return True
+        return False
+
     def run(self):
         for line_number, line in enumerate(self.lines):
             if self.line_too_short(line):
@@ -30,5 +37,12 @@ class Linter:
                     line_number + 1,
                     0,
                     "{0} {1}".format(666, "Line starts with multiply of 4 spaces"),
+                    Linter,
+                )
+            if self.spaces_around_binary_operator(line):
+                yield (
+                    line_number + 1,
+                    0,
+                    "{0} {1}".format(666, "Spaces found around a binary operator"),
                     Linter,
                 )
