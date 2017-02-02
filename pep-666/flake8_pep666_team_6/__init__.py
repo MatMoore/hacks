@@ -4,6 +4,8 @@ class Linter:
 
     def __init__(self, tree, filename, lines=None):
         self.lines = lines
+        self.tree = tree
+        print(lines)
 
     @classmethod
     def add_options(cls, parser):
