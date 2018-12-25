@@ -1,0 +1,287 @@
+<html>
+  <head>
+    <title>Asteroids</title>
+
+  </head>
+  <body>
+    <canvas id="game" width=1000 height=600 style="background-color: black">
+    </canvas>
+  </body>
+  <script>
+      const canvas = document.getElementById('game')
+      const context = canvas.getContext('2d')
+      const width = canvas.width + 0
+      const height = canvas.height + 0
+
+      function Vector(x,y) {
+        this.x = () => x
+        this.y = () => y
+        this.pos = {x,y}
+        this.add = (vec) => new Vector(x + vec.x(), y + vec.y())
+        this.sub = (vec) => new Vector(x - vec.x(), y - vec.y())
+        this.dist = (vec) => this.sub(vec).length()
+        this.scale = (scalingFactor) => new Vector(x * scalingFactor, y * scalingFactor)
+        this.normalize = () => new Vector(x / this.length(), y / this.length())
+        this.length = () => Math.sqrt(x * x + y * y)
+        this.rotate = (angle) => new Vector(
+          Math.cos(angle) * x - Math.sin(angle) * y,
+          Math.sin(angle) * x + Math.cos(angle) * y
+        )
+        this.toScreen = () => new Vector(x + width/2, y + height/2)
+        this.wrap = () => {
+          if (x > width/2) {
+            return this.add(new Vector(-width,0))
+          }
+          if (y > height/2) {
+            return this.add(new Vector(0,-height))
+          }
+          if (x < -width/2) {
+            return this.add(new Vector(width, 0))
+          }
+          if (y< -height/2) {
+            return this.add(new Vector(0,height))
+          }
+          return this
+        }
+      }
+      
+      let playerPosition = new Vector(0,0)
+      let playerHeading = new Vector(0,-1)      
+      let playerMovementVector = new Vector(0,0)
+      let maxGain = 400;
+      let gainChangeRate = 1000;
+      const playerLength = 10
+
+              
+
+     function nose(shipCenter) {
+        return shipCenter.add(playerHeading.scale(playerLength * 2))                                                
+     }
+
+     function backLeft(shipCenter) {
+         return shipCenter.add(playerHeading.rotate(2 * Math.PI / 3).scale(playerLength))                                    
+     }
+
+     function backRight(shipCenter) {
+        return shipCenter.add(playerHeading.rotate(-2 * Math.PI / 3).scale(playerLength))      
+     }
+
+     const drawCircle = (center, radius, fillStyle) => {
+      context.fillStyle = fillStyle
+      context.beginPath();
+      context.arc(center.x(),center.y(),radius,0,2*Math.PI);
+      context.fill();
+     }
+
+      const drawPolygon = (points, strokeStyle) => {
+        context.strokeStyle = strokeStyle
+        context.fillStyle = strokeStyle
+        context.beginPath();
+        context.moveTo(points[0].x(),points[0].y());
+        for (let i = 1; i<points.length; i++) {
+          context.lineTo(points[i].x(), points[i].y());
+        }
+        context.closePath();
+        context.stroke();
+        context.fill()
+      }
+
+      function drawShip() {
+        const playerScreenPosition = playerPosition.toScreen()
+        const points = [nose(playerScreenPosition), backLeft(playerScreenPosition), backRight(playerScreenPosition)]
+        drawPolygon(points, "#0f3")
+      }
+
+      function Star(position, size) {
+          this.position = position
+          this.size = size
+      }
+
+      function Asteroid(position, size) {
+        this.distances = []
+        this.position = position
+        this.size = size
+        for (let i=0;i<20;i++) {
+          this.distances.push(size + size/5 * (Math.random()-0.5))
+        }
+        this.movementVector = new Vector(0,100).rotate(Math.random() * Math.PI*2)
+        this.update = dt => {
+          this.position = this.position.add(this.movementVector.scale(dt)).wrap()
+        }
+      }
+
+    const stars = []
+    const asteroids = []
+
+    for(let i=0; i< 100; i++) {
+        let x = Math.random() * width;
+        let y = Math.random() * height;
+        let position = new Vector(x, y)
+        let radius = 1;
+        stars.push(new Star(position, radius))
+    }
+
+    for(let i=0; i < 10; i++) {
+        let x = (Math.random()-0.5) * width
+        let y = (Math.random()-0.5) * height
+        let position = new Vector(x, y)
+        let radius = 40;
+        asteroids.push(new Asteroid(position, radius))
+    }
+
+      function drawStars() {
+        stars.forEach(star => drawCircle(star.position, star.size, "white"))
+      }
+
+      function drawAsteroids() {
+        asteroids.forEach(asteroid => {
+          const initial = new Vector(0,1)
+          const rotation = Math.PI*2 / asteroid.distances.length
+          const polygon = asteroid.distances.map((dist,i) => asteroid.position.toScreen().add(initial.rotate(i*rotation).scale(dist)))
+          drawPolygon(polygon, 'white')
+        })
+      }
+
+      function drawThrust() {
+        const playerScreenPosition = playerPosition.toScreen()
+        const bl = backLeft(playerScreenPosition)
+        const br = backRight(playerScreenPosition)
+        const mid = bl.add(br).scale(0.5)
+        const triangle1 = [
+          bl,
+          mid,
+          bl.add(mid).scale(0.5).add(playerHeading.scale(-0.5 * playerLength))
+        ]
+        const triangle2 = [
+          br,
+          mid,
+          br.add(mid).scale(0.5).add(playerHeading.scale(-0.5 * playerLength))
+        ]
+        drawPolygon(triangle1, 'orange')
+        drawPolygon(triangle2, 'orange')
+      }
+
+
+
+      let thrusting = false
+      let rotation = 0
+      let previousTime = 0
+      let thrust = 300
+      let playerDead = false
+      let playerDeathAnimationTime = 0
+
+      const drawDeathAnimation = () => {
+        drawCircle(playerPosition.toScreen(), playerDeathAnimationTime * 50, 'orange')
+      }
+
+      const draw = () => {
+        context.clearRect(0,0,width,height)
+        drawStars()
+        drawAsteroids()
+        if (!playerDead) {
+          drawShip()
+          if (thrusting)
+            drawThrust()
+        } else {
+          drawDeathAnimation()
+        }
+      }
+            
+      const update = (time) => {
+          let dt = (time - previousTime) / 1000
+          previousTime = time
+          if (dt > 0.1) {
+            dt = 0.1
+          }
+          playerHeading = playerHeading.rotate(Math.PI * dt * rotation)
+          if (thrusting && !playerDead) {
+              playerMovementVector = playerMovementVector.add(playerHeading.scale(thrust * dt))
+              gainNode.gain.value = Math.min(maxGain, gainNode.gain.value + gainChangeRate * dt)
+          } else {
+              gainNode.gain.value = Math.max(gainNode.gain.value - gainChangeRate * dt, 0)
+          }
+          playerPosition = playerPosition.add(playerMovementVector.scale(dt))
+          if (!playerDead)
+            playerPosition = playerPosition.wrap()
+
+          if (playerDead) {
+            playerDeathAnimationTime += dt
+          }
+          asteroids.forEach(asteroid => asteroid.update(dt))
+          asteroids.forEach(asteroid => {
+            if (asteroid.position.dist(playerPosition) < asteroid.size + playerLength) {
+              playerDead = true
+            }
+          })
+          draw()
+          window.requestAnimationFrame(update)
+      }
+
+      window.requestAnimationFrame(update)
+      window.onkeydown = (e) => {
+        switch(e.key) {
+          case 'ArrowUp':
+            thrusting = true
+            break
+          case 'ArrowLeft':
+            rotation = -1
+            break
+          case 'ArrowRight':
+            rotation = 1
+            break          
+        }
+      }
+      window.onkeyup = (e) => {
+        switch(e.key) {
+          case 'ArrowUp':
+            thrusting = false
+            break
+          case 'ArrowLeft':
+          case 'ArrowRight':
+            rotation = 0
+            break
+        }
+      }
+
+          let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var gainNode = audioCtx.createGain();
+
+
+
+    var bufferSize = 4096;
+    var pinkNoise = (function() {
+        var b0, b1, b2, b3, b4, b5, b6;
+        b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+        var node = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+        node.onaudioprocess = function(e) {
+            var output = e.outputBuffer.getChannelData(0);
+            for (var i = 0; i < bufferSize; i++) {
+                var white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                output[i] *= 0.11; // (roughly) compensate for gain
+                b6 = white * 0.115926;
+            }
+        }
+        return node;
+    })();
+
+    var lowpass = audioCtx.createBiquadFilter()
+    lowpass.type = 'lowpass'
+    lowpass.frequency.value = 500
+    lowpass.Q.value = 10
+
+    pinkNoise.connect(lowpass);
+
+    gainNode.gain.value = 0
+    lowpass.connect(gainNode)
+    gainNode.connect(audioCtx.destination);
+
+    </script>
+  
+</html>
