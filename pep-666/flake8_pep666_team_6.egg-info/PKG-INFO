@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: flake8-pep666-team-6
+Version: 0.1.0
+Summary: our extension to flake8
+Home-page: https://gitlab.com/me/flake8_example
+Author: Team 6
+Author-email: example@example.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Framework :: Flake8
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Software Development :: Quality Assurance
