@@ -1,0 +1,19 @@
+{
+    "version": "1.1.0",
+    "summary": "Provides quick access to the frameworks you want to grab from a CDN.",
+    "repository": "https://github.com/krisajenkins/elm-cdn.git",
+    "license": "BSD3",
+    "source-directories": [
+        "src",
+        "test"
+    ],
+    "exposed-modules": [
+        "CDN"
+    ],
+    "dependencies": {
+        "elm-community/elm-test": "1.1.0 <= v < 2.0.0",
+        "elm-lang/core": "4.0.0 <= v < 5.0.0",
+        "elm-lang/html": "1.0.0 <= v < 2.0.0"
+    },
+    "elm-version": "0.17.0 <= v < 0.18.0"
+}

@@ -1,0 +1,447 @@
+{
+    "items": [
+        {
+            "name": "magnet",
+            "description": "A strong magnet",
+            "gfx": "C",
+            "available": true
+        },
+        {
+            "name": "otter in a box",
+            "description": "The otter is quietly sitting in the box.",
+            "gfx": "o]",
+            "available": false
+        },
+        {
+            "name": "cat in a shoe",
+            "description": "No explanation necessary.",
+            "gfx": "od",
+            "available": false
+        },
+        {
+            "name": "pancake",
+            "description": "Someone has taken a bite from it.",
+            "gfx": "O",
+            "available": true
+        },
+        {
+            "name": "duck",
+            "description": "It looks at you and quacks happily.",
+            "gfx": "o<",
+            "available": true
+        },
+        {
+            "name": "stick",
+            "description": "A pointy stick.",
+            "gfx": "--",
+            "available": true
+        },
+        {
+            "name": "pancake on a stick",
+            "description": "The pancake now has a stick pointing out of it.",
+            "gfx": "O-",
+            "available": false
+        },
+        {
+            "name": "battle duck",
+            "description": "A very deadly duck.",
+            "gfx": "@-",
+            "available": false
+        },
+        {
+            "name": "old shoe",
+            "description": "It is missing the shoelace.",
+            "gfx": "=",
+            "available": true
+        },
+        {
+            "name": "cardboard box",
+            "description": "A sturdy box made of thick cardboard.",
+            "gfx": "[]",
+            "available": true
+        },
+        {
+            "name": "battle duck on a box",
+            "description": "The battle duck is now on a box. It's effectiveness is doubled by the higher ground.",
+            "gfx": "[O",
+            "available": false
+        },
+        {
+            "name": "chewing gum",
+            "description": "A large wad of very sticky gum.",
+            "gfx": "q",
+            "available": true
+        },
+        {
+            "name": "cat",
+            "description": "Meow.",
+            "gfx": ":3",
+            "available": true
+        },
+        {
+            "name": "cat in a box",
+            "description": "How this gets you any closer to finding a way out of here, nobody knows.",
+            "gfx": ":]",
+            "available": false
+        },
+        {
+            "name": "pipe",
+            "description": "A sturdy pipe, which is slightly dented in the middle.",
+            "gfx": "==",
+            "available": true
+        },
+        {
+            "name": "cookie",
+            "description": "A sticky chocolate chip cookie.",
+            "gfx": "&",
+            "available": true
+        },
+        {
+            "name": "pipe with cookie stuck inside",
+            "description": "Dammit, you cannot get the cookie out.",
+            "gfx": "=@",
+            "available": false
+        },
+        {
+            "name": "pipe with cookie and chewing gum stuck inside",
+            "description": "Dammit, you cannot get the chewing gum out either.",
+            "gfx": "=&",
+            "available": false
+        },
+        {
+            "name": "handheld teleporter",
+            "description": "Looks like it will work, but it has no power source.",
+            "gfx": "P=",
+            "available": true
+        },
+        {
+            "name": "potted plant",
+            "description": "The flowers are wilting.",
+            "gfx": "C3",
+            "available": true
+        },
+        {
+            "name": "empty pistol",
+            "description": "A pistol with no ammo.",
+            "gfx": "/=",
+            "available": true
+        },
+        {
+            "name": "empty rocket launcher",
+            "description": "Looks like it can pack a punch. Unfortunately, no rockets.",
+            "gfx": ">=",
+            "available": true
+        },
+        {
+            "name": "flower",
+            "description": "A red flower with a petal missing.",
+            "gfx": "%",
+            "available": true
+        },
+        {
+            "name": "shoe and gum",
+            "description": "An old shoe with gum stuck to the sole.",
+            "gfx": "d*",
+            "available": false
+        },
+        {
+            "name": "sticky plant",
+            "description": "The chewing gum has made this plant sticky.",
+            "gfx": "D*",
+            "available": false
+        },
+        {
+            "name": "key stuck in chewing gum",
+            "description": "A key lodged in some sticky chewing gum.",
+            "gfx": "*-",
+            "available": false
+        },
+        {
+            "name": "key",
+            "description": "A shiny key.",
+            "gfx": "4",
+            "available": true
+        },
+        {
+            "name": "empty rocket pistol",
+            "description": "A very impractical combination of two weapons.",
+            "gfx": "4",
+            "available": false
+        },
+        {
+            "name": "otter",
+            "description": "A small furry otter.",
+            "gfx": "3",
+            "available": true
+        },
+        {
+            "name": "wire",
+            "description": "A long length of copper wire",
+            "gfx": "--",
+            "available": true
+        },
+        {
+            "name": "wire wrapped key",
+            "description": "A key wrapped in copper wire",
+            "gfx": "@@",
+            "available": false
+        },
+        {
+            "name": "wire wrapped teleporter",
+            "description": "A handheld teleporter wrapped in copper wire",
+            "gfx": "/@",
+            "available": false
+        },
+        {
+            "name": "wire wrapped pipe",
+            "description": "A pipe wrapped in copper wire",
+            "gfx": "S=",
+            "available": false
+        },
+        {
+            "name": "makeshift power source",
+            "description": "A pipe wrapped in copper wire with a magnet inside",
+            "gfx": "@=",
+            "available": false
+        },
+        {
+            "name": "sticky makeshift power source",
+            "description": "A pipe wrapped in copper wire with a magnet inside. Both ends of the wire are covered in gum.",
+            "gfx": "*=",
+            "available": false
+        },
+        {
+            "name": "powered handheld teleporter",
+            "description": "The teleporter buzzes with activity, as you shake the pipe while covering both ends with your hands.",
+            "gfx": "x=",
+            "available": false
+        },
+        {
+            "name": "handheld teleporter manual",
+            "description": "Most of the pages are missing. You can only half read one line: ..not use tel port r    self..",
+            "gfx": "R",
+            "available": false
+        }
+    ],
+
+    "combinations": [
+        {
+            "items": ["sticky makeshift power source", "handheld teleporter"],
+            "product": "powered handheld teleporter"
+        },
+        {
+            "items": ["makeshift power source", "chewing gum"],
+            "product": "sticky makeshift power source"
+        },
+        {
+            "items": ["wire wrapped pipe", "magnet"],
+            "product": "makeshift power source"
+        },
+        {
+            "items": ["wire", "pipe"],
+            "product": "wire wrapped pipe"
+        },
+        {
+            "items": ["otter", "cardboard box"],
+            "product": "otter in a box"
+        },
+        {
+            "items": ["cat", "old shoe"],
+            "product": "cat in a shoe"
+        },
+        {
+            "items": ["pancake", "stick"],
+            "product": "pancake on a stick"
+        },
+        {
+            "items": ["pancake on a stick", "duck"],
+            "product": "battle duck"
+        },
+        {
+            "items": ["battle duck", "box"],
+            "product": "battle duck on a box"
+        },
+        {
+            "items": ["cat", "box"],
+            "product": "cat in a box"
+        },
+        {
+            "items": ["cookie", "pipe"],
+            "product": "pipe with cookie stuck inside"
+        },
+        {
+            "items": ["pipe with cookie stuck inside", "pipe"],
+            "product": "pipe with cookie and chewing gum stuck inside"
+        },
+        {
+            "items": ["chewing gum", "old shoe"],
+            "product": "shoe and gum"
+        },
+        {
+            "items": ["chewing gum", "potted plant"],
+            "product": "sticky plant"
+        },
+        {
+            "items": ["key", "chewing gum"],
+            "product": "key stuck in chewing gum"
+        },
+        {
+            "items": ["empty rocket launcher", "empty pistol"],
+            "product": "empty rocket pistol"
+        },
+        {
+            "items": ["wire", "key"],
+            "product": "wire wrapped key"
+        },
+        {
+            "items": ["wire", "handheld teleporter"],
+            "product": "wire wrapped teleporter"
+        }
+    ],
+
+    "interactions": [
+
+        {
+            "items": ["handheld teleporter", "me"],
+            "message": "You aim the device at yourself, but it has no power, so nothing happens."
+        },
+        {
+            "items": ["key", "door"],
+            "message": "The key does not fit. Looks like it isn't going to be this easy."
+        },
+        {
+            "items": ["flower", "door"],
+            "message": "You viciously attack the door with the flower. The flower is completely destroyed. Time for a better weapon.",
+            "remove": "flower"
+        },
+        {
+            "items": ["empty rocket launcher", "door"],
+            "message": "You throw the weapon at the door. The rocket launcher falls to the floor with a loud clang."
+        },
+        {
+            "items": ["empty pistol", "door"],
+            "message": "You chip away at the door with the end of your pistol. It barely leaves a dent."
+        },
+        {
+            "items": ["duck", "door"],
+            "message": "You place the duck next to the door, but it just sits there and does nothing."
+        },
+        {
+            "items": ["battle duck", "door"],
+            "message": "Your battle duck rams the stick against the door. Unfortunately it has no effect."
+        },
+        {
+            "items": ["old shoe", "door"],
+            "message": "You bash the old shoe against the door, but it doesn't budge."
+        },
+        {
+            "items": ["pancake", "door"],
+            "message": "You throw the pancake at the door. It sticks onto the side for a few seconds before falling off."
+        },
+        {
+            "items": ["stick", "door"],
+            "message": "You prod the door with the stick. The door remains firmly shut."
+        },
+        {
+            "items": ["pancake on a stick", "door"],
+            "message": "You attempt to attach the pancake on a stick to the side of the door. It sticks for a few seconds before falling off."
+        },
+        {
+            "items": ["cardboard box", "door"],
+            "message": "You slam the box against the door. It doesn't move."
+        },
+        {
+            "items": ["pipe", "door"],
+            "message": "You hit the door several times with the pipe. The door is too strong."
+        },
+        {
+            "items": ["cookie", "door"],
+            "message": "Your attempt at prying the door open with the cookie ends in failure. There is nothing left of your cookie apart from many small crumbs.",
+            "remove": "cookie"
+        },
+        {
+            "items": ["pipe with cookie stuck inside", "door"],
+            "message": "You smash the pipe against the door. The door remains shut and the cookie remains stuck."
+        },
+        {
+            "items": ["pipe with cookie and chewing gum stuck inside", "door"],
+            "message": "The pipe does not open the door. The cookie and chewing gum is still stuck inside."
+        },
+        {
+            "items": ["handheld teleporter", "door"],
+            "message": "You try to pry the door open with the teleporter. The door doesn't move."
+        },
+        {
+            "items": ["potted plant", "door"],
+            "message": "You throw the potted plant into the door. The pot breaks, leaving a mess on the floor.",
+            "remove": "potted plant"
+        },
+        {
+            "items": ["duck", "old shoe"],
+            "message": "You place the duck on the shoe. It gives you a puzzled look before stepping off the shoe."
+        },
+        {
+            "items": ["duck", "stick"],
+            "message": "You don't feel desperate enough to jam a stick into the duck yet."
+        },
+        {
+            "items": ["otter", "stick"],
+            "message": "You don't feel desperate enough to jam a stick into the otter yet."
+        },
+        {
+            "items": ["box", "stick"],
+            "message": "You beat out a drum beat on the box."
+        },
+        {
+            "items": ["cat", "door"],
+            "message": "You place the cat next to the door. It does not help."
+        },
+        {
+            "items": ["cat", "handheld teleporter"],
+            "message": "You can't find a way to connect the cat to the teleporter."
+        },
+        {
+            "items": ["duck", "handheld teleporter"],
+            "message": "You can't find a way to connect the duck to the teleporter."
+        },
+        {
+            "items": ["duck", "cookie"],
+            "message": "The duck eats your cookie.",
+            "remove": "cookie"
+        },
+        {
+            "items": ["otter", "cookie"],
+            "message": "The otter eats your cookie.",
+            "remove": "cookie"
+        },
+        {
+            "items": ["cat", "cookie"],
+            "message": "Your attempt at feeding the cookie to the cat has failed."
+        },
+        {
+            "items": ["otter", "door"],
+            "message": "Your otter makes no attempts at opening the door."
+        },
+        {
+            "items": ["cat in a shoe", "door"],
+            "message": "Not even a cat in a shoe can open this door."
+        },
+        {
+            "items": ["otter in a box", "door"],
+            "message": "Placing the otter next to the door has no effect."
+        },
+        {
+            "items": ["makeshift power source", "handheld teleporter"],
+            "message": "There is nothing to hold the copper wire to the teleporter power terminals."
+        },
+        {
+            "items": ["powered handheld teleporter", "door"],
+            "message": "You aim at the door and teleport it away."
+        },
+        {
+            "items": ["powered handheld teleporter", "me"],
+            "message": "The teleporter starts to smoke before teleporting itself away.",
+            "remove": "powered handheld teleporter"
+        }
+    ]
+}

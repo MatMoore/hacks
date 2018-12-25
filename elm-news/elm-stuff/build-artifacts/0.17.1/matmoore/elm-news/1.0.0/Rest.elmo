@@ -1,0 +1,17 @@
+var _matmoore$elm_news$Rest$decodeNewsItem = A2(
+	_elm_lang$core$Json_Decode$object1,
+	_matmoore$elm_news$Types$News,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string));
+var _matmoore$elm_news$Rest$decodeNews = A2(
+	_elm_lang$core$Json_Decode_ops[':='],
+	'hits',
+	_elm_lang$core$Json_Decode$list(_matmoore$elm_news$Rest$decodeNewsItem));
+var _matmoore$elm_news$Rest$endpoint = 'https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=50';
+var _matmoore$elm_news$Rest$getNews = A2(
+	_elm_lang$core$Platform_Cmd$map,
+	_matmoore$elm_news$Types$GetNewsResponse,
+	A3(
+		_elm_lang$core$Task$perform,
+		_matmoore$elm_news$Types$Failed,
+		_matmoore$elm_news$Types$Succeed,
+		A2(_evancz$elm_http$Http$get, _matmoore$elm_news$Rest$decodeNews, _matmoore$elm_news$Rest$endpoint)));
