@@ -1,7 +1,7 @@
 Grid demo
 =========
 
-https://matmoore.github.io/Grid-demo/
+https://matmoore.github.io/hacks/grid-demo/
 
 Experiment with generating projections of 2D grids using two point perspective.
 

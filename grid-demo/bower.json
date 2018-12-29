@@ -1,8 +1,0 @@
-{
-  "name": "grid",
-  "version": "0.0.1",
-  "private": true,
-  "dependencies": {
-    "raphael": "~2.1.2"
-  }
-}
